@@ -168,9 +168,34 @@ img { max-width: 100%; display: block; }
 .site section { padding: var(--section-y) 0; }
 
 /* === Header / Nav === */
-.site-header {
+.topbar {
+  background: #1565C0;
+  height: 40px;
   position: sticky;
   top: 0;
+  z-index: 51;
+}
+.topbar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 40px;
+  gap: 24px;
+}
+.topbar__nav a {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.topbar__nav a:hover,
+.topbar__nav a.active { color: #fff; }
+
+.site-header {
+  position: sticky;
+  top: 40px;
   z-index: 50;
   background: color-mix(in oklab, var(--bg) 92%, transparent);
   backdrop-filter: saturate(160%) blur(14px);

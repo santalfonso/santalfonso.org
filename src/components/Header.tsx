@@ -15,6 +15,9 @@ const parrocchiaItems = [
 const menuItems = [
   { href: "/news", label: "News" },
   { href: "/risorse", label: "Risorse" },
+];
+
+const topbarItems = [
   { href: "/dove-siamo", label: "Dove siamo" },
   { href: "/contatti", label: "Contatti" },
 ];
@@ -76,6 +79,22 @@ export default function Header() {
   const inParrocchia = pathname.startsWith("/parrocchia");
 
   return (
+    <>
+    <div className="topbar">
+      <div className="container">
+        <nav className="topbar__nav">
+          {topbarItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={pathname === item.href ? "active" : ""}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </div>
     <header className="site-header">
       <div className="container">
         <div className="site-header__bar">
@@ -171,8 +190,14 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          {topbarItems.map((item) => (
+            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+              {item.label}
+            </Link>
+          ))}
         </nav>
       )}
     </header>
+    </>
   );
 }
