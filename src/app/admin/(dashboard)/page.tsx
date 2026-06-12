@@ -90,21 +90,23 @@ export default async function AdminDashboard() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Testo avviso</th>
-                  <th>Aggiunto il</th>
-                  <th className="right">Rimuovi</th>
+                  <th style={{ width: 160 }}>Titolo</th>
+                  <th>Testo</th>
+                  <th style={{ width: 130 }}>Aggiunto il</th>
+                  <th className="right" style={{ width: 90 }}>Rimuovi</th>
                 </tr>
               </thead>
               <tbody>
                 {avvisi.map((a) => (
                   <tr key={a.id}>
-                    <td style={{ fontWeight: 500 }}>{a.text}</td>
+                    <td style={{ fontWeight: 600 }}>{a.title || <em style={{ color: "var(--ink-mute)", fontWeight: 400 }}>—</em>}</td>
+                    <td className="mute">{a.text}</td>
                     <td className="mute">{formatDate(a.createdAt)}</td>
                     <td className="right">
                       <DeleteButton
                         action={deleteAnnouncement.bind(null, a.id)}
                         label="Rimuovi"
-                        confirmMessage={`Rimuovere l'avviso "${a.text}"?`}
+                        confirmMessage={`Rimuovere l'avviso "${a.title || a.text}"?`}
                       />
                     </td>
                   </tr>

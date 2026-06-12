@@ -266,19 +266,29 @@ export default async function HomePage() {
       {activeAnnouncements.length > 0 && (
         <section className="avvisi-section">
           <div className="container">
-            <div className="avvisi-header">
-              <div className="avvisi-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFC107" aria-hidden="true">
-                  <path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z" />
+            <div className="avvisi-head">
+              <div className="avvisi-head__badge" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFC107">
+                  <path d="M12 2 2 20h20L12 2zm0 4 7.5 12h-15L12 6zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/>
                 </svg>
               </div>
-              <h2 className="avvisi-title">Avvisi importanti</h2>
+              <div>
+                <span className="avvisi-head__kicker">Comunicazioni</span>
+                <h2 className="avvisi-head__title">Avvisi importanti</h2>
+              </div>
             </div>
-            <div className="avvisi-list">
+            <div className="avvisi-grid">
               {activeAnnouncements.map((a) => (
-                <div key={a.id} className="avvisi-item">
-                  <span className="avvisi-item__dot" aria-hidden="true" />
-                  <p className="avvisi-item__text">{a.text}</p>
+                <div key={a.id} className="avvisi-card">
+                  <div className="avvisi-card__header">
+                    <div className="avvisi-card__icon" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFC107">
+                        <path d="M12 2 2 20h20L12 2zm0 4 7.5 12h-15L12 6zM11 11v4h2v-4h-2zm0 5v2h2v-2h-2z"/>
+                      </svg>
+                    </div>
+                    <h3 className="avvisi-card__title">{a.title}</h3>
+                  </div>
+                  <p className="avvisi-card__text">{a.text}</p>
                 </div>
               ))}
             </div>

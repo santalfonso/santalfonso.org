@@ -18,10 +18,15 @@ export async function createAnnouncement(
     return { error: "Non autorizzato." };
   }
 
+  const title = (formData.get("title") as string).trim();
   const text = (formData.get("text") as string).trim();
-  if (!text) return { error: "Il testo dell'avviso non può essere vuoto." };
 
-  await db.insert(announcements).values({ text });
+  if (!title) return { error: "Il titolo è obbligatorio." };
+  if (title.length > 30) return { error: "Il titolo non può superare 30 caratteri." };
+  if (!text) return { error: "Il testo è obbligatorio." };
+  if (text.length > 300) return { error: "Il testo non può superare 300 caratteri." };
+
+  await db.insert(announcements).values({ title, text });
 
   revalidatePath("/admin");
   revalidatePath("/");

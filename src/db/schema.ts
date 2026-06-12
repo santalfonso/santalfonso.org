@@ -66,6 +66,7 @@ export const settings = sqliteTable("settings", {
 
 export const announcements = sqliteTable("announcements", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull().default(""),
   text: text("text").notNull(),
   createdAt: text("created_at")
     .notNull()
