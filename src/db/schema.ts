@@ -56,7 +56,16 @@ export const resources = sqliteTable("resources", {
     .default(sql`(datetime('now'))`),
 });
 
+export const settings = sqliteTable("settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: text("updated_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
 export type User = typeof users.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type Resource = typeof resources.$inferSelect;
+export type Setting = typeof settings.$inferSelect;

@@ -10,6 +10,11 @@ const navItems = [
   { href: "/admin/risorse", label: "Risorse" },
 ];
 
+const adminOnlyItems = [
+  { href: "/admin/utenti", label: "Utenti" },
+  { href: "/admin/configurazioni", label: "Configurazioni" },
+];
+
 export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
 
@@ -29,14 +34,16 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
           {item.label}
         </Link>
       ))}
-      {isAdmin && (
-        <Link
-          href="/admin/utenti"
-          className={`admin-nav-link${isActive("/admin/utenti") ? " active" : ""}`}
-        >
-          Utenti
-        </Link>
-      )}
+      {isAdmin &&
+        adminOnlyItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`admin-nav-link${isActive(item.href) ? " active" : ""}`}
+          >
+            {item.label}
+          </Link>
+        ))}
     </nav>
   );
 }
