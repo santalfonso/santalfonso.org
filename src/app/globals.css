@@ -206,9 +206,10 @@ img { max-width: 100%; display: block; }
   letter-spacing: -0.02em;
 }
 .brand__logo {
-  height: 36px;
+  height: 70px;
   width: auto;
   display: block;
+  object-fit: contain;
 }
 
 .nav {
