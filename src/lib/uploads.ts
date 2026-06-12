@@ -1,0 +1,28 @@
+import { v2 as cloudinary } from "cloudinary";
+import { put } from "@vercel/blob";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+/** Carica un'immagine su Cloudinary e restituisce l'URL pubblico. */
+export async function uploadImage(file: File): Promise<string> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: "santalfonso",
+    resource_type: "image",
+  });
+  return result.secure_url;
+}
+
+/** Carica un file (PDF, ecc.) su Vercel Blob e restituisce l'URL pubblico. */
+export async function uploadFile(file: File): Promise<string> {
+  const blob = await put(`risorse/${file.name}`, file, {
+    access: "public",
+    addRandomSuffix: true,
+  });
+  return blob.url;
+}

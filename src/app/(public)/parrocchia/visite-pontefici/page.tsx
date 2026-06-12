@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import PageTitle from "@/components/PageTitle";
+
+export const metadata: Metadata = { title: "Visite pontefici" };
+
+export default function VisitePonteficiPage() {
+  return (
+    <>
+      <PageTitle
+        title="Visite dei pontefici"
+        subtitle="Un dono di Dio alla nostra comunità"
+      />
+      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+        <p>
+          La parrocchia Sant&apos;Alfonso Maria de&apos; Liguori ha ricevuto il
+          privilegio di accogliere due pontefici.
+        </p>
+        <h2>San Giovanni Paolo II — 4 febbraio 2001</h2>
+        <p>
+          San Giovanni Paolo II effettuò una visita pastorale il 4 febbraio
+          2001, in un momento storico significativo caratterizzato da numerosi
+          eventi importanti per la comunità.
+        </p>
+        <h2>Papa Francesco — 6 gennaio 2014</h2>
+        <p>
+          Papa Francesco si recò in «visita privata» il 6 gennaio 2014 per
+          ammirare il presepe vivente allestito dalla parrocchia in occasione
+          dell&apos;Epifania.
+        </p>
+      </article>
+    </>
+  );
+}

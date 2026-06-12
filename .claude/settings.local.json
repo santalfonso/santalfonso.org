@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:www.santalfonso.org)",
-      "Bash(npx -y create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --yes)"
+      "Bash(npx -y create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --yes)",
+      "Bash(npm install *)",
+      "Bash(perl -i -pe 's/\\\\.replace\\\\\\(\\\\/\\\\[.*?\\\\]\\\\/g, \"\"\\\\\\)/.replace\\(\\\\/[\\\\\\\\u0300-\\\\\\\\u036f]\\\\/g, \"\"\\)/ if $. == 5' src/lib/utils.ts)",
+      "Bash(sed -n '1,10p' src/lib/utils.ts)",
+      "Bash(npm run *)",
+      "Bash(node -e ' *)",
+      "Bash(tail -30 /tmp/santalfonso-server.log)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(xargs kill -9)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
