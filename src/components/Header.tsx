@@ -80,8 +80,11 @@ export default function Header() {
       <div className="container">
         <div className="site-header__bar">
           <Link href="/" className="brand">
-            <span className="brand__mark">A</span>
-            <span>Sant&apos;Alfonso</span>
+            <img
+              src={theme === "dark" ? "/logo-dark.avif" : "/logo-light.avif"}
+              alt="Sant'Alfonso"
+              className="brand__logo"
+            />
           </Link>
 
           <nav className="nav">
