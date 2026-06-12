@@ -15,64 +15,50 @@ export default async function AdminArticoliPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-stone-800">Articoli</h1>
-        <Link
-          href="/admin/articoli/nuovo"
-          className="rounded bg-amber-800 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-900"
-        >
+      <div className="admin-page-head">
+        <h1>Articoli</h1>
+        <Link href="/admin/articoli/nuovo" className="admin-btn admin-btn-primary">
           + Nuovo articolo
         </Link>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-stone-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b bg-stone-50 text-stone-500">
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3">Titolo</th>
-              <th className="px-4 py-3">Stato</th>
-              <th className="px-4 py-3">Pubblicato il</th>
-              <th className="px-4 py-3 text-right">Azioni</th>
+              <th>Titolo</th>
+              <th>Stato</th>
+              <th>Data</th>
+              <th className="right">Azioni</th>
             </tr>
           </thead>
           <tbody>
             {list.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-stone-400">
-                  Nessun articolo. Creane uno con “Nuovo articolo”.
+                <td colSpan={4} className="admin-table-empty">
+                  Nessun articolo. Creane uno con &ldquo;Nuovo articolo&rdquo;.
                 </td>
               </tr>
             )}
             {list.map((article) => (
-              <tr key={article.id} className="border-b last:border-0">
-                <td className="px-4 py-3 font-medium text-stone-800">
-                  {article.title}
-                </td>
-                <td className="px-4 py-3">
+              <tr key={article.id}>
+                <td style={{ fontWeight: 600 }}>{article.title}</td>
+                <td>
                   {article.published ? (
-                    <span className="rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-                      Pubblicato
-                    </span>
+                    <span className="admin-badge admin-badge-pub">Pubblicato</span>
                   ) : (
-                    <span className="rounded bg-stone-100 px-2 py-1 text-xs font-semibold text-stone-500">
-                      Bozza
-                    </span>
+                    <span className="admin-badge admin-badge-draft">Bozza</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-stone-500">
-                  {formatDate(article.publishedAt)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex justify-end gap-4">
-                    <Link
-                      href={`/admin/articoli/${article.id}`}
-                      className="text-sm font-medium text-amber-700 hover:underline"
-                    >
+                <td className="mute">{formatDate(article.publishedAt)}</td>
+                <td className="right">
+                  <div className="admin-table-actions">
+                    <Link href={`/admin/articoli/${article.id}`} className="admin-link">
                       Modifica
                     </Link>
                     <DeleteButton
                       action={deleteArticle.bind(null, article.id)}
-                      confirmMessage={`Eliminare l'articolo “${article.title}”?`}
+                      confirmMessage={`Eliminare l'articolo "${article.title}"?`}
                     />
                   </div>
                 </td>

@@ -16,49 +16,51 @@ export default async function AdminUtentiPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-stone-800">Utenti</h1>
-        <Link
-          href="/admin/utenti/nuovo"
-          className="rounded bg-amber-800 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-900"
-        >
+      <div className="admin-page-head">
+        <h1>Utenti</h1>
+        <Link href="/admin/utenti/nuovo" className="admin-btn admin-btn-primary">
           + Nuovo utente
         </Link>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-stone-200 bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b bg-stone-50 text-stone-500">
+      <div className="admin-table-wrap">
+        <table className="admin-table">
+          <thead>
             <tr>
-              <th className="px-4 py-3">Nome</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Ruolo</th>
-              <th className="px-4 py-3">Creato il</th>
-              <th className="px-4 py-3 text-right">Azioni</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Ruolo</th>
+              <th>Creato il</th>
+              <th className="right">Azioni</th>
             </tr>
           </thead>
           <tbody>
             {list.map((user) => (
-              <tr key={user.id} className="border-b last:border-0">
-                <td className="px-4 py-3 font-medium text-stone-800">
-                  {user.name}
-                </td>
-                <td className="px-4 py-3 text-stone-500">{user.email}</td>
-                <td className="px-4 py-3">
+              <tr key={user.id}>
+                <td style={{ fontWeight: 600 }}>{user.name}</td>
+                <td className="mute">{user.email}</td>
+                <td>
                   <span
-                    className={`rounded px-2 py-1 text-xs font-semibold ${
+                    className="admin-badge"
+                    style={
                       user.role === "admin"
-                        ? "bg-amber-100 text-amber-800"
-                        : "bg-stone-100 text-stone-600"
-                    }`}
+                        ? {
+                            background: "var(--gold-soft)",
+                            color: "var(--gold-deep)",
+                            border: "1px solid var(--gold)",
+                          }
+                        : {
+                            background: "var(--bg-soft)",
+                            color: "var(--ink-mute)",
+                            border: "1px solid var(--rule)",
+                          }
+                    }
                   >
                     {user.role}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-stone-500">
-                  {formatDate(user.createdAt)}
-                </td>
-                <td className="px-4 py-3 text-right">
+                <td className="mute">{formatDate(user.createdAt)}</td>
+                <td className="right">
                   {String(user.id) !== session.user.id && (
                     <DeleteButton
                       action={deleteUser.bind(null, user.id)}

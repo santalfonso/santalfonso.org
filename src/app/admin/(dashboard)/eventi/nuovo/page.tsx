@@ -1,10 +1,14 @@
+import Link from "next/link";
 import { createEvent } from "@/actions/events";
 import EventForm from "@/components/admin/EventForm";
 
 export default function NuovoEventoPage() {
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-stone-800">Nuovo evento</h1>
+      <Link href="/admin/eventi" className="admin-back">← Eventi</Link>
+      <div className="admin-page-head">
+        <h1>Nuovo evento</h1>
+      </div>
       <EventForm action={createEvent} />
     </>
   );

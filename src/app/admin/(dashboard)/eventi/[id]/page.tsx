@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { updateEvent } from "@/actions/events";
@@ -23,7 +24,10 @@ export default async function ModificaEventoPage({
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-stone-800">Modifica evento</h1>
+      <Link href="/admin/eventi" className="admin-back">← Eventi</Link>
+      <div className="admin-page-head">
+        <h1>Modifica evento</h1>
+      </div>
       <EventForm action={updateEvent.bind(null, eventId)} event={event} />
     </>
   );

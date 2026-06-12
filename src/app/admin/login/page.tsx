@@ -8,59 +8,117 @@ export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, undefined);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-100 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
-        <h1 className="text-center text-2xl font-bold text-amber-900">
-          Area riservata
-        </h1>
-        <p className="mt-1 text-center text-sm text-stone-500">
-          Parrocchia Sant&apos;Alfonso Maria de&apos; Liguori
-        </p>
-        <form action={formAction} className="mt-8 space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-stone-700">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              className="w-full rounded border border-stone-300 px-3 py-2 focus:border-amber-600 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-stone-700">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="w-full rounded border border-stone-300 px-3 py-2 focus:border-amber-600 focus:outline-none"
-            />
-          </div>
-          {state?.error && (
-            <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
-              {state.error}
+    <div
+      className="admin"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "24px",
+      }}
+    >
+      <div
+        className="admin-card"
+        style={{ width: "100%", maxWidth: 440 }}
+      >
+        <div className="admin-card-body">
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                background: "var(--ink)",
+                borderRadius: "var(--r-sm)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 20px",
+              }}
+            >
+              <span
+                style={{
+                  color: "var(--gold)",
+                  fontWeight: 800,
+                  fontSize: 22,
+                  fontFamily: "var(--sans)",
+                }}
+              >
+                A
+              </span>
+            </div>
+            <h1
+              style={{
+                fontSize: 22,
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+                color: "var(--ink)",
+                margin: 0,
+              }}
+            >
+              Area riservata
+            </h1>
+            <p
+              style={{
+                marginTop: 6,
+                fontSize: 14,
+                color: "var(--ink-mute)",
+              }}
+            >
+              Parrocchia Sant&apos;Alfonso Maria de&apos; Liguori
             </p>
-          )}
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded bg-amber-800 py-2 font-semibold text-white hover:bg-amber-900 disabled:opacity-50"
-          >
-            {pending ? "Accesso in corso…" : "Accedi"}
-          </button>
-        </form>
-        <p className="mt-6 text-center text-sm">
-          <Link href="/" className="text-amber-700 hover:underline">
-            ← Torna al sito
-          </Link>
-        </p>
+          </div>
+
+          <form action={formAction}>
+            <div className="admin-form-row">
+              <label htmlFor="email" className="admin-label">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                className="admin-input"
+              />
+            </div>
+            <div className="admin-form-row">
+              <label htmlFor="password" className="admin-label">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                autoComplete="current-password"
+                className="admin-input"
+              />
+            </div>
+
+            {state?.error && (
+              <div className="admin-error" style={{ marginBottom: 16 }}>
+                {state.error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={pending}
+              className="admin-btn admin-btn-primary"
+              style={{ width: "100%", justifyContent: "center" }}
+            >
+              {pending ? "Accesso in corso…" : "Accedi"}
+            </button>
+          </form>
+
+          <p style={{ marginTop: 24, textAlign: "center", fontSize: 13 }}>
+            <Link href="/" className="admin-header-link" style={{ color: "var(--ink-mute)" }}>
+              ← Torna al sito
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

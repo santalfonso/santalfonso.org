@@ -1,10 +1,14 @@
+import Link from "next/link";
 import { createArticle } from "@/actions/articles";
 import ArticleForm from "@/components/admin/ArticleForm";
 
 export default function NuovoArticoloPage() {
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-stone-800">Nuovo articolo</h1>
+      <Link href="/admin/articoli" className="admin-back">← Articoli</Link>
+      <div className="admin-page-head">
+        <h1>Nuovo articolo</h1>
+      </div>
       <ArticleForm action={createArticle} />
     </>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { updateArticle } from "@/actions/articles";
@@ -23,9 +24,10 @@ export default async function ModificaArticoloPage({
 
   return (
     <>
-      <h1 className="mb-6 text-2xl font-bold text-stone-800">
-        Modifica articolo
-      </h1>
+      <Link href="/admin/articoli" className="admin-back">← Articoli</Link>
+      <div className="admin-page-head">
+        <h1>Modifica articolo</h1>
+      </div>
       <ArticleForm action={updateArticle.bind(null, articleId)} article={article} />
     </>
   );
