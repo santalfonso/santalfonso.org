@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
-import { articles, events } from "@/db/schema";
+import { articles, events, announcements } from "@/db/schema";
 import {
   formatDate,
   formatDayNumber,
@@ -33,7 +33,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export default async function HomePage() {
-  const [latestArticles, upcomingEvents] = await Promise.all([
+  const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
     db.query.articles.findMany({
       where: eq(articles.published, true),
       orderBy: [desc(articles.publishedAt)],
@@ -43,6 +43,9 @@ export default async function HomePage() {
       where: gte(events.startsAt, new Date().toISOString()),
       orderBy: [events.startsAt],
       limit: 4,
+    }),
+    db.query.announcements.findMany({
+      orderBy: [desc(announcements.createdAt)],
     }),
   ]);
 
@@ -258,6 +261,30 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Avvisi importanti */}
+      {activeAnnouncements.length > 0 && (
+        <section className="avvisi-section">
+          <div className="container">
+            <div className="avvisi-header">
+              <div className="avvisi-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFC107" aria-hidden="true">
+                  <path d="M12 2L1 21h22L12 2zm0 3.5L20.5 19h-17L12 5.5zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z" />
+                </svg>
+              </div>
+              <h2 className="avvisi-title">Avvisi importanti</h2>
+            </div>
+            <div className="avvisi-list">
+              {activeAnnouncements.map((a) => (
+                <div key={a.id} className="avvisi-item">
+                  <span className="avvisi-item__dot" aria-hidden="true" />
+                  <p className="avvisi-item__text">{a.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Orari */}
       <section id="orari">

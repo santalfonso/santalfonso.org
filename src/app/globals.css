@@ -971,6 +971,74 @@ img { max-width: 100%; display: block; }
   margin-bottom: 8px;
 }
 
+/* ===========================
+   Sezione Avvisi Importanti (frontend)
+   =========================== */
+
+.avvisi-section {
+  background: #1565C0;
+  padding: var(--section-y) 0;
+}
+
+.avvisi-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.avvisi-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avvisi-title {
+  font-size: clamp(18px, 2.4vw, 22px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0;
+}
+
+.avvisi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.avvisi-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 22px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--r-md);
+}
+
+.avvisi-item__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFC107;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.avvisi-item__text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.5;
+  margin: 0;
+}
+
 /* AI buttons */
 .admin-btn-ai {
   display: inline-flex;
