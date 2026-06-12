@@ -7,10 +7,16 @@ export default function VisitePonteficiPage() {
   return (
     <>
       <PageTitle
-        title="Visite dei pontefici"
-        subtitle="Un dono di Dio alla nostra comunità"
+        kicker="La nostra parrocchia"
+        title={
+          <>
+            Le visite dei{" "}
+            <span style={{ color: "var(--azure-deep)" }}>pontefici</span>
+          </>
+        }
+        lead="Un dono di Dio alla nostra comunità: due papi hanno varcato la soglia della nostra parrocchia."
       />
-      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+      <article className="prose-parish container-narrow" style={{ paddingBottom: 64 }}>
         <p>
           La parrocchia Sant&apos;Alfonso Maria de&apos; Liguori ha ricevuto il
           privilegio di accogliere due pontefici.

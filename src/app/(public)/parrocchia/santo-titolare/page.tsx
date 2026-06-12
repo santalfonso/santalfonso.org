@@ -7,10 +7,16 @@ export default function SantoTitolarePage() {
   return (
     <>
       <PageTitle
-        title="Sant'Alfonso Maria de' Liguori"
-        subtitle="Vescovo e Dottore della Chiesa (1696 – 1787)"
+        kicker="Santo titolare"
+        title={
+          <>
+            Sant&apos;Alfonso Maria de&apos;{" "}
+            <span style={{ color: "var(--azure-deep)" }}>Liguori</span>
+          </>
+        }
+        lead="Vescovo e Dottore della Chiesa (1696 – 1787): avvocato, missionario, fondatore dei Redentoristi, maestro di misericordia."
       />
-      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+      <article className="prose-parish container-narrow" style={{ paddingBottom: 64 }}>
         <p>
           Sant&apos;Alfonso Maria de&apos; Liguori nacque nel 1696 in una
           famiglia aristocratica napoletana. Straordinariamente dotato

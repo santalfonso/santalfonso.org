@@ -7,10 +7,16 @@ export default function GruppiPage() {
   return (
     <>
       <PageTitle
-        title="Gruppi parrocchiali"
-        subtitle="Carismi e percorsi di sostegno spirituale"
+        kicker="La nostra parrocchia"
+        title={
+          <>
+            Carismi e percorsi di sostegno{" "}
+            <span style={{ color: "var(--azure-deep)" }}>spirituale</span>.
+          </>
+        }
+        lead="I gruppi che animano la vita ecclesiale della comunità, ciascuno con il proprio carisma."
       />
-      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+      <article className="prose-parish container-narrow" style={{ paddingBottom: 64 }}>
         <p>
           La parrocchia organizza diversi gruppi che caratterizzano gli aspetti
           della vita ecclesiale. Come suggeriva Paolo VI, ogni comunità è come

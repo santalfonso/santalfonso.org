@@ -7,10 +7,16 @@ export default function ServiziPage() {
   return (
     <>
       <PageTitle
-        title="Servizi parrocchiali"
-        subtitle="Donarsi alla comunità condividendo i propri doni"
+        kicker="La nostra parrocchia"
+        title={
+          <>
+            Donarsi alla comunità, condividere i propri{" "}
+            <span style={{ color: "var(--azure-deep)" }}>doni</span>.
+          </>
+        }
+        lead="I servizi attraverso cui ogni membro della comunità contribuisce al bene di tutti."
       />
-      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+      <article className="prose-parish container-narrow" style={{ paddingBottom: 64 }}>
         <p>
           Ogni membro della comunità è chiamato a donarsi alla comunità
           attraverso i servizi parrocchiali, condividendo i propri doni per il

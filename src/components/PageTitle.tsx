@@ -1,16 +1,26 @@
 export default function PageTitle({
+  kicker,
   title,
-  subtitle,
+  lead,
+  accent,
 }: {
-  title: string;
-  subtitle?: string;
+  kicker: string;
+  title: React.ReactNode;
+  lead?: string;
+  accent?: never;
 }) {
+  void accent;
   return (
-    <div className="bg-amber-900 text-amber-50">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="text-3xl font-bold">{title}</h1>
-        {subtitle && <p className="mt-2 text-amber-200">{subtitle}</p>}
+    <section style={{ paddingTop: 64, paddingBottom: 48 }}>
+      <div className="container-narrow">
+        <span className="kicker">{kicker}</span>
+        <h1 style={{ marginTop: 20 }}>{title}</h1>
+        {lead && (
+          <p className="lead" style={{ marginTop: 20 }}>
+            {lead}
+          </p>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

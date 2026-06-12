@@ -2,9 +2,35 @@ import Link from "next/link";
 import { desc, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, events } from "@/db/schema";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import {
+  formatDate,
+  formatDayNumber,
+  formatMonthName,
+  formatTime,
+} from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: 28,
+          lineHeight: 1,
+          fontWeight: 700,
+          letterSpacing: "-0.02em",
+          color: "var(--ink)",
+        }}
+      >
+        {value}
+      </div>
+      <div style={{ fontSize: 13, color: "var(--ink-mute)", marginTop: 6 }}>
+        {label}
+      </div>
+    </div>
+  );
+}
 
 export default async function HomePage() {
   const [latestArticles, upcomingEvents] = await Promise.all([
@@ -16,170 +42,386 @@ export default async function HomePage() {
     db.query.events.findMany({
       where: gte(events.startsAt, new Date().toISOString()),
       orderBy: [events.startsAt],
-      limit: 5,
+      limit: 4,
     }),
   ]);
 
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-amber-900 to-amber-800 text-amber-50">
-        <div className="mx-auto max-w-6xl px-4 py-16 text-center sm:py-24">
-          <h1 className="text-3xl font-bold sm:text-5xl">
-            Parrocchia Sant&apos;Alfonso Maria de&apos; Liguori
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg italic text-amber-100">
-            «Chi prega si salva, chi non prega si danna!»
-          </p>
-          <p className="mt-2 text-sm text-amber-200">
-            — Sant&apos;Alfonso Maria de&apos; Liguori
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/news"
-              className="rounded bg-white px-6 py-3 font-semibold text-amber-900 shadow hover:bg-amber-50"
-            >
-              Ultime notizie
-            </Link>
-            <Link
-              href="/contatti"
-              className="rounded border border-amber-200 px-6 py-3 font-semibold hover:bg-amber-800"
-            >
-              Contattaci
-            </Link>
-          </div>
-        </div>
-      </section>
+      <section className="hero">
+        <div className="container">
+          <div className="hero-grid">
+            <div>
+              <span className="kicker">Comunità · Prima Porta, Roma</span>
+              <h1 style={{ marginTop: 20 }}>
+                Una casa di preghiera al cuore della{" "}
+                <span style={{ color: "var(--azure-deep)" }}>comunità</span>.
+              </h1>
+              <p className="lead" style={{ marginTop: 20, maxWidth: "44ch" }}>
+                Sulle orme di Sant&apos;Alfonso Maria de&apos; Liguori —
+                «Chi prega si salva, chi non prega si danna!» — accogliamo
+                chi cerca silenzio, ascolto e parola viva.
+              </p>
+              <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
+                <Link href="/#orari" className="btn btn--primary">
+                  Orari delle Messe
+                </Link>
+                <Link href="/news" className="btn btn--ghost">
+                  Ultime news
+                </Link>
+              </div>
 
-      {/* Ultime notizie */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="mb-6 flex items-baseline justify-between">
-          <h2 className="text-2xl font-bold text-amber-900">Ultime notizie</h2>
-          <Link href="/news" className="text-sm text-amber-700 hover:underline">
-            Tutte le news →
-          </Link>
-        </div>
-        {latestArticles.length === 0 ? (
-          <p className="text-stone-500">Nessuna notizia pubblicata al momento.</p>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {latestArticles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/news/${article.slug}`}
-                className="group overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
+              <div
+                style={{
+                  display: "flex",
+                  gap: 32,
+                  marginTop: 48,
+                  paddingTop: 32,
+                  borderTop: "1px solid var(--rule)",
+                  flexWrap: "wrap",
+                }}
               >
-                {article.coverImageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={article.coverImageUrl}
-                    alt=""
-                    className="h-44 w-full object-cover"
-                  />
-                )}
-                <div className="p-5">
-                  <p className="text-xs uppercase tracking-wide text-stone-400">
-                    {formatDate(article.publishedAt)}
-                  </p>
-                  <h3 className="mt-1 font-semibold text-stone-800 group-hover:text-amber-800">
-                    {article.title}
-                  </h3>
-                  {article.excerpt && (
-                    <p className="mt-2 line-clamp-3 text-sm text-stone-600">
-                      {article.excerpt}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            ))}
+                <Stat label="Messe settimanali" value="16" />
+                <Stat label="Anno di fondazione" value="1975" />
+                <Stat label="Visite pontificie" value="2" />
+              </div>
+            </div>
+
+            <div style={{ position: "relative" }}>
+              <div className="ph ph--square">
+                <span className="ph__label">foto: facciata della chiesa</span>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </section>
 
       {/* Prossimi eventi */}
-      <section className="bg-amber-50">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <h2 className="mb-6 text-2xl font-bold text-amber-900">
-            Prossimi eventi
-          </h2>
+      <section style={{ paddingTop: 0 }}>
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="kicker">Calendario</span>
+              <h2 style={{ marginTop: 14 }}>Prossimi appuntamenti</h2>
+            </div>
+            <Link href="/news" className="btn--link">
+              Tutte le news →
+            </Link>
+          </div>
+
           {upcomingEvents.length === 0 ? (
-            <p className="text-stone-500">
-              Nessun evento in programma al momento.
-            </p>
+            <p className="muted">Nessun evento in programma al momento.</p>
           ) : (
-            <ul className="space-y-4">
+            <div className="events-grid">
               {upcomingEvents.map((event) => (
-                <li
+                <div
                   key={event.id}
-                  className="rounded-lg border border-amber-200 bg-white p-5 shadow-sm"
+                  className="card"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 14,
+                    minHeight: 220,
+                  }}
                 >
-                  <p className="text-sm font-semibold text-amber-700">
-                    {formatDateTime(event.startsAt)}
-                    {event.endsAt ? ` — ${formatDateTime(event.endsAt)}` : ""}
-                  </p>
-                  <h3 className="mt-1 text-lg font-semibold text-stone-800">
-                    {event.title}
-                  </h3>
-                  {event.location && (
-                    <p className="text-sm text-stone-500">📍 {event.location}</p>
-                  )}
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "6px 10px",
+                      borderRadius: "var(--r-pill)",
+                      background: "var(--azure-soft)",
+                      color: "var(--azure-deep)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      alignSelf: "flex-start",
+                    }}
+                  >
+                    <span style={{ fontSize: 18, fontWeight: 700, lineHeight: 1 }}>
+                      {formatDayNumber(event.startsAt)}
+                    </span>
+                    <span style={{ fontSize: 12, textTransform: "capitalize" }}>
+                      {formatMonthName(event.startsAt)}
+                    </span>
+                  </div>
+                  <h4 style={{ marginTop: 4 }}>{event.title}</h4>
                   {event.description && (
-                    <p className="mt-2 text-sm text-stone-600">
+                    <p style={{ fontSize: 13, marginBottom: 0 }}>
                       {event.description}
                     </p>
                   )}
-                </li>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "var(--ink-mute)",
+                      marginTop: "auto",
+                    }}
+                  >
+                    {formatTime(event.startsAt)}
+                    {event.location ? ` · ${event.location}` : ""}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </section>
 
-      {/* Orari e informazioni */}
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-3">
-          <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 text-lg font-bold text-amber-900">
-              Sante Messe
-            </h3>
-            <p className="text-stone-700">
-              <strong>Feriali:</strong> 8:00 e 18:30
-              <br />
-              <strong>Festivi:</strong> 8:30 · 10:30 · 12:00 · 18:30
-            </p>
-            <p className="mt-3 text-sm text-stone-500">
-              La messa delle 10:30 della domenica è dedicata alle famiglie e ai
-              bambini del catechismo.
-            </p>
-          </div>
-          <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 text-lg font-bold text-amber-900">
-              Ufficio parrocchiale
-            </h3>
-            <p className="text-stone-700">
-              <strong>Feriali:</strong> 17:00 – 18:30
-            </p>
-            <p className="mt-3 text-sm text-stone-500">
-              Per prenotazioni di sacramenti e richieste di certificati.
-            </p>
-          </div>
-          <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 text-lg font-bold text-amber-900">
-              Dove siamo
-            </h3>
-            <p className="text-stone-700">
-              Via della Giustiniana, 227
-              <br />
-              00188 Roma (RM)
-              <br />
-              Tel. +39 06 3320803
-            </p>
-            <Link
-              href="/dove-siamo"
-              className="mt-3 inline-block text-sm text-amber-700 hover:underline"
-            >
-              Come raggiungerci →
+      {/* Ultime news */}
+      <section style={{ background: "var(--bg-soft)" }}>
+        <div className="container">
+          <div className="section-header">
+            <div>
+              <span className="kicker">Bacheca</span>
+              <h2 style={{ marginTop: 14 }}>Ultime dalla comunità</h2>
+            </div>
+            <Link href="/news" className="btn--link">
+              Tutte le news →
             </Link>
+          </div>
+
+          {latestArticles.length === 0 ? (
+            <p className="muted">Nessuna notizia pubblicata al momento.</p>
+          ) : (
+            <div className="news-grid">
+              {latestArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/news/${article.slug}`}
+                  className="card"
+                  style={{
+                    background: "var(--bg)",
+                    padding: 0,
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {article.coverImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={article.coverImageUrl}
+                      alt=""
+                      style={{
+                        aspectRatio: "16/10",
+                        width: "100%",
+                        objectFit: "cover",
+                        borderBottom: "1px solid var(--rule)",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      className="ph ph--landscape"
+                      style={{ borderRadius: 0, border: 0, borderBottom: "1px solid var(--rule)" }}
+                    >
+                      <span className="ph__label">foto</span>
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      padding: 24,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      flex: 1,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 10,
+                        alignItems: "center",
+                        fontSize: 12,
+                        color: "var(--ink-mute)",
+                      }}
+                    >
+                      <span>{formatDate(article.publishedAt)}</span>
+                    </div>
+                    <h3 style={{ fontSize: 20 }}>{article.title}</h3>
+                    {article.excerpt && (
+                      <p style={{ fontSize: 14, marginBottom: 0 }}>
+                        {article.excerpt}
+                      </p>
+                    )}
+                    <span
+                      className="btn--link"
+                      style={{ marginTop: "auto", paddingTop: 8 }}
+                    >
+                      Leggi →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Orari */}
+      <section id="orari">
+        <div className="container">
+          <div className="sched-grid">
+            <div>
+              <span className="kicker">Visita</span>
+              <h2 style={{ marginTop: 14 }}>Orari &amp; informazioni</h2>
+              <p style={{ marginTop: 16, maxWidth: "40ch" }}>
+                Ti aspettiamo per la celebrazione, per una sosta di silenzio o
+                per conoscere la comunità. La messa delle 10:30 della domenica
+                è dedicata alle famiglie e ai bambini del catechismo.
+              </p>
+              <Link href="/dove-siamo" className="btn btn--ghost" style={{ marginTop: 16 }}>
+                Come arrivare
+              </Link>
+            </div>
+            <div className="card" style={{ padding: 0 }}>
+              {[
+                { day: "Feriali (lun – sab)", times: ["8:00", "18:30"] },
+                {
+                  day: "Domenica e festività",
+                  times: ["8:30", "10:30", "12:00", "18:30"],
+                },
+                {
+                  day: "Confessioni",
+                  times: ["Durante la messa domenicale o su accordo"],
+                },
+                { day: "Rosario", times: ["Ogni giorno 17:45"] },
+                { day: "Adorazione eucaristica", times: ["Martedì 8:30 — 18:30"] },
+                { day: "Ufficio parrocchiale", times: ["Feriali 17:00 — 18:30"] },
+              ].map((row, i, arr) => (
+                <div
+                  key={row.day}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "18px 24px",
+                    borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "0",
+                    gap: 24,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>
+                    {row.day}
+                  </span>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      flexWrap: "wrap",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {row.times.map((time) => (
+                      <span
+                        key={time}
+                        className="tag"
+                        style={{
+                          background: "var(--bg-soft)",
+                          borderColor: "var(--rule)",
+                          color: "var(--ink)",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {time}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Banner contatti */}
+      <section style={{ paddingTop: 0 }}>
+        <div className="container">
+          <div className="cta-banner">
+            <div>
+              <span className="kicker" style={{ color: "var(--gold)" }}>
+                Vieni a trovarci
+              </span>
+              <h2 style={{ color: "var(--bg)", marginTop: 14 }}>
+                La porta della parrocchia è sempre{" "}
+                <span style={{ color: "var(--gold)" }}>aperta</span>.
+              </h2>
+              <p
+                className="lead"
+                style={{
+                  color: "color-mix(in oklab, var(--bg) 75%, transparent)",
+                  marginTop: 16,
+                  maxWidth: "50ch",
+                }}
+              >
+                Per prenotare i sacramenti, chiedere un certificato o
+                semplicemente fare due chiacchiere: l&apos;ufficio parrocchiale
+                ti aspetta nei giorni feriali dalle 17:00 alle 18:30.
+              </p>
+              <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
+                <Link
+                  href="/contatti"
+                  className="btn"
+                  style={{
+                    background: "var(--gold)",
+                    borderColor: "var(--gold)",
+                    color: "#0F1419",
+                  }}
+                >
+                  Contattaci
+                </Link>
+                <Link
+                  href="/dove-siamo"
+                  className="btn btn--ghost"
+                  style={{
+                    background: "transparent",
+                    color: "var(--bg)",
+                    borderColor: "color-mix(in oklab, var(--bg) 25%, transparent)",
+                  }}
+                >
+                  Dove siamo
+                </Link>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {[
+                { v: "17–18:30", l: "Ufficio (feriali)" },
+                { v: "06 3320803", l: "Telefono" },
+                { v: "Giustiniana 227", l: "Indirizzo" },
+                { v: "S. Elisabetta", l: "Cappella Quarto Casale" },
+              ].map((item) => (
+                <div
+                  key={item.l}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    padding: 18,
+                    borderRadius: "var(--r-sm)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "var(--gold)",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {item.v}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      color: "color-mix(in oklab, var(--bg) 60%, transparent)",
+                      marginTop: 4,
+                    }}
+                  >
+                    {item.l}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

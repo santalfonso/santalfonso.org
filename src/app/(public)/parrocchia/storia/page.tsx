@@ -7,10 +7,24 @@ export default function StoriaPage() {
   return (
     <>
       <PageTitle
-        title="Storia della comunità"
-        subtitle="Le origini della nostra parrocchia a Prima Porta"
+        kicker="La nostra parrocchia"
+        title={
+          <>
+            Una comunità in{" "}
+            <span style={{ color: "var(--azure-deep)" }}>cammino</span> dal
+            1958.
+          </>
+        }
+        lead="Dalle prime famiglie arrivate a Prima Porta alla parrocchia di oggi: la storia della nostra comunità."
       />
-      <article className="prose-parish mx-auto max-w-3xl px-4 py-10">
+      <section style={{ padding: 0 }}>
+        <div className="container">
+          <div className="ph ph--wide">
+            <span className="ph__label">foto: la comunità riunita</span>
+          </div>
+        </div>
+      </section>
+      <article className="prose-parish container-narrow" style={{ paddingTop: 64, paddingBottom: 64 }}>
         <h2>Le nostre origini</h2>
         <p>
           Verso la fine degli anni &apos;50, Prima Porta vide l&apos;arrivo di

@@ -7,55 +7,68 @@ export default function DoveSiamoPage() {
   return (
     <>
       <PageTitle
-        title="Dove siamo"
-        subtitle="Via della Giustiniana, 227 — 00188 Roma (RM)"
+        kicker="Dove siamo"
+        title={
+          <>
+            Nel cuore di{" "}
+            <span style={{ color: "var(--azure-deep)" }}>Prima Porta</span>,
+            Roma.
+          </>
+        }
+        lead="Via della Giustiniana, 227 — 00188 Roma (RM). La parrocchia è ben collegata a piedi, con i mezzi pubblici e in auto."
       />
-      <div className="mx-auto max-w-4xl px-4 py-10">
-        <div className="overflow-hidden rounded-lg border border-stone-200 shadow-sm">
-          <iframe
-            title="Mappa della parrocchia"
-            src="https://www.google.com/maps?q=Via+della+Giustiniana+227,+00188+Roma&output=embed"
-            className="h-96 w-full border-0"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
+
+      <section style={{ padding: 0 }}>
+        <div className="container">
+          <div
+            style={{
+              overflow: "hidden",
+              borderRadius: "var(--r-md)",
+              border: "1px solid var(--rule)",
+            }}
+          >
+            <iframe
+              title="Mappa della parrocchia"
+              src="https://www.google.com/maps?q=Via+della+Giustiniana+227,+00188+Roma&output=embed"
+              style={{ width: "100%", height: 420, border: 0, display: "block" }}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
+      </section>
 
-        <div className="prose-parish mt-10">
-          <p>
-            La parrocchia è situata in via della Giustiniana 227, nel quartiere
-            di Prima Porta a Roma, ed è raggiungibile in diversi modi.
-          </p>
-
-          <h2>A piedi</h2>
-          <p>
-            Dalla stazione Giustiniana della ferrovia Roma–Viterbo si raggiunge
-            la chiesa percorrendo via della Giustiniana in circa 15 minuti.
-          </p>
-
-          <h2>Con i mezzi pubblici</h2>
-          <p>
-            Il nostro quartiere è ben collegato dalla ferrovia Roma–Viterbo. Le
-            linee bus 033, 303 e 037 servono la zona dalle stazioni di Prima
-            Porta e Giustiniana.
-          </p>
-
-          <h2>In auto</h2>
-          <p>
-            Siamo ben collegati con due strade principali di Roma: la Flaminia e
-            la Cassia Veientana, entrambe con accesso diretto a via della
-            Giustiniana.
-          </p>
-
-          <h2>Cappella Santa Elisabetta</h2>
-          <p>
-            Un ulteriore luogo di culto si trova in via di Santa Cornelia, a
-            servizio della zona di Quarto Casale. La messa domenicale è alle
-            11:00; la seconda domenica del mese si sposta alle 12:00 ed è
-            presieduta dal parroco.
-          </p>
+      <section>
+        <div className="container">
+          <div className="cats">
+            {[
+              {
+                title: "A piedi",
+                body: "Dalla stazione Giustiniana della ferrovia Roma–Viterbo si raggiunge la chiesa percorrendo via della Giustiniana in circa 15 minuti.",
+              },
+              {
+                title: "Con i mezzi pubblici",
+                body: "Il quartiere è ben collegato dalla ferrovia Roma–Viterbo. Le linee bus 033, 303 e 037 servono la zona dalle stazioni di Prima Porta e Giustiniana.",
+              },
+              {
+                title: "In auto",
+                body: "Siamo collegati con due strade principali di Roma: la Flaminia e la Cassia Veientana, entrambe con accesso diretto a via della Giustiniana.",
+              },
+              {
+                title: "Cappella Santa Elisabetta",
+                body: "In via di Santa Cornelia, a servizio di Quarto Casale. Messa domenicale alle 11:00; la seconda domenica del mese alle 12:00, presieduta dal parroco.",
+              },
+            ].map((item) => (
+              <div key={item.title} className="card">
+                <h4 style={{ fontSize: 17 }}>{item.title}</h4>
+                <p style={{ marginTop: 8, fontSize: 14, marginBottom: 0 }}>
+                  {item.body}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
     </>
   );
 }
