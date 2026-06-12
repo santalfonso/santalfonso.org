@@ -267,11 +267,9 @@ export default async function HomePage() {
         <section className="avvisi-section">
           <div className="container">
             <div className="avvisi-head">
-              <div className="avvisi-head__badge" aria-hidden="true">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--gold)">
-                  <path d="M16 3v1.5L8.5 8H5a2 2 0 00-2 2v4a2 2 0 002 2h.5l1.5 5h2l-1.5-5H8.5L16 19.5V21l3-1.5V4.5L16 3zM17 18.1l-7-3.5V9.4l7-3.5v12.2z"/>
-                </svg>
-              </div>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" style={{ flexShrink: 0 }}>
+                <path d="M16 3v1.5L8.5 8H5a2 2 0 00-2 2v4a2 2 0 002 2h.5l1.5 5h2l-1.5-5H8.5L16 19.5V21l3-1.5V4.5L16 3zM17 18.1l-7-3.5V9.4l7-3.5v12.2z"/>
+              </svg>
               <div>
                 <span className="avvisi-head__kicker">Comunicazioni</span>
                 <h2 className="avvisi-head__title">Avvisi importanti</h2>
@@ -280,14 +278,7 @@ export default async function HomePage() {
             <div className="avvisi-grid">
               {activeAnnouncements.map((a) => (
                 <div key={a.id} className="avvisi-card">
-                  <div className="avvisi-card__header">
-                    <div className="avvisi-card__icon" aria-hidden="true">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--gold)">
-                        <path d="M16 3v1.5L8.5 8H5a2 2 0 00-2 2v4a2 2 0 002 2h.5l1.5 5h2l-1.5-5H8.5L16 19.5V21l3-1.5V4.5L16 3zM17 18.1l-7-3.5V9.4l7-3.5v12.2z"/>
-                      </svg>
-                    </div>
-                    <h3 className="avvisi-card__title">{a.title}</h3>
-                  </div>
+                  <h3 className="avvisi-card__title">{a.title}</h3>
                   <p className="avvisi-card__text">{a.text}</p>
                 </div>
               ))}

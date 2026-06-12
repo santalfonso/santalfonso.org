@@ -1098,6 +1098,18 @@ img { max-width: 100%; display: block; }
   margin: 0;
 }
 
+/* Forza testo bianco anche in tema chiaro: la sezione ha sempre sfondo blu */
+.avvisi-section .avvisi-head__title,
+.avvisi-section .avvisi-card__title {
+  color: #fff;
+}
+.avvisi-section .avvisi-card__text {
+  color: rgba(255,255,255,0.75);
+}
+.avvisi-section .avvisi-head__kicker {
+  color: rgba(255,255,255,0.55);
+}
+
 /* AI buttons */
 .admin-btn-ai {
   display: inline-flex;
