@@ -7,8 +7,18 @@ export default function Footer() {
         <div className="footer-grid">
           <div className="footer-col">
             <Link href="/" className="brand">
-              <span className="brand__mark">A</span>
-              <span>Sant&apos;Alfonso</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-light.avif"
+                alt="Sant'Alfonso"
+                className="brand__logo footer-logo--light"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-dark.avif"
+                alt="Sant'Alfonso"
+                className="brand__logo footer-logo--dark"
+              />
             </Link>
             <p className="soft" style={{ marginTop: 18, fontSize: 14, maxWidth: 320 }}>
               La comunità parrocchiale di Sant&apos;Alfonso Maria de&apos;

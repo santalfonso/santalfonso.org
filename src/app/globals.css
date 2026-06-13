@@ -237,6 +237,10 @@ img { max-width: 100%; display: block; }
   object-fit: contain;
 }
 
+.footer-logo--dark { display: none; }
+[data-theme="dark"] .footer-logo--light { display: none; }
+[data-theme="dark"] .footer-logo--dark { display: block; }
+
 .nav {
   display: flex;
   gap: 4px;
