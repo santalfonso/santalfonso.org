@@ -40,6 +40,54 @@ const libri: Libro[] = [
     amazonUrl:
       "https://www.amazon.it/Massime-eterne-Ediz-caratteri-grandi/dp/8884041929/ref=sr_1_1?ie=UTF8&qid=1550315882&sr=8-1&keywords=9788884041920",
   },
+  {
+    coverUrl: `${CDN}/glorie-di-maria.avif`,
+    titolo: "Le Glorie di Maria",
+    didascalia:
+      "Il più grande capolavoro mariano di sant'Alfonso: meditazioni sulla Salve Regina, le sette principali feste di Maria, i sette dolori, le sue virtù e quasi 100 esempi dell'azione di Maria Santissima.",
+    amazonUrl:
+      "https://www.amazon.it/glorie-Maria-Alfonso-Liguori/dp/888404216X/ref=sr_1_1?ie=UTF8&qid=1550320559&sr=8-1&keywords=9788884042163",
+  },
+  {
+    coverUrl: `${CDN}/apparecchio-alla-morte.avif`,
+    titolo: "Apparecchio alla Morte",
+    didascalia:
+      "Nato dalla predicazione trentennale di sant'Alfonso nei paesi più depressi del Regno di Napoli. Al centro il tema dei Novissimi, per risvegliare nei fedeli il senso del peccato e la speranza della vita eterna.",
+    amazonUrl:
+      "https://www.amazon.it/Apparecchio-considerazioni-meditare-sacerdoti-predicare/dp/882156035X/ref=sr_1_1?ie=UTF8&qid=1550321812&sr=8-1&keywords=9788821560354",
+  },
+  {
+    coverUrl: `${CDN}/conversare-con-dio.avif`,
+    titolo: "Conversare con Dio",
+    didascalia:
+      `"Vedo da una parte l'assoluta necessità della preghiera, e all'incontro vedo che i cristiani praticano poco questo gran mezzo della loro salvezza." Un'osservazione del Santo quanto mai attuale.`,
+    amazonUrl:
+      "https://www.amazon.it/Conversare-Dio-mezzo-della-preghiera/dp/8884042623/ref=sr_1_4?s=books&ie=UTF8&qid=1550322248&sr=1-4&keywords=del+gran+mezzo+della+preghiera",
+  },
+  {
+    coverUrl: `${CDN}/uniformita-volonta-dio.avif`,
+    titolo: "Uniformità alla Volontà di Dio",
+    didascalia:
+      `Accogliere in tutto e per tutto la volontà di Dio è possibile. Sant'Alfonso spiega: "Uniformità significa fare della volontà di Dio e della nostra una sola volontà".`,
+    amazonUrl:
+      "https://www.amazon.it/Uniformit%C3%A0-volont%C3%A0-Lamore-opuscoli-affini/dp/888404345X/",
+  },
+  {
+    coverUrl: `${CDN}/solitudine-aridita.avif`,
+    titolo: "Solitudine e Aridità Spirituale",
+    didascalia:
+      "Sant'Alfonso tratta argomenti delicatissimi con garbo e profondità. Quando tutto sembra oscurità, riaccende la luce della fede, della speranza, dell'ottimismo.",
+    amazonUrl:
+      "https://www.amazon.it/Solitudine-aridit%C3%A0-spirituale-Alfonso-Liguori/dp/8884042879/",
+  },
+  {
+    coverUrl: `${CDN}/meditazioni-passione.avif`,
+    titolo: "Meditazioni sulla Passione di Gesù Cristo",
+    didascalia:
+      "Da chi mai i santi hanno preso fortezza per sopportare i tormenti, se non dalle pene di Gesù crocifisso? Non c'è esercizio più adatto al perfetto amore che meditare spesso sulla sua Passione.",
+    amazonUrl:
+      "https://www.amazon.it/Meditazioni-sulla-passione-Ges%C3%B9-Cristo/dp/8864093141/",
+  },
 ];
 
 export default function SantoTitolarePage() {
