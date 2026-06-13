@@ -324,11 +324,11 @@ img { max-width: 100%; display: block; }
 .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
 .btn--primary {
-  background: var(--azure-deep);
-  border-color: var(--azure-deep);
+  background: linear-gradient(90deg, var(--azure-deep), var(--azure));
+  border-color: transparent;
   color: #fff;
 }
-.btn--primary:hover { background: var(--azure); border-color: var(--azure); color: #fff; }
+.btn--primary:hover { background: linear-gradient(90deg, var(--azure), var(--azure-deep)); border-color: transparent; color: #fff; }
 
 .btn--ghost {
   background: var(--bg);
