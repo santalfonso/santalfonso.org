@@ -103,39 +103,61 @@ const slides = [
 
 export default function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
+  const [dir, setDir] = useState<"right" | "left">("right");
   const slide = slides[current];
+
+  function goNext() {
+    setDir("right");
+    setCurrent((c) => (c + 1) % slides.length);
+  }
+
+  function goPrev() {
+    setDir("left");
+    setCurrent((c) => (c - 1 + slides.length) % slides.length);
+  }
+
+  function goTo(i: number) {
+    setDir(i > current ? "right" : "left");
+    setCurrent(i);
+  }
 
   return (
     <section className="hero">
       <div className="container">
-        <div
-          className="hero-grid"
-          style={slide.reverse ? { direction: "rtl" } : undefined}
-        >
-          <div style={slide.reverse ? { direction: "ltr" } : undefined}>
-            {slide.content}
-          </div>
-          <div style={{ position: "relative", direction: "ltr" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={slide.photo.src}
-              alt=""
-              style={{
-                width: "100%",
-                aspectRatio: "1",
-                objectFit: "cover",
-                objectPosition: slide.photo.position,
-                borderRadius: "var(--r-md)",
-                display: "block",
-              }}
-            />
+        <div style={{ overflow: "hidden" }}>
+          <div
+            key={current}
+            className="hero-grid"
+            style={{
+              ...(slide.reverse ? { direction: "rtl" as const } : {}),
+              animation: `hero-slide-${dir} 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
+            }}
+          >
+            <div style={slide.reverse ? { direction: "ltr" } : undefined}>
+              {slide.content}
+            </div>
+            <div style={{ position: "relative", direction: "ltr" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={slide.photo.src}
+                alt=""
+                style={{
+                  width: "100%",
+                  aspectRatio: "1",
+                  objectFit: "cover",
+                  objectPosition: slide.photo.position,
+                  borderRadius: "var(--r-md)",
+                  display: "block",
+                }}
+              />
+            </div>
           </div>
         </div>
 
         {/* Navigazione slideshow */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, marginTop: 32 }}>
           <button
-            onClick={() => setCurrent((c) => (c - 1 + slides.length) % slides.length)}
+            onClick={goPrev}
             aria-label="Slide precedente"
             style={{
               width: 40, height: 40, borderRadius: "50%",
@@ -154,7 +176,7 @@ export default function HeroSlideshow() {
             {slides.map((s, i) => (
               <button
                 key={s.id}
-                onClick={() => setCurrent(i)}
+                onClick={() => goTo(i)}
                 aria-label={`Vai alla slide ${i + 1}`}
                 style={{
                   width: i === current ? 24 : 8,
@@ -173,7 +195,7 @@ export default function HeroSlideshow() {
           </div>
 
           <button
-            onClick={() => setCurrent((c) => (c + 1) % slides.length)}
+            onClick={goNext}
             aria-label="Slide successiva"
             style={{
               width: 40, height: 40, borderRadius: "50%",

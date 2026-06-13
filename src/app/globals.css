@@ -509,6 +509,16 @@ img { max-width: 100%; display: block; }
 .accent-azure { color: var(--azure-deep); }
 .accent-gold { color: var(--gold-deep); }
 
+/* === Animazioni slideshow hero === */
+@keyframes hero-slide-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes hero-slide-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* === Griglie responsive (dai mockup) === */
 .hero-grid {
   display: grid;
