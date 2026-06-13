@@ -19,7 +19,8 @@ export default async function NewsPage() {
         <div className="container">
           <span className="kicker">News &amp; Eventi</span>
           <h1 style={{ marginTop: 20, maxWidth: "20ch" }}>
-            La vita della comunità, giorno per giorno.
+            La vita della comunità,{" "}
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>giorno per giorno</span>.
           </h1>
         </div>
       </section>
