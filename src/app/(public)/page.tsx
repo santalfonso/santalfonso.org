@@ -384,44 +384,6 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { v: "17–18:30", l: "Ufficio (feriali)" },
-                { v: "06 3320803", l: "Telefono" },
-                { v: "Giustiniana 227", l: "Indirizzo" },
-                { v: "S. Elisabetta", l: "Cappella Quarto Casale" },
-              ].map((item) => (
-                <div
-                  key={item.l}
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    padding: 18,
-                    borderRadius: "var(--r-sm)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 18,
-                      fontWeight: 700,
-                      color: "var(--gold)",
-                      letterSpacing: "-0.02em",
-                    }}
-                  >
-                    {item.v}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "color-mix(in oklab, var(--bg) 60%, transparent)",
-                      marginTop: 4,
-                    }}
-                  >
-                    {item.l}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>

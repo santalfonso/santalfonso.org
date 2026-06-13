@@ -3,6 +3,16 @@ import PageTitle from "@/components/PageTitle";
 
 export const metadata: Metadata = { title: "Storia della comunità" };
 
+const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload";
+
+const foto = {
+  primaporta1900: `${CDN}/santalfonso/storia/storia-prima-porta-1900.avif`,
+  costruzioneInterno: `${CDN}/santalfonso/storia/storia-costruzione-interno.avif`,
+  primaPietra: `${CDN}/santalfonso/storia/storia-prima-pietra.avif`,
+  donEulogioGpii: `${CDN}/santalfonso/storia/storia-doneulogio-gpii.avif`,
+  costruzioneEsterno: `${CDN}/santalfonso/storia/storia-costruzione-esterno.avif`,
+};
+
 export default function StoriaPage() {
   return (
     <>
@@ -17,14 +27,31 @@ export default function StoriaPage() {
         }
         lead="Dalle prime famiglie arrivate a Prima Porta alla parrocchia di oggi: la storia della nostra comunità."
       />
+
+      {/* Foto storica Prima Porta */}
       <section style={{ padding: 0 }}>
         <div className="container">
-          <div className="ph ph--wide">
-            <span className="ph__label">foto: la comunità riunita</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={foto.primaporta1900}
+            alt="Prima Porta ai primi del '900"
+            style={{
+              width: "100%",
+              aspectRatio: "21/9",
+              objectFit: "cover",
+              objectPosition: "center top",
+              borderRadius: "var(--r-md)",
+              border: "1px solid var(--rule)",
+              display: "block",
+            }}
+          />
+          <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
+            Prima Porta ai primi del &apos;900
+          </p>
         </div>
       </section>
-      <article className="prose-parish container-narrow" style={{ paddingTop: 64, paddingBottom: 64 }}>
+
+      <article className="prose-parish container-narrow" style={{ paddingTop: 64, paddingBottom: 0 }}>
         <h2>Le nostre origini</h2>
         <p>
           Verso la fine degli anni &apos;50, Prima Porta vide l&apos;arrivo di
@@ -37,7 +64,32 @@ export default function StoriaPage() {
           sala al piano terra destinata a cappella, che negli anni &apos;60
           divenne il primo nucleo della comunità parrocchiale.
         </p>
+      </article>
 
+      {/* Foto interno cantiere */}
+      <section style={{ paddingTop: 32, paddingBottom: 0 }}>
+        <div className="container">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={foto.costruzioneInterno}
+            alt="Interno della chiesa in costruzione"
+            style={{
+              width: "100%",
+              aspectRatio: "16/9",
+              objectFit: "cover",
+              objectPosition: "center",
+              borderRadius: "var(--r-md)",
+              border: "1px solid var(--rule)",
+              display: "block",
+            }}
+          />
+          <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
+            La nuova chiesa in costruzione
+          </p>
+        </div>
+      </section>
+
+      <article className="prose-parish container-narrow" style={{ paddingTop: 48, paddingBottom: 0 }}>
         <h2>L&apos;arrivo di don Eulogio</h2>
         <p>
           Nel settembre 1965, a dieci giorni dall&apos;alluvione che colpì Prima
@@ -47,7 +99,29 @@ export default function StoriaPage() {
           anni fu vicario presso i Santi Urbano e Lorenzo, dedicandosi ai poveri
           e alle famiglie della zona.
         </p>
+      </article>
 
+      {/* Foto Don Eulogio con Giovanni Paolo II */}
+      <section style={{ paddingTop: 32, paddingBottom: 0 }}>
+        <div className="container-narrow">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={foto.donEulogioGpii}
+            alt="Don Eulogio con Papa Giovanni Paolo II"
+            style={{
+              width: "100%",
+              borderRadius: "var(--r-md)",
+              border: "1px solid var(--rule)",
+              display: "block",
+            }}
+          />
+          <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
+            Don Eulogio Carballido Diaz con Papa Giovanni Paolo II
+          </p>
+        </div>
+      </section>
+
+      <article className="prose-parish container-narrow" style={{ paddingTop: 48, paddingBottom: 0 }}>
         <h2>L&apos;istituzione della parrocchia</h2>
         <p>
           Il 1° ottobre 1975, il Cardinale Poletti istituì ufficialmente la
@@ -64,6 +138,52 @@ export default function StoriaPage() {
           nell&apos;evangelizzazione.
         </p>
       </article>
+
+      {/* Foto cantiere: prima pietra + esterno */}
+      <section style={{ paddingTop: 32, paddingBottom: 64 }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={foto.primaPietra}
+                alt="Cerimonia della prima pietra"
+                style={{
+                  width: "100%",
+                  aspectRatio: "4/3",
+                  objectFit: "cover",
+                  objectPosition: "center top",
+                  borderRadius: "var(--r-md)",
+                  border: "1px solid var(--rule)",
+                  display: "block",
+                }}
+              />
+              <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
+                La cerimonia della prima pietra
+              </p>
+            </div>
+            <div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={foto.costruzioneEsterno}
+                alt="La chiesa in costruzione, vista esterna"
+                style={{
+                  width: "100%",
+                  aspectRatio: "4/3",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                  borderRadius: "var(--r-md)",
+                  border: "1px solid var(--rule)",
+                  display: "block",
+                }}
+              />
+              <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
+                L&apos;interno della chiesa durante i lavori
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
