@@ -14,7 +14,10 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Skill(run)",
-      "Skill(run:*)"
+      "Skill(run:*)",
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org status)",
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org add .claude/settings.local.json)",
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org commit -m ' *)"
     ]
   }
 }
