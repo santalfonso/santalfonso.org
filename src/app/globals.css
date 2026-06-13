@@ -1210,3 +1210,26 @@ img { max-width: 100%; display: block; }
   transition: color var(--t);
 }
 .admin-back:hover { color: var(--ink); }
+
+/* Santo titolare — ritratto sticky */
+.santo-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.santo-ritratto {
+  position: sticky;
+  top: 96px;
+}
+@media (max-width: 768px) {
+  .santo-grid {
+    grid-template-columns: 1fr;
+  }
+  .santo-ritratto {
+    position: static;
+    max-width: 220px;
+    margin: 0 auto 8px;
+  }
+}
+/* end santo */

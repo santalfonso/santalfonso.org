@@ -34,13 +34,8 @@ export default function SantoTitolarePage() {
       {/* Ritratto + testo iniziale */}
       <section style={{ paddingTop: 0, paddingBottom: 0 }}>
         <div className="container">
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "280px 1fr",
-            gap: 48,
-            alignItems: "start",
-          }}>
-            <div>
+          <div className="santo-grid">
+            <div className="santo-ritratto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={RITRATTO}
