@@ -1220,7 +1220,7 @@ img { max-width: 100%; display: block; }
 }
 .santo-ritratto {
   position: sticky;
-  top: 96px;
+  top: 116px;
 }
 @media (max-width: 768px) {
   .santo-grid {
