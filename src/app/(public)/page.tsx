@@ -93,9 +93,19 @@ export default async function HomePage() {
             </div>
 
             <div style={{ position: "relative" }}>
-              <div className="ph ph--square">
-                <span className="ph__label">foto: facciata della chiesa</span>
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/chiesa.avif"
+                alt="Parrocchia Sant'Alfonso Maria de' Liguori — vista aerea"
+                style={{
+                  width: "100%",
+                  aspectRatio: "1",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                  borderRadius: "var(--r-md)",
+                  display: "block",
+                }}
+              />
             </div>
           </div>
         </div>
