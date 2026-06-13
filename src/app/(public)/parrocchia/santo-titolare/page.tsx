@@ -149,16 +149,6 @@ export default function SantoTitolarePage() {
                 di vita, può raggiungere la perfezione spirituale.
               </p>
 
-              <h2>Opere principali</h2>
-              <p>
-                Tra i suoi numerosi scritti figurano{" "}
-                <em>La pratica d&apos;amare Gesù Cristo</em>,{" "}
-                <em>Le glorie di Maria</em>, <em>Le Massime eterne</em>,{" "}
-                <em>Visite al Santissimo Sacramento</em> e{" "}
-                <em>Del gran mezzo della Preghiera</em>, tutti caratterizzati da
-                uno stile semplice e accessibile, pensati per la formazione
-                spirituale popolare.
-              </p>
               <p>
                 Canonizzato nel 1839, Alfonso rimane una figura centrale della
                 spiritualità cattolica moderna.
@@ -173,8 +163,8 @@ export default function SantoTitolarePage() {
         <section style={{ background: "var(--bg-soft)", paddingTop: 64, paddingBottom: 64 }}>
           <div className="container">
             <div style={{ marginBottom: 40 }}>
-              <span className="kicker">Approfondisci</span>
-              <h2 style={{ marginTop: 14 }}>Libri consigliati</h2>
+              <span className="kicker">Scritti</span>
+              <h2 style={{ marginTop: 14 }}>Opere principali</h2>
             </div>
             <div style={{
               display: "grid",
