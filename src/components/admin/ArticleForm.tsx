@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
-import type { Article } from "@/db/schema";
+import type { Article, ArticleImage } from "@/db/schema";
 import ImageDropzone from "./ImageDropzone";
+import GalleryEditor from "./GalleryEditor";
 import type { ActionState } from "@/actions/articles";
 import { proofreadText, generateTitle, generateExcerpt } from "@/actions/ai";
 
@@ -25,9 +26,11 @@ function SparkleIcon() {
 export default function ArticleForm({
   action,
   article,
+  galleryImages = [],
 }: {
   action: (prev: ActionState, formData: FormData) => Promise<ActionState>;
   article?: Article;
+  galleryImages?: ArticleImage[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
 
@@ -152,6 +155,8 @@ export default function ArticleForm({
         currentUrl={article?.coverImageUrl}
         label="Immagine di copertina"
       />
+
+      <GalleryEditor existing={galleryImages.map((img) => ({ id: img.id, url: img.url }))} />
 
       {/* Pubblicato */}
       <div className="admin-form-row">

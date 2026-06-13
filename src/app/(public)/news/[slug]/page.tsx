@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
-import { articles } from "@/db/schema";
+import { articles, articleImages } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
+import ArticleGallery from "@/components/ArticleGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +29,16 @@ export default async function ArticlePage({ params }: Props) {
   const article = await getArticle(slug);
   if (!article) notFound();
 
-  const [html, related] = await Promise.all([
+  const [html, related, gallery] = await Promise.all([
     marked.parse(article.body),
     db.query.articles.findMany({
       where: and(eq(articles.published, true), ne(articles.id, article.id)),
       orderBy: [desc(articles.publishedAt)],
       limit: 3,
+    }),
+    db.query.articleImages.findMany({
+      where: eq(articleImages.articleId, article.id),
+      orderBy: [articleImages.position],
     }),
   ]);
 
@@ -118,6 +123,18 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {gallery.length > 0 && (
+        <section>
+          <div className="container">
+            <div style={{ marginBottom: 24 }}>
+              <span className="kicker">Galleria</span>
+              <h2 style={{ marginTop: 14 }}>Foto</h2>
+            </div>
+            <ArticleGallery images={gallery.map((img) => ({ id: img.id, url: img.url }))} />
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section style={{ background: "var(--bg-soft)" }}>

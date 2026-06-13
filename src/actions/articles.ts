@@ -1,12 +1,12 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/auth";
 import { db } from "@/db";
-import { articles } from "@/db/schema";
+import { articles, articleImages } from "@/db/schema";
 import { uploadImage } from "@/lib/uploads";
 import { slugify } from "@/lib/utils";
 
@@ -36,6 +36,17 @@ async function coverFromForm(formData: FormData): Promise<string | undefined> {
   return undefined;
 }
 
+async function galleryFromForm(formData: FormData): Promise<string[]> {
+  const files = formData.getAll("galleryImages");
+  const urls: string[] = [];
+  for (const file of files) {
+    if (file instanceof File && file.size > 0) {
+      urls.push(await uploadImage(file));
+    }
+  }
+  return urls;
+}
+
 export async function createArticle(
   _prev: ActionState,
   formData: FormData
@@ -45,8 +56,10 @@ export async function createArticle(
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   let coverImageUrl: string | undefined;
+  let galleryUrls: string[] = [];
   try {
     coverImageUrl = await coverFromForm(formData);
+    galleryUrls = await galleryFromForm(formData);
   } catch {
     return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
   }
@@ -58,7 +71,7 @@ export async function createArticle(
   });
   if (existing) slug = `${slug}-${Date.now()}`;
 
-  await db.insert(articles).values({
+  const [created] = await db.insert(articles).values({
     title,
     slug,
     excerpt: excerpt || null,
@@ -66,7 +79,13 @@ export async function createArticle(
     coverImageUrl,
     published,
     publishedAt: published ? new Date().toISOString() : null,
-  });
+  }).returning({ id: articles.id });
+
+  if (galleryUrls.length > 0) {
+    await db.insert(articleImages).values(
+      galleryUrls.map((url, i) => ({ articleId: created.id, url, position: i }))
+    );
+  }
 
   revalidatePath("/");
   revalidatePath("/news");
@@ -83,8 +102,10 @@ export async function updateArticle(
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   let coverImageUrl: string | undefined;
+  let galleryUrls: string[] = [];
   try {
     coverImageUrl = await coverFromForm(formData);
+    galleryUrls = await galleryFromForm(formData);
   } catch {
     return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
   }
@@ -93,6 +114,12 @@ export async function updateArticle(
     where: eq(articles.id, id),
   });
   if (!current) return { error: "Articolo non trovato" };
+
+  // Cancella immagini segnate per rimozione
+  const deleteIds = formData.getAll("deleteImageId").map(Number).filter(Boolean);
+  if (deleteIds.length > 0) {
+    await db.delete(articleImages).where(inArray(articleImages.id, deleteIds));
+  }
 
   const { title, excerpt, body, published } = parsed.data;
   await db
@@ -111,6 +138,17 @@ export async function updateArticle(
     })
     .where(eq(articles.id, id));
 
+  // Aggiunge nuove immagini galleria
+  if (galleryUrls.length > 0) {
+    const existing = await db.query.articleImages.findMany({
+      where: eq(articleImages.articleId, id),
+    });
+    const nextPosition = existing.length;
+    await db.insert(articleImages).values(
+      galleryUrls.map((url, i) => ({ articleId: id, url, position: nextPosition + i }))
+    );
+  }
+
   revalidatePath("/");
   revalidatePath("/news");
   revalidatePath(`/news/${current.slug}`);
@@ -119,6 +157,7 @@ export async function updateArticle(
 
 export async function deleteArticle(id: number) {
   await requireUser();
+  await db.delete(articleImages).where(eq(articleImages.articleId, id));
   await db.delete(articles).where(eq(articles.id, id));
   revalidatePath("/");
   revalidatePath("/news");

@@ -65,6 +65,16 @@ export const settings = sqliteTable("settings", {
     .default(sql`(datetime('now'))`),
 });
 
+export const articleImages = sqliteTable("article_images", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  articleId: integer("article_id").notNull(),
+  url: text("url").notNull(),
+  position: integer("position").notNull().default(0),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
 export const announcements = sqliteTable("announcements", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   title: text("title").notNull().default(""),
@@ -80,3 +90,4 @@ export type Event = typeof events.$inferSelect;
 export type Resource = typeof resources.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
+export type ArticleImage = typeof articleImages.$inferSelect;
