@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requireUser } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schema";
+import { uploadImage } from "@/lib/uploads";
 import type { ActionState } from "./articles";
 
 const eventSchema = z.object({
@@ -27,6 +28,14 @@ function parseForm(formData: FormData) {
   });
 }
 
+async function posterFromForm(formData: FormData): Promise<string | undefined> {
+  const file = formData.get("posterImage");
+  if (file instanceof File && file.size > 0) {
+    return uploadImage(file);
+  }
+  return undefined;
+}
+
 export async function createEvent(
   _prev: ActionState,
   formData: FormData
@@ -35,16 +44,25 @@ export async function createEvent(
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
+  let posterUrl: string | undefined;
+  try {
+    posterUrl = await posterFromForm(formData);
+  } catch {
+    return { error: "Caricamento locandina non riuscito." };
+  }
+
   const { title, description, location, startsAt, endsAt } = parsed.data;
   await db.insert(events).values({
     title,
     description: description || null,
     location: location || null,
+    posterUrl: posterUrl ?? null,
     startsAt: new Date(startsAt).toISOString(),
     endsAt: endsAt ? new Date(endsAt).toISOString() : null,
   });
 
   revalidatePath("/");
+  revalidatePath("/calendario");
   redirect("/admin/eventi");
 }
 
@@ -57,19 +75,30 @@ export async function updateEvent(
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
+  let posterUrl: string | undefined;
+  try {
+    posterUrl = await posterFromForm(formData);
+  } catch {
+    return { error: "Caricamento locandina non riuscito." };
+  }
+
   const { title, description, location, startsAt, endsAt } = parsed.data;
+  const existing = await db.query.events.findFirst({ where: eq(events.id, id) });
+
   await db
     .update(events)
     .set({
       title,
       description: description || null,
       location: location || null,
+      posterUrl: posterUrl ?? existing?.posterUrl ?? null,
       startsAt: new Date(startsAt).toISOString(),
       endsAt: endsAt ? new Date(endsAt).toISOString() : null,
     })
     .where(eq(events.id, id));
 
   revalidatePath("/");
+  revalidatePath("/calendario");
   redirect("/admin/eventi");
 }
 

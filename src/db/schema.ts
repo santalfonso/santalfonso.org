@@ -36,6 +36,7 @@ export const events = sqliteTable("events", {
   title: text("title").notNull(),
   description: text("description"),
   location: text("location"),
+  posterUrl: text("poster_url"),
   startsAt: text("starts_at").notNull(),
   endsAt: text("ends_at"),
   createdAt: text("created_at")

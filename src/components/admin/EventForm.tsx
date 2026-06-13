@@ -80,6 +80,31 @@ export default function EventForm({
         />
       </div>
 
+      <div className="admin-form-row">
+        <label htmlFor="posterImage" className="admin-label">
+          Locandina
+          {event?.posterUrl ? " (sostituisce quella attuale)" : ""}
+        </label>
+        {event?.posterUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.posterUrl}
+            alt="Locandina attuale"
+            className="admin-img-preview"
+          />
+        )}
+        <input
+          id="posterImage"
+          name="posterImage"
+          type="file"
+          accept="image/*"
+          style={{ fontSize: 13, color: "var(--ink-soft)" }}
+        />
+        <p className="admin-input-hint">
+          Opzionale. Se assente verrà mostrato un formato grafico automatico.
+        </p>
+      </div>
+
       {state?.error && (
         <div className="admin-error" style={{ marginBottom: 20 }}>{state.error}</div>
       )}

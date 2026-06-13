@@ -8,6 +8,7 @@ import {
   formatMonthName,
   formatTime,
 } from "@/lib/utils";
+import EventCardsWithModal from "@/components/EventCardsWithModal";
 
 export const dynamic = "force-dynamic";
 
@@ -116,58 +117,7 @@ export default async function HomePage() {
           {upcomingEvents.length === 0 ? (
             <p className="muted">Nessun evento in programma al momento.</p>
           ) : (
-            <div className="events-grid">
-              {upcomingEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="card"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 14,
-                    minHeight: 220,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "6px 10px",
-                      borderRadius: "var(--r-pill)",
-                      background: "var(--azure-soft)",
-                      color: "var(--azure-deep)",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      alignSelf: "flex-start",
-                    }}
-                  >
-                    <span style={{ fontSize: 18, fontWeight: 700, lineHeight: 1 }}>
-                      {formatDayNumber(event.startsAt)}
-                    </span>
-                    <span style={{ fontSize: 12, textTransform: "capitalize" }}>
-                      {formatMonthName(event.startsAt)}
-                    </span>
-                  </div>
-                  <h4 style={{ marginTop: 4 }}>{event.title}</h4>
-                  {event.description && (
-                    <p style={{ fontSize: 13, marginBottom: 0 }}>
-                      {event.description}
-                    </p>
-                  )}
-                  <div
-                    style={{
-                      fontSize: 13,
-                      color: "var(--ink-mute)",
-                      marginTop: "auto",
-                    }}
-                  >
-                    {formatTime(event.startsAt)}
-                    {event.location ? ` · ${event.location}` : ""}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <EventCardsWithModal events={upcomingEvents} />
           )}
         </div>
       </section>
