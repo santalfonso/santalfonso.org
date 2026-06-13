@@ -9,29 +9,10 @@ import {
   formatTime,
 } from "@/lib/utils";
 import EventCardsWithModal from "@/components/EventCardsWithModal";
+import HeroSlideshow from "@/components/HeroSlideshow";
 
 export const dynamic = "force-dynamic";
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div
-        style={{
-          fontSize: 28,
-          lineHeight: 1,
-          fontWeight: 700,
-          letterSpacing: "-0.02em",
-          color: "var(--ink)",
-        }}
-      >
-        {value}
-      </div>
-      <div style={{ fontSize: 13, color: "var(--ink-mute)", marginTop: 6 }}>
-        {label}
-      </div>
-    </div>
-  );
-}
 
 export default async function HomePage() {
   const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
@@ -52,76 +33,7 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="hero">
-        <div className="container">
-          <div className="hero-grid">
-            <div>
-              <span className="kicker">Comunità · Prima Porta, Roma</span>
-              <h2 style={{ marginTop: 20 }}>
-                &ldquo;Chi non vuole altro che{" "}
-                <span style={{
-                  background: "linear-gradient(90deg, var(--azure-deep), var(--azure))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}>Dio</span>
-                , sta sempre contento in{" "}
-                <span style={{
-                  background: "linear-gradient(90deg, var(--azure-deep), var(--azure))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}>ogni cosa</span>
-                {" "}che accade&rdquo;
-              </h2>
-              <p className="lead" style={{ marginTop: 20, maxWidth: "44ch" }}>
-                Sant&apos;Alfonso Maria de&apos; Liguori,<br />
-                vescovo e dottore della Chiesa.
-              </p>
-              <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
-                <Link href="/#orari" className="btn btn--primary">
-                  Orari delle Messe
-                </Link>
-                <Link href="/news" className="btn btn--ghost">
-                  Ultime news
-                </Link>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: 32,
-                  marginTop: 48,
-                  paddingTop: 32,
-                  borderTop: "1px solid var(--rule)",
-                  flexWrap: "wrap",
-                }}
-              >
-                <Stat label="Messe settimanali" value="16" />
-                <Stat label="Anno di fondazione" value="1975" />
-                <Stat label="Visite pontificie" value="2" />
-              </div>
-            </div>
-
-            <div style={{ position: "relative" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/chiesa.avif"
-                alt="Parrocchia Sant'Alfonso Maria de' Liguori — vista aerea"
-                style={{
-                  width: "100%",
-                  aspectRatio: "1",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  borderRadius: "var(--r-md)",
-                  display: "block",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSlideshow />
 
       {/* Prossimi eventi */}
       <section style={{ paddingTop: 0 }}>
