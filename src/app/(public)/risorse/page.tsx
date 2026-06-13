@@ -32,7 +32,7 @@ export default async function RisorsePage() {
           <span className="kicker">Risorse</span>
           <h1 style={{ marginTop: 20 }}>
             Libretti, documenti e materiali per il{" "}
-            <span style={{ color: "var(--azure-deep)" }}>cammino</span>.
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cammino</span>.
           </h1>
           <p className="lead" style={{ marginTop: 20 }}>
             Una raccolta in continuo aggiornamento: i libretti dei

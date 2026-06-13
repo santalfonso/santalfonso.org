@@ -11,7 +11,7 @@ export default function DoveSiamoPage() {
         title={
           <>
             Nel cuore di{" "}
-            <span style={{ color: "var(--azure-deep)" }}>Prima Porta</span>,
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Prima Porta</span>,
             Roma.
           </>
         }

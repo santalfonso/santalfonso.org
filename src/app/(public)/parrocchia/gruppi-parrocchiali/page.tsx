@@ -11,7 +11,7 @@ export default function GruppiPage() {
         title={
           <>
             Carismi e percorsi di sostegno{" "}
-            <span style={{ color: "var(--azure-deep)" }}>spirituale</span>.
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>spirituale</span>.
           </>
         }
         lead="I gruppi che animano la vita ecclesiale della comunità, ciascuno con il proprio carisma."

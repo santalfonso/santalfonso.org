@@ -11,7 +11,7 @@ export default function ContattiPage() {
         title={
           <>
             Siamo qui per{" "}
-            <span style={{ color: "var(--azure-deep)" }}>ascoltarti</span>.
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>ascoltarti</span>.
           </>
         }
         lead="Per prenotazioni di sacramenti, richieste di certificati o qualsiasi altra necessità, l'ufficio parrocchiale è a tua disposizione."

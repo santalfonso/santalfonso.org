@@ -11,7 +11,7 @@ export default function VisitePonteficiPage() {
         title={
           <>
             Le visite dei{" "}
-            <span style={{ color: "var(--azure-deep)" }}>pontefici</span>
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>pontefici</span>
           </>
         }
         lead="Un dono di Dio alla nostra comunità: due papi hanno varcato la soglia della nostra parrocchia."

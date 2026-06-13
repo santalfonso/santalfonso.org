@@ -11,7 +11,7 @@ export default function ServiziPage() {
         title={
           <>
             Donarsi alla comunità, condividere i propri{" "}
-            <span style={{ color: "var(--azure-deep)" }}>doni</span>.
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>doni</span>.
           </>
         }
         lead="I servizi attraverso cui ogni membro della comunità contribuisce al bene di tutti."

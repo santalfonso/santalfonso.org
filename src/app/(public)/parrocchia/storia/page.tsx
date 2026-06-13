@@ -21,7 +21,7 @@ export default function StoriaPage() {
         title={
           <>
             Una comunità in{" "}
-            <span style={{ color: "var(--azure-deep)" }}>cammino</span> dal
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cammino</span> dal
             1958.
           </>
         }
