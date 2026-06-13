@@ -28,10 +28,13 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload";
+
 const slides = [
   {
     id: "quote",
     reverse: false,
+    photo: { src: "/chiesa.avif", position: "center" },
     content: (
       <div>
         <span className="kicker">Comunità · Prima Porta, Roma</span>
@@ -59,16 +62,31 @@ const slides = [
   {
     id: "giubileo",
     reverse: true,
+    photo: {
+      src: `${CDN}/v1781359289/santalfonso/storia/storia-prima-pietra.avif`,
+      position: "center",
+    },
     content: (
       <div>
-        <span className="kicker" style={{ color: "var(--gold)" }}>Anno Giubilare Parrocchiale</span>
-        <h2 style={{ marginTop: 20 }}>
-          <span style={GOLD}>50 anni</span> di comunità,{" "}
+        <div style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          background: "linear-gradient(90deg, var(--gold-deep), var(--gold))",
+          borderRadius: "var(--r-pill)",
+          marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", color: "#0F1419", textTransform: "uppercase" }}>
+            Anno Giubilare Parrocchiale
+          </span>
+        </div>
+        <h2 style={{ marginTop: 0 }}>
+          <span style={GOLD}>50 anni</span> di parrocchia,{" "}
           <span style={GOLD}>25 anni</span> di chiesa.
         </h2>
-        <p className="lead" style={{ marginTop: 20, maxWidth: "44ch" }}>
+        <p className="lead" style={{ marginTop: 20, maxWidth: "48ch" }}>
           In occasione del 50° anniversario dell&apos;erezione della parrocchia
-          e del 25° anniversario della dedicazione della chiesa.
+          e del 25° anniversario della dedicazione della nuova chiesa, è possibile
+          presso la nostra parrocchia ricevere l&apos;indulgenza plenaria.
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
           <Link
@@ -77,11 +95,11 @@ const slides = [
             style={{
               background: "linear-gradient(90deg, var(--gold-deep), var(--gold))",
               borderColor: "transparent",
-              color: "#0F1419",
+              color: "#fff",
               fontWeight: 700,
             }}
           >
-            Indulgenza plenaria
+            Cos&apos;è e come riceverla
           </Link>
         </div>
       </div>
@@ -106,13 +124,13 @@ export default function HeroSlideshow() {
           <div style={{ position: "relative", direction: "ltr" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/chiesa.avif"
-              alt="Parrocchia Sant'Alfonso Maria de' Liguori — vista aerea"
+              src={slide.photo.src}
+              alt=""
               style={{
                 width: "100%",
                 aspectRatio: "1",
                 objectFit: "cover",
-                objectPosition: "center",
+                objectPosition: slide.photo.position,
                 borderRadius: "var(--r-md)",
                 display: "block",
               }}
