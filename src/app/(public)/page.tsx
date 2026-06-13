@@ -58,11 +58,26 @@ export default async function HomePage() {
           <div className="hero-grid">
             <div>
               <span className="kicker">Comunità · Prima Porta, Roma</span>
-              <h1 style={{ marginTop: 20 }}>
-                &laquo;Chi non vuole altro che Dio, sta sempre contento in ogni cosa che accade.&raquo;
-              </h1>
+              <h2 style={{ marginTop: 20 }}>
+                &ldquo;Chi non vuole altro che{" "}
+                <span style={{
+                  background: "linear-gradient(90deg, var(--azure-deep), var(--azure))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}>Dio</span>
+                , sta sempre contento in{" "}
+                <span style={{
+                  background: "linear-gradient(90deg, var(--azure-deep), var(--azure))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}>ogni cosa</span>
+                {" "}che accade&rdquo;
+              </h2>
               <p className="lead" style={{ marginTop: 20, maxWidth: "44ch" }}>
-                Sant&apos;Alfonso Maria de&apos; Liguori, vescovo e dottore della Chiesa.
+                Sant&apos;Alfonso Maria de&apos; Liguori,<br />
+                vescovo e dottore della Chiesa.
               </p>
               <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
                 <Link href="/#orari" className="btn btn--primary">
