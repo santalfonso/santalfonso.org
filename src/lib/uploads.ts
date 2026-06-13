@@ -14,6 +14,7 @@ export async function uploadImage(file: File): Promise<string> {
   const result = await cloudinary.uploader.upload(dataUri, {
     folder: "santalfonso",
     resource_type: "image",
+    format: "avif",
   });
   return result.secure_url;
 }

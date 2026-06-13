@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { Event } from "@/db/schema";
 import type { ActionState } from "@/actions/articles";
+import ImageDropzone from "./ImageDropzone";
 
 function toLocalInput(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -80,30 +81,11 @@ export default function EventForm({
         />
       </div>
 
-      <div className="admin-form-row">
-        <label htmlFor="posterImage" className="admin-label">
-          Locandina
-          {event?.posterUrl ? " (sostituisce quella attuale)" : ""}
-        </label>
-        {event?.posterUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={event.posterUrl}
-            alt="Locandina attuale"
-            className="admin-img-preview"
-          />
-        )}
-        <input
-          id="posterImage"
-          name="posterImage"
-          type="file"
-          accept="image/*"
-          style={{ fontSize: 13, color: "var(--ink-soft)" }}
-        />
-        <p className="admin-input-hint">
-          Opzionale. Se assente verrà mostrato un formato grafico automatico.
-        </p>
-      </div>
+      <ImageDropzone
+        name="posterImage"
+        currentUrl={event?.posterUrl}
+        label="Locandina"
+      />
 
       {state?.error && (
         <div className="admin-error" style={{ marginBottom: 20 }}>{state.error}</div>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useActionState } from "react";
 import type { Article } from "@/db/schema";
+import ImageDropzone from "./ImageDropzone";
 import type { ActionState } from "@/actions/articles";
 import { proofreadText, generateTitle, generateExcerpt } from "@/actions/ai";
 
@@ -146,31 +147,11 @@ export default function ArticleForm({
         </div>
       )}
 
-      {/* Immagine di copertina */}
-      <div className="admin-form-row">
-        <label htmlFor="coverImage" className="admin-label">
-          Immagine di copertina
-          {article?.coverImageUrl ? " (sostituisce quella attuale)" : ""}
-        </label>
-        {article?.coverImageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={article.coverImageUrl}
-            alt="Copertina attuale"
-            className="admin-img-preview"
-          />
-        )}
-        <input
-          id="coverImage"
-          name="coverImage"
-          type="file"
-          accept="image/*"
-          style={{ fontSize: 13, color: "var(--ink-soft)" }}
-        />
-        <p className="admin-input-hint">
-          L&apos;immagine viene caricata su Cloudinary.
-        </p>
-      </div>
+      <ImageDropzone
+        name="coverImage"
+        currentUrl={article?.coverImageUrl}
+        label="Immagine di copertina"
+      />
 
       {/* Pubblicato */}
       <div className="admin-form-row">
