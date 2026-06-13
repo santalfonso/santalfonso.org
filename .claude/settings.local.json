@@ -18,7 +18,9 @@
       "Bash(git -C /Users/ganaweb/Documents/santalfonso.org status)",
       "Bash(git -C /Users/ganaweb/Documents/santalfonso.org add .claude/settings.local.json)",
       "Bash(git -C /Users/ganaweb/Documents/santalfonso.org commit -m ' *)",
-      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org diff)"
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org diff)",
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org remote add origin https://github.com/santalfonso/santalfonso.org.git)",
+      "Bash(git -C /Users/ganaweb/Documents/santalfonso.org push -u origin main)"
     ]
   }
 }
