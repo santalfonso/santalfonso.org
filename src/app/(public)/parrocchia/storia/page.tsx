@@ -37,12 +37,9 @@ export default function StoriaPage() {
             alt="Prima Porta ai primi del '900"
             style={{
               width: "100%",
-              aspectRatio: "21/9",
-              objectFit: "cover",
-              objectPosition: "center top",
+              display: "block",
               borderRadius: "var(--r-md)",
               border: "1px solid var(--rule)",
-              display: "block",
             }}
           />
           <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
@@ -150,12 +147,9 @@ export default function StoriaPage() {
                 alt="Cerimonia della prima pietra"
                 style={{
                   width: "100%",
-                  aspectRatio: "4/3",
-                  objectFit: "cover",
-                  objectPosition: "center top",
+                  display: "block",
                   borderRadius: "var(--r-md)",
                   border: "1px solid var(--rule)",
-                  display: "block",
                 }}
               />
               <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
@@ -169,12 +163,9 @@ export default function StoriaPage() {
                 alt="La chiesa in costruzione, vista esterna"
                 style={{
                   width: "100%",
-                  aspectRatio: "4/3",
-                  objectFit: "cover",
-                  objectPosition: "center",
+                  display: "block",
                   borderRadius: "var(--r-md)",
                   border: "1px solid var(--rule)",
-                  display: "block",
                 }}
               />
               <p style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 8, textAlign: "center" }}>
