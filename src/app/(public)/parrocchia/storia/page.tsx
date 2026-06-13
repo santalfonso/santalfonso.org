@@ -8,7 +8,7 @@ const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload";
 const foto = {
   primaporta1900: `${CDN}/santalfonso/storia/storia-prima-porta-1900.avif`,
   costruzioneInterno: `${CDN}/santalfonso/storia/storia-costruzione-interno.avif`,
-  primaPietra: `${CDN}/santalfonso/storia/storia-prima-pietra.avif`,
+  primaPietra: `${CDN}/v1781359016/santalfonso/storia/storia-prima-pietra.avif`,
   donEulogioGpii: `${CDN}/santalfonso/storia/storia-doneulogio-gpii.avif`,
   costruzioneEsterno: `${CDN}/santalfonso/storia/storia-costruzione-esterno.avif`,
 };
