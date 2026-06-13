@@ -108,8 +108,8 @@ export default async function HomePage() {
               <span className="kicker">Calendario</span>
               <h2 style={{ marginTop: 14 }}>Prossimi appuntamenti</h2>
             </div>
-            <Link href="/news" className="btn--link">
-              Tutte le news →
+            <Link href="/calendario" className="btn--link">
+              Calendario →
             </Link>
           </div>
 
