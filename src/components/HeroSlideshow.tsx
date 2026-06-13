@@ -52,9 +52,8 @@ const slides = [
           <Link href="/news" className="btn btn--ghost">Ultime news</Link>
         </div>
         <div style={{ display: "flex", gap: 32, marginTop: 48, paddingTop: 32, borderTop: "1px solid var(--rule)", flexWrap: "wrap" }}>
-          <Stat label="Messe settimanali" value="16" />
           <Stat label="Anno di fondazione" value="1975" />
-          <Stat label="Visite pontificie" value="2" />
+          <Stat label="Abitanti nel territorio" value="17.000" />
         </div>
       </div>
     ),
@@ -91,6 +90,11 @@ const slides = [
           >
             Cos&apos;è e come riceverla
           </Link>
+        </div>
+        <div style={{ display: "flex", gap: 32, marginTop: 48, paddingTop: 32, borderTop: "1px solid var(--rule)", flexWrap: "wrap" }}>
+          <Stat label="Anno di fondazione" value="1975" />
+          <Stat label="Anno di dedicazione" value="2000" />
+          <Stat label="Anno Giubilare Parrocchiale" value="2025" />
         </div>
       </div>
     ),
