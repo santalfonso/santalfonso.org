@@ -13,8 +13,33 @@ type Libro = {
   amazonUrl: string;
 };
 
+const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload/v1781360745/santalfonso/libri";
+
 const libri: Libro[] = [
-  // I dati verranno inseriti dall'utente
+  {
+    coverUrl: `${CDN}/pratica-amare-gesu.avif`,
+    titolo: "Pratica di amare Gesù Cristo",
+    didascalia:
+      `Uno dei meriti di sant’Alfonso è quello di aver avuto la “pretesa” pastorale di portare tutti, laici e non, alla perfezione della vita. Probabilmente questo è il più bel libro di sant’Alfonso: tutto incentrato sull’arte di amare Gesù Cristo.`,
+    amazonUrl:
+      "https://www.amazon.it/Pratica-Cristo-Alfonso-Maria-Liguori/dp/8884043239/ref=sr_1_1?ie=UTF8&qid=1550316295&sr=8-1&keywords=9788884043238",
+  },
+  {
+    coverUrl: `${CDN}/visite-santissimo.avif`,
+    titolo: "Visite al Santissimo Sacramento e a Maria Santissima",
+    didascalia:
+      "Un manuale di preghiera agile e accessibile a tutti, dallo stile scorrevole e piacevole, di contenuto ricco. Aprilo in qualunque chiesa dove sia presente il Santissimo Sacramento, o durante l'adorazione eucaristica.",
+    amazonUrl:
+      "https://www.amazon.it/Visite-santissimo-sacramento-Maria-Santissima/dp/8884041880/ref=sr_1_1?ie=UTF8&qid=1550317032&sr=8-1&keywords=9788884041883",
+  },
+  {
+    coverUrl: `${CDN}/massime-eterne.avif`,
+    titolo: "Massime Eterne",
+    didascalia:
+      "Il libro che aiuta il credente a parlare con Dio, a intensificare il rapporto personale con lui, specialmente nei momenti di dolore e nelle prove della vita. Un sussidio efficace per conseguire la salvezza eterna.",
+    amazonUrl:
+      "https://www.amazon.it/Massime-eterne-Ediz-caratteri-grandi/dp/8884041929/ref=sr_1_1?ie=UTF8&qid=1550315882&sr=8-1&keywords=9788884041920",
+  },
 ];
 
 export default function SantoTitolarePage() {
@@ -157,18 +182,9 @@ export default function SantoTitolarePage() {
               gap: 24,
             }}>
               {libri.map((libro) => (
-                <a
+                <div
                   key={libro.amazonUrl}
-                  href={libro.amazonUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 12,
-                    textDecoration: "none",
-                    color: "inherit",
-                  }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -182,26 +198,26 @@ export default function SantoTitolarePage() {
                       border: "1px solid var(--rule)",
                       display: "block",
                       boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
-                      transition: "box-shadow 0.2s, transform 0.2s",
                     }}
                   />
-                  <div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: 14, lineHeight: 1.3 }}>
                       {libro.titolo}
                     </div>
-                    <div style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 4 }}>
+                    <div style={{ fontSize: 13, color: "var(--ink-mute)", lineHeight: 1.5 }}>
                       {libro.didascalia}
                     </div>
-                    <div style={{
-                      fontSize: 12,
-                      color: "var(--azure-deep)",
-                      marginTop: 6,
-                      fontWeight: 500,
-                    }}>
-                      Acquista su Amazon →
-                    </div>
+                    <a
+                      href={libro.amazonUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn--primary"
+                      style={{ marginTop: "auto", fontSize: 13, textAlign: "center", textDecoration: "none" }}
+                    >
+                      Acquista su Amazon
+                    </a>
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           </div>
