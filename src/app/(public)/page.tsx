@@ -59,13 +59,10 @@ export default async function HomePage() {
             <div>
               <span className="kicker">Comunità · Prima Porta, Roma</span>
               <h1 style={{ marginTop: 20 }}>
-                Una casa di preghiera al cuore della{" "}
-                <span style={{ color: "var(--azure-deep)" }}>comunità</span>.
+                &laquo;Chi non vuole altro che Dio, sta sempre contento in ogni cosa che accade.&raquo;
               </h1>
               <p className="lead" style={{ marginTop: 20, maxWidth: "44ch" }}>
-                Sulle orme di Sant&apos;Alfonso Maria de&apos; Liguori —
-                «Chi prega si salva, chi non prega si danna!» — accogliamo
-                chi cerca silenzio, ascolto e parola viva.
+                Sant&apos;Alfonso Maria de&apos; Liguori, vescovo e dottore della Chiesa.
               </p>
               <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
                 <Link href="/#orari" className="btn btn--primary">
