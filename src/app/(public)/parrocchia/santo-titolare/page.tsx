@@ -97,8 +97,14 @@ export default function SantoTitolarePage() {
         kicker="Santo titolare"
         title={
           <>
-            Sant&apos;Alfonso Maria de&apos;{" "}
-            <span style={{ color: "var(--azure-deep)" }}>Liguori</span>
+            <span style={{
+              background: "linear-gradient(90deg, var(--azure-deep), var(--azure))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}>Sant&apos;Alfonso</span>
+            {" "}
+            <span style={{ color: "var(--ink)" }}>Maria de&apos; Liguori</span>
           </>
         }
         lead="Vescovo e Dottore della Chiesa (1696 – 1787): avvocato, missionario, fondatore dei Redentoristi, maestro di misericordia."
