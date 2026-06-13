@@ -68,25 +68,15 @@ const slides = [
     },
     content: (
       <div>
-        <div style={{
-          display: "inline-block",
-          padding: "6px 14px",
-          background: "linear-gradient(90deg, var(--gold-deep), var(--gold))",
-          borderRadius: "var(--r-pill)",
-          marginBottom: 16,
-        }}>
-          <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", color: "#0F1419", textTransform: "uppercase" }}>
-            Anno Giubilare Parrocchiale
-          </span>
-        </div>
         <h2 style={{ marginTop: 0 }}>
           <span style={GOLD}>50 anni</span> di parrocchia,{" "}
           <span style={GOLD}>25 anni</span> di chiesa.
         </h2>
         <p className="lead" style={{ marginTop: 20, maxWidth: "48ch" }}>
           In occasione del 50° anniversario dell&apos;erezione della parrocchia
-          e del 25° anniversario della dedicazione della nuova chiesa, è possibile
-          presso la nostra parrocchia ricevere l&apos;indulgenza plenaria.
+          e del 25° anniversario della dedicazione della nuova chiesa, è stato
+          istituito l&apos;<span style={GOLD}>Anno Giubilare Parrocchiale</span>{" "}
+          in cui è possibile ricevere l&apos;indulgenza plenaria.
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
           <Link
