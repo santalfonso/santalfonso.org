@@ -246,10 +246,12 @@ export default function EventCardsWithModal({ events }: { events: EventItem[] })
               border: "none",
             }}
           >
-            {/* Poster / placeholder */}
-            <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", flexShrink: 0 }}>
-              <EventPoster event={event} />
-            </div>
+            {/* Poster — solo se esiste */}
+            {event.posterUrl && (
+              <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", flexShrink: 0 }}>
+                <EventPoster event={event} />
+              </div>
+            )}
 
             {/* Info */}
             <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
