@@ -8,7 +8,7 @@ const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload";
 const foto = {
   primaporta1900: `${CDN}/santalfonso/storia/storia-prima-porta-1900.avif`,
   costruzioneInterno: `${CDN}/santalfonso/storia/storia-costruzione-interno.avif`,
-  primaPietra: `${CDN}/v1781359016/santalfonso/storia/storia-prima-pietra.avif`,
+  primaPietra: `${CDN}/v1781359289/santalfonso/storia/storia-prima-pietra.avif`,
   donEulogioGpii: `${CDN}/santalfonso/storia/storia-doneulogio-gpii.avif`,
   costruzioneEsterno: `${CDN}/santalfonso/storia/storia-costruzione-esterno.avif`,
 };
@@ -140,13 +140,16 @@ export default function StoriaPage() {
       <section style={{ paddingTop: 32, paddingBottom: 64 }}>
         <div className="container">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={foto.primaPietra}
                 alt="Cerimonia della prima pietra"
                 style={{
                   width: "100%",
+                  flex: 1,
+                  minHeight: 0,
+                  objectFit: "cover",
                   display: "block",
                   borderRadius: "var(--r-md)",
                   border: "1px solid var(--rule)",
@@ -160,7 +163,7 @@ export default function StoriaPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={foto.costruzioneEsterno}
-                alt="La chiesa in costruzione, vista esterna"
+                alt="L'interno della chiesa durante i lavori"
                 style={{
                   width: "100%",
                   display: "block",
