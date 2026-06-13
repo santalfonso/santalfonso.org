@@ -125,8 +125,35 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
           maxHeight: "90vh",
           overflowY: "auto",
           boxShadow: "0 24px 64px rgba(0,0,0,0.25)",
+          position: "relative",
         }}
       >
+        {/* X chiudi */}
+        <button
+          onClick={onClose}
+          aria-label="Chiudi"
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 10,
+            width: 32,
+            height: 32,
+            borderRadius: "50%",
+            border: "none",
+            background: "rgba(0,0,0,0.35)",
+            color: "#fff",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 18,
+            lineHeight: 1,
+          }}
+        >
+          ×
+        </button>
+
         {/* Poster */}
         <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
           <EventPoster event={event} />
@@ -189,22 +216,6 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
             </p>
           )}
 
-          <button
-            onClick={onClose}
-            style={{
-              marginTop: 28,
-              padding: "10px 24px",
-              borderRadius: "var(--r-pill)",
-              border: "1.5px solid var(--border)",
-              background: "transparent",
-              cursor: "pointer",
-              fontSize: 14,
-              fontWeight: 500,
-              color: "var(--ink)",
-            }}
-          >
-            Chiudi
-          </button>
         </div>
       </div>
     </div>
