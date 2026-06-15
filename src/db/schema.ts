@@ -84,6 +84,16 @@ export const announcements = sqliteTable("announcements", {
     .default(sql`(datetime('now'))`),
 });
 
+export const pushSubscriptions = sqliteTable("push_subscriptions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  endpoint: text("endpoint").notNull().unique(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
 export type User = typeof users.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type Event = typeof events.$inferSelect;
@@ -91,3 +101,4 @@ export type Resource = typeof resources.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
 export type ArticleImage = typeof articleImages.$inferSelect;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;

@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
 import { uploadImage } from "@/lib/uploads";
 import { slugify } from "@/lib/utils";
+import { sendPushToAll } from "@/actions/push";
 
 const articleSchema = z.object({
   title: z.string().min(1, "Il titolo è obbligatorio"),
@@ -87,6 +88,14 @@ export async function createArticle(
     );
   }
 
+  if (published) {
+    sendPushToAll({
+      title: title,
+      body: excerpt || "Leggi la notizia sul sito della parrocchia.",
+      url: `/news/${slug}`,
+    }).catch(() => {});
+  }
+
   revalidatePath("/");
   revalidatePath("/news");
   redirect("/admin/articoli");
@@ -122,6 +131,8 @@ export async function updateArticle(
   }
 
   const { title, excerpt, body, published } = parsed.data;
+  const justPublished = published && !current.published;
+
   await db
     .update(articles)
     .set({
@@ -137,6 +148,14 @@ export async function updateArticle(
       updatedAt: new Date().toISOString(),
     })
     .where(eq(articles.id, id));
+
+  if (justPublished) {
+    sendPushToAll({
+      title: title,
+      body: excerpt || "Leggi la notizia sul sito della parrocchia.",
+      url: `/news/${current.slug}`,
+    }).catch(() => {});
+  }
 
   // Aggiunge nuove immagini galleria
   if (galleryUrls.length > 0) {

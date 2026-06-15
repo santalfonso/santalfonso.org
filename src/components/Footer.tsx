@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PushSubscribeButton from "@/components/PushSubscribeButton";
 
 export default function Footer() {
   return (
@@ -78,7 +79,8 @@ export default function Footer() {
           <span>
             {`© ${new Date().getFullYear()} Parrocchia Sant'Alfonso Maria de' Liguori · Roma`}
           </span>
-          <span>
+          <span style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <PushSubscribeButton />
             <Link href="/dove-siamo">Dove siamo</Link> ·{" "}
             <Link href="/contatti">Contatti</Link>
           </span>
