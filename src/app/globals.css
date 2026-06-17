@@ -1077,7 +1077,7 @@ img { max-width: 100%; display: block; }
   /* align-self: stretch è il default — si adatta all'altezza del contenuto */
 }
 
-.avvisi-item__title {
+.avvisi-section .avvisi-item__title {
   font-size: 16px;
   font-weight: 700;
   color: #ffffff;
@@ -1086,14 +1086,14 @@ img { max-width: 100%; display: block; }
   letter-spacing: -0.01em;
 }
 
-.avvisi-item__text {
+.avvisi-section .avvisi-item__text {
   font-size: 14px;
   color: #ffffff;
   line-height: 1.65;
   margin: 0 0 8px;
 }
 
-.avvisi-item__date {
+.avvisi-section .avvisi-item__date {
   font-size: 12px;
   color: color-mix(in oklab, var(--bg) 45%, transparent);
   margin: 0;
