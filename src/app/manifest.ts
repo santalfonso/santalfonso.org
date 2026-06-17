@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
       "Parrocchia Sant'Alfonso Maria de' Liguori — Prima Porta, Roma",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
+    background_color: "#1F7AE0",
     theme_color: "#1F7AE0",
     icons: [
       {
