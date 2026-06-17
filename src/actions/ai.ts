@@ -73,6 +73,42 @@ export async function generateTitle(text: string): Promise<AIResult> {
   );
 }
 
+export async function proofreadAnnouncement(
+  title: string,
+  text: string,
+): Promise<
+  | { correctedTitle: string; correctedText: string; hasChanges: boolean }
+  | { error: string }
+> {
+  const result = await callGroq(
+    "Sei un correttore di bozze per avvisi parrocchiali italiani. " +
+      "Correggi errori ortografici, grammaticali, punteggiatura e uso delle maiuscole. " +
+      "Rimani fedele all'originale: non aggiungere, rimuovere o riformulare informazioni. " +
+      'Rispondi SOLO con un oggetto JSON valido nel formato: {"title": "...", "text": "..."}',
+    `Titolo: ${title}\nTesto: ${text}`,
+  );
+
+  if ("error" in result) return result;
+
+  const jsonMatch = result.data.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) return { correctedTitle: title, correctedText: text, hasChanges: false };
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    const correctedTitle: string = parsed.title ?? title;
+    const correctedText: string = parsed.text ?? text;
+    return {
+      correctedTitle,
+      correctedText,
+      hasChanges:
+        correctedTitle.trim() !== title.trim() ||
+        correctedText.trim() !== text.trim(),
+    };
+  } catch {
+    return { correctedTitle: title, correctedText: text, hasChanges: false };
+  }
+}
+
 export async function generateExcerpt(text: string): Promise<AIResult> {
   if (!text.trim())
     return {

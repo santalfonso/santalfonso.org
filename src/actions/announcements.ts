@@ -10,8 +10,8 @@ import { requireUser } from "@/auth";
 export type AnnouncementState = { error?: string } | undefined;
 
 export async function createAnnouncement(
-  _prev: AnnouncementState,
-  formData: FormData,
+  title: string,
+  text: string,
 ): Promise<AnnouncementState> {
   try {
     await requireUser();
@@ -19,20 +19,20 @@ export async function createAnnouncement(
     return { error: "Non autorizzato." };
   }
 
-  const title = (formData.get("title") as string).trim();
-  const text = (formData.get("text") as string).trim();
+  const t = title.trim();
+  const tx = text.trim();
 
-  if (!title) return { error: "Il titolo è obbligatorio." };
-  if (title.length > 30) return { error: "Il titolo non può superare 30 caratteri." };
-  if (!text) return { error: "Il testo è obbligatorio." };
-  if (text.length > 300) return { error: "Il testo non può superare 300 caratteri." };
+  if (!t) return { error: "Il titolo è obbligatorio." };
+  if (t.length > 30) return { error: "Il titolo non può superare 30 caratteri." };
+  if (!tx) return { error: "Il testo è obbligatorio." };
+  if (tx.length > 300) return { error: "Il testo non può superare 300 caratteri." };
 
   const [inserted] = await db
     .insert(announcements)
-    .values({ title, text })
+    .values({ title: t, text: tx })
     .returning({ id: announcements.id });
 
-  sendPushToAll({ title, body: text, url: `/?avviso=${inserted.id}` }).catch(() => {});
+  sendPushToAll({ title: t, body: tx, url: `/?avviso=${inserted.id}` }).catch(() => {});
 
   revalidatePath("/admin");
   revalidatePath("/");
