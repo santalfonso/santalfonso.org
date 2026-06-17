@@ -83,6 +83,7 @@ export async function proofreadAnnouncement(
   const result = await callGroq(
     "Sei un correttore di bozze per avvisi parrocchiali italiani. " +
       "Correggi errori ortografici, grammaticali, punteggiatura e uso delle maiuscole. " +
+      "Normalizza tutti gli orari nel formato HH:mm a due cifre (es. '9' → '09:00', '9.30' → '09:30', '18' → '18:00'). " +
       "Rimani fedele all'originale: non aggiungere, rimuovere o riformulare informazioni. " +
       'Rispondi SOLO con un oggetto JSON valido nel formato: {"title": "...", "text": "..."}',
     `Titolo: ${title}\nTesto: ${text}`,
