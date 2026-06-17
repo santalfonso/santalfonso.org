@@ -19,20 +19,26 @@ export default function NotifPromptBanner() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!("Notification" in window)) return;
-    if (!("serviceWorker" in navigator)) return;
-    if (localStorage.getItem("notif-prompt-dismissed")) return;
-    if (Notification.permission === "granted") return;
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) return;
+    // Se l'utente ha bloccato esplicitamente le notifiche non possiamo fare nulla
+    if (Notification.permission === "denied") return;
+    // Nella stessa sessione l'utente ha già chiuso il banner, non riaprirlo
+    if (sessionStorage.getItem("notif-banner-seen")) return;
 
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as unknown as { standalone?: boolean }).standalone === true;
+    if (!standalone) return;
 
-    if (standalone) setShow(true);
+    // Mostra solo se non c'è già una subscription attiva
+    navigator.serviceWorker.ready
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => { if (!sub) setShow(true); })
+      .catch(() => {});
   }, []);
 
   function dismiss() {
-    localStorage.setItem("notif-prompt-dismissed", "1");
+    sessionStorage.setItem("notif-banner-seen", "1");
     setShow(false);
   }
 
@@ -50,7 +56,6 @@ export default function NotifPromptBanner() {
         ),
       });
       await subscribeUser(JSON.parse(JSON.stringify(sub)));
-      localStorage.setItem("notif-prompt-dismissed", "1");
       setShow(false);
     } catch {
       dismiss();
@@ -64,7 +69,7 @@ export default function NotifPromptBanner() {
   return (
     <div style={{
       position: "fixed",
-      bottom: 24,
+      bottom: 88,
       left: 0,
       right: 0,
       display: "flex",
