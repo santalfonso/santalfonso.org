@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Sant'Alfonso — Prima Porta",
+    name: "santalfonso.org",
     short_name: "Sant'Alfonso",
     description:
       "Parrocchia Sant'Alfonso Maria de' Liguori — Prima Porta, Roma",
