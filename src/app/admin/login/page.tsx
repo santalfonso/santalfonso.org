@@ -28,7 +28,7 @@ export default function LoginPage() {
             <img
               src="/logo-light-center.avif"
               alt="Sant'Alfonso"
-              style={{ height: 48, width: "auto", margin: "0 auto 20px", display: "block" }}
+              style={{ height: 72, width: "auto", margin: "0 auto 20px", display: "block" }}
             />
             <h1
               style={{
