@@ -162,6 +162,8 @@ export default function ArticleForm({
         name="coverImage"
         currentUrl={article?.coverImageUrl}
         label="Immagine di copertina"
+        focusInputName="coverImageFocus"
+        currentFocus={article?.coverImageFocus}
       />
 
       <GalleryEditor existing={galleryImages.map((img) => ({ id: img.id, url: img.url }))} />

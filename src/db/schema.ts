@@ -21,6 +21,7 @@ export const articles = sqliteTable("articles", {
   excerpt: text("excerpt"),
   body: text("body").notNull(),
   coverImageUrl: text("cover_image_url"),
+  coverImageFocus: text("cover_image_focus").default("50% 50%"),
   published: integer("published", { mode: "boolean" }).notNull().default(false),
   publishedAt: text("published_at"),
   createdAt: text("created_at")

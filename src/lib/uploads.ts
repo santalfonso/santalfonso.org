@@ -11,10 +11,14 @@ cloudinary.config({
 export async function uploadImage(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const originalName = file.name.replace(/\.[^/.]+$/, "");
   const result = await cloudinary.uploader.upload(dataUri, {
     folder: "santalfonso",
     resource_type: "image",
     format: "avif",
+    public_id: originalName,
+    overwrite: false,
+    unique_filename: true,
   });
   return result.secure_url;
 }

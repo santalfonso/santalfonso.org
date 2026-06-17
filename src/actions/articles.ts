@@ -17,6 +17,7 @@ const articleSchema = z.object({
   body: z.string().min(1, "Il testo è obbligatorio"),
   published: z.boolean(),
   publishedAt: z.string().optional(),
+  coverImageFocus: z.string().optional(),
 });
 
 export type ActionState = { error?: string } | undefined;
@@ -28,6 +29,7 @@ function parseForm(formData: FormData) {
     body: formData.get("body"),
     published: formData.get("published") === "on",
     publishedAt: (formData.get("publishedAt") as string) || undefined,
+    coverImageFocus: (formData.get("coverImageFocus") as string) || undefined,
   });
 }
 
@@ -67,7 +69,7 @@ export async function createArticle(
     return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
   }
 
-  const { title, excerpt, body, published, publishedAt: publishedAtRaw } = parsed.data;
+  const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   let slug = slugify(title);
   const existing = await db.query.articles.findFirst({
     where: eq(articles.slug, slug),
@@ -84,6 +86,7 @@ export async function createArticle(
     excerpt: excerpt || null,
     body,
     coverImageUrl,
+    coverImageFocus: coverImageFocus || "50% 50%",
     published,
     publishedAt,
   }).returning({ id: articles.id });
@@ -136,7 +139,7 @@ export async function updateArticle(
     await db.delete(articleImages).where(inArray(articleImages.id, deleteIds));
   }
 
-  const { title, excerpt, body, published, publishedAt: publishedAtRaw } = parsed.data;
+  const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   const justPublished = published && !current.published;
 
   const publishedAt = published
@@ -152,6 +155,7 @@ export async function updateArticle(
       published,
       publishedAt,
       ...(coverImageUrl ? { coverImageUrl } : {}),
+      ...(coverImageFocus ? { coverImageFocus } : {}),
       updatedAt: new Date().toISOString(),
     })
     .where(eq(articles.id, id));

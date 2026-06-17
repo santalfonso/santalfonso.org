@@ -108,9 +108,10 @@ export default async function ArticlePage({ params }: Props) {
               src={article.coverImageUrl}
               alt=""
               style={{
-                aspectRatio: "21/9",
+                aspectRatio: "2/1",
                 width: "100%",
                 objectFit: "cover",
+                objectPosition: article.coverImageFocus ?? "50% 50%",
                 borderRadius: "var(--r-md)",
                 border: "1px solid var(--rule)",
               }}
@@ -142,7 +143,7 @@ export default async function ArticlePage({ params }: Props) {
       </section>
 
       {gallery.length > 0 && (
-        <section>
+        <section style={{ paddingTop: 16 }}>
           <div className="container">
             <div style={{ marginBottom: 24 }}>
               <span className="kicker">Galleria</span>
