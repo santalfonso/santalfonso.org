@@ -1,5 +1,5 @@
 import { and, desc, eq, ne } from "drizzle-orm";
-import { marked } from "marked";
+import { Marked } from "marked";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,6 +9,23 @@ import { formatDate } from "@/lib/utils";
 import ArticleGallery from "@/components/ArticleGallery";
 
 export const dynamic = "force-dynamic";
+
+const ALIGN_KEYWORDS = new Set(["center", "left", "right", "small"]);
+
+const articleMarked = new Marked({
+  renderer: {
+    image({ href, title, text }: { href: string; title: string | null; text: string }) {
+      const align = title && ALIGN_KEYWORDS.has(title) ? title : null;
+      const cls = align ? ` class="img-${align}"` : "";
+      const titleAttr = title && !align ? ` title="${title}"` : "";
+      const alt = text ? ` alt="${text}"` : "";
+      const img = `<img src="${href}"${alt}${titleAttr}${cls}>`;
+      return align === "left" || align === "right"
+        ? `<div class="img-wrap">${img}</div>`
+        : img;
+    },
+  },
+});
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -30,7 +47,7 @@ export default async function ArticlePage({ params }: Props) {
   if (!article) notFound();
 
   const [html, related, gallery] = await Promise.all([
-    marked.parse(article.body),
+    articleMarked.parse(article.body),
     db.query.articles.findMany({
       where: and(eq(articles.published, true), ne(articles.id, article.id)),
       orderBy: [desc(articles.publishedAt)],

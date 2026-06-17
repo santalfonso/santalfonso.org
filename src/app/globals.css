@@ -641,6 +641,39 @@ img { max-width: 100%; display: block; }
 .prose-parish strong { font-weight: 600; color: var(--ink); }
 .prose-parish em { font-style: italic; }
 
+.prose-parish img {
+  display: block;
+  width: 100%;
+  border-radius: var(--r-md);
+  margin: 1.5em 0;
+  border: 1px solid var(--rule);
+}
+.prose-parish .img-center {
+  width: auto;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose-parish .img-small {
+  width: auto;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose-parish .img-left {
+  float: left;
+  width: auto;
+  max-width: 46%;
+  margin: 0.3em 1.6em 1em 0;
+}
+.prose-parish .img-right {
+  float: right;
+  width: auto;
+  max-width: 46%;
+  margin: 0.3em 0 1em 1.6em;
+}
+.prose-parish .img-wrap { overflow: hidden; }
+
 /* ===========================
    Area Admin
    =========================== */

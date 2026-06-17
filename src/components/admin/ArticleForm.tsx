@@ -122,6 +122,14 @@ export default function ArticleForm({
         <div className="admin-field-head">
           <label htmlFor="body" className="admin-label">
             Testo dell&apos;articolo * — supporta Markdown: **grassetto**, ## titoli, elenchi…
+            <span style={{ display: "block", fontWeight: 400, fontSize: 11, color: "var(--ink-mute)", marginTop: 3 }}>
+              Immagini: <code style={{ fontSize: 11 }}>![descrizione](URL)</code> — per allineare aggiungi il titolo:{" "}
+              <code style={{ fontSize: 11 }}>&quot;center&quot;</code>,{" "}
+              <code style={{ fontSize: 11 }}>&quot;left&quot;</code>,{" "}
+              <code style={{ fontSize: 11 }}>&quot;right&quot;</code>,{" "}
+              <code style={{ fontSize: 11 }}>&quot;small&quot;</code>.
+              Es: <code style={{ fontSize: 11 }}>![foto](URL &quot;center&quot;)</code>
+            </span>
           </label>
           <button
             type="button"
