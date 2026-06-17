@@ -23,6 +23,9 @@ export const metadata: Metadata = {
       { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
   },
+  appleWebApp: {
+    title: "santalfonso.org",
+  },
 };
 
 const themeInit = `(function(){try{var t=localStorage.getItem("sa-theme");if(t==="dark"||(t===null&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})();`;
