@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import type { Announcement } from "@/db/schema";
+import { formatDate } from "@/lib/utils";
 
 export default function AnnouncementModal({ announcement }: { announcement: Announcement }) {
   const router = useRouter();
@@ -71,6 +72,10 @@ export default function AnnouncementModal({ announcement }: { announcement: Anno
           whiteSpace: "pre-wrap",
         }}>
           {announcement.text}
+        </p>
+
+        <p style={{ marginTop: 16, fontSize: 12, color: "var(--ink-mute)", letterSpacing: "0.02em" }}>
+          {formatDate(announcement.createdAt)}
         </p>
 
         <button
