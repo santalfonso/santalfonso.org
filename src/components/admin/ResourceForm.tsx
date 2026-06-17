@@ -8,7 +8,7 @@ export default function ResourceForm() {
   const [state, formAction, pending] = useActionState(createResource, undefined);
 
   return (
-    <form action={formAction} className="admin-form">
+    <form action={formAction} className="admin-form" encType="multipart/form-data">
       <div className="admin-form-row">
         <label htmlFor="title" className="admin-label">Titolo *</label>
         <input
@@ -55,7 +55,7 @@ export default function ResourceForm() {
           style={{ fontSize: 13, color: "var(--ink-soft)" }}
         />
         <p className="admin-input-hint">
-          Il file viene caricato su Vercel Blob e reso scaricabile dal sito.
+          Il file viene caricato su Cloudinary e reso scaricabile tramite il sito.
         </p>
       </div>
 
