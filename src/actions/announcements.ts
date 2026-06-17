@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { announcements } from "@/db/schema";
+import { sendPushToAll } from "@/actions/push";
 import { requireUser } from "@/auth";
 
 export type AnnouncementState = { error?: string } | undefined;
@@ -27,6 +28,8 @@ export async function createAnnouncement(
   if (text.length > 300) return { error: "Il testo non può superare 300 caratteri." };
 
   await db.insert(announcements).values({ title, text });
+
+  sendPushToAll({ title, body: text, url: "/" }).catch(() => {});
 
   revalidatePath("/admin");
   revalidatePath("/");
