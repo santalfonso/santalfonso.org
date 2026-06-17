@@ -94,7 +94,7 @@ export default async function RisorsePage() {
                   {items.map((resource, j, arr) => (
                     <a
                       key={resource.id}
-                      href={resource.fileUrl}
+                      href={`/risorse/${resource.id}/file`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="resource-row"

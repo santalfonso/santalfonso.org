@@ -37,7 +37,7 @@ export async function createResource(
   try {
     fileUrl = await uploadFile(file);
   } catch {
-    return { error: "Caricamento non riuscito. Verifica la configurazione di Vercel Blob (BLOB_READ_WRITE_TOKEN)." };
+    return { error: "Caricamento non riuscito. Verifica la configurazione Cloudinary." };
   }
 
   const { title, description, category } = parsed.data;

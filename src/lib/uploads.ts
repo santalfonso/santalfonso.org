@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { put } from "@vercel/blob";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -23,11 +22,17 @@ export async function uploadImage(file: File): Promise<string> {
   return result.secure_url;
 }
 
-/** Carica un file (PDF, ecc.) su Vercel Blob e restituisce l'URL pubblico. */
+/** Carica un file raw (PDF, ecc.) su Cloudinary e restituisce l'URL pubblico. */
 export async function uploadFile(file: File): Promise<string> {
-  const blob = await put(`risorse/${file.name}`, file, {
-    access: "public",
-    addRandomSuffix: true,
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
+  const originalName = file.name.replace(/\.[^/.]+$/, "");
+  const result = await cloudinary.uploader.upload(dataUri, {
+    folder: "santalfonso/risorse",
+    resource_type: "raw",
+    public_id: originalName,
+    overwrite: false,
+    unique_filename: true,
   });
-  return blob.url;
+  return result.secure_url;
 }
