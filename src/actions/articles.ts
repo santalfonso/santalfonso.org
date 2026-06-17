@@ -16,6 +16,7 @@ const articleSchema = z.object({
   excerpt: z.string().optional(),
   body: z.string().min(1, "Il testo è obbligatorio"),
   published: z.boolean(),
+  publishedAt: z.string().optional(),
 });
 
 export type ActionState = { error?: string } | undefined;
@@ -26,6 +27,7 @@ function parseForm(formData: FormData) {
     excerpt: formData.get("excerpt") ?? undefined,
     body: formData.get("body"),
     published: formData.get("published") === "on",
+    publishedAt: (formData.get("publishedAt") as string) || undefined,
   });
 }
 
@@ -65,12 +67,16 @@ export async function createArticle(
     return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
   }
 
-  const { title, excerpt, body, published } = parsed.data;
+  const { title, excerpt, body, published, publishedAt: publishedAtRaw } = parsed.data;
   let slug = slugify(title);
   const existing = await db.query.articles.findFirst({
     where: eq(articles.slug, slug),
   });
   if (existing) slug = `${slug}-${Date.now()}`;
+
+  const publishedAt = publishedAtRaw
+    ? new Date(publishedAtRaw).toISOString()
+    : published ? new Date().toISOString() : null;
 
   const [created] = await db.insert(articles).values({
     title,
@@ -79,7 +85,7 @@ export async function createArticle(
     body,
     coverImageUrl,
     published,
-    publishedAt: published ? new Date().toISOString() : null,
+    publishedAt,
   }).returning({ id: articles.id });
 
   if (galleryUrls.length > 0) {
@@ -130,8 +136,12 @@ export async function updateArticle(
     await db.delete(articleImages).where(inArray(articleImages.id, deleteIds));
   }
 
-  const { title, excerpt, body, published } = parsed.data;
+  const { title, excerpt, body, published, publishedAt: publishedAtRaw } = parsed.data;
   const justPublished = published && !current.published;
+
+  const publishedAt = published
+    ? (publishedAtRaw ? new Date(publishedAtRaw).toISOString() : current.publishedAt ?? new Date().toISOString())
+    : current.publishedAt;
 
   await db
     .update(articles)
@@ -140,10 +150,7 @@ export async function updateArticle(
       excerpt: excerpt || null,
       body,
       published,
-      publishedAt:
-        published && !current.publishedAt
-          ? new Date().toISOString()
-          : current.publishedAt,
+      publishedAt,
       ...(coverImageUrl ? { coverImageUrl } : {}),
       updatedAt: new Date().toISOString(),
     })

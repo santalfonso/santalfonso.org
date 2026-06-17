@@ -158,6 +158,25 @@ export default function ArticleForm({
 
       <GalleryEditor existing={galleryImages.map((img) => ({ id: img.id, url: img.url }))} />
 
+      {/* Data di pubblicazione */}
+      <div className="admin-form-row">
+        <label htmlFor="publishedAt" className="admin-label">
+          Data di pubblicazione
+        </label>
+        <input
+          type="date"
+          id="publishedAt"
+          name="publishedAt"
+          defaultValue={
+            article?.publishedAt
+              ? article.publishedAt.slice(0, 10)
+              : new Date().toISOString().slice(0, 10)
+          }
+          className="admin-input"
+          style={{ maxWidth: 220 }}
+        />
+      </div>
+
       {/* Pubblicato */}
       <div className="admin-form-row">
         <label className="admin-checkbox-row">
