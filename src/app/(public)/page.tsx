@@ -171,9 +171,11 @@ export default async function HomePage({
               {activeAnnouncements.map((a) => (
                 <div key={a.id} className="avvisi-item">
                   <div className="avvisi-item__bar" />
-                  <h3 className="avvisi-item__title">{a.title}</h3>
-                  <p className="avvisi-item__text">{a.text}</p>
-                  <p className="avvisi-item__date">{formatDate(a.createdAt)}</p>
+                  <div>
+                    <h3 className="avvisi-item__title">{a.title}</h3>
+                    <p className="avvisi-item__text">{a.text}</p>
+                    <p className="avvisi-item__date">{formatDate(a.createdAt)}</p>
+                  </div>
                 </div>
               ))}
             </div>

@@ -1063,19 +1063,18 @@ img { max-width: 100%; display: block; }
 }
 
 .avvisi-item {
-  position: relative;
-  padding: 24px 0 24px 23px; /* 23 = 3px barra + 20px gap */
+  display: flex;
+  gap: 20px;
+  padding: 24px 0;
   border-bottom: 1px solid color-mix(in oklab, var(--bg) 12%, transparent);
 }
 
 .avvisi-item__bar {
-  position: absolute;
-  left: 0;
-  top: 24px;
-  bottom: 24px;
   width: 3px;
+  flex-shrink: 0;
   background: var(--gold);
   border-radius: 2px;
+  /* align-self: stretch è il default — si adatta all'altezza del contenuto */
 }
 
 .avvisi-item__title {
