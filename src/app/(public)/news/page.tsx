@@ -9,40 +9,23 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
 
-type Props = { searchParams: Promise<{ anno?: string; pagina?: string }> };
+type Props = { searchParams: Promise<{ pagina?: string }> };
 
 export default async function NewsPage({ searchParams }: Props) {
-  const { anno, pagina } = await searchParams;
+  const { pagina } = await searchParams;
 
   const allArticles = await db.query.articles.findMany({
     where: eq(articles.published, true),
     orderBy: [desc(articles.publishedAt)],
   });
 
-  const years = [
-    ...new Set(
-      allArticles
-        .filter((a) => a.publishedAt)
-        .map((a) => new Date(a.publishedAt!).getFullYear()),
-    ),
-  ].sort((a, b) => b - a);
-
-  const selectedYear = anno ? parseInt(anno, 10) : null;
-  const yearFiltered = selectedYear
-    ? allArticles.filter(
-        (a) =>
-          a.publishedAt &&
-          new Date(a.publishedAt).getFullYear() === selectedYear,
-      )
-    : allArticles;
-
-  const total = yearFiltered.length;
+  const total = allArticles.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(
     Math.max(1, parseInt(pagina ?? "1", 10)),
     totalPages,
   );
-  const list = yearFiltered.slice(
+  const list = allArticles.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE,
   );
@@ -79,8 +62,6 @@ export default async function NewsPage({ searchParams }: Props) {
           coverImageUrl: a.coverImageUrl,
           publishedAt: a.publishedAt,
         }))}
-        years={years}
-        selectedYear={selectedYear}
         currentPage={currentPage}
         totalPages={totalPages}
       />

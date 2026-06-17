@@ -13,12 +13,8 @@ type ArticleItem = {
   publishedAt: string | null;
 };
 
-function newsUrl(year: number | null, page: number) {
-  const params = new URLSearchParams();
-  if (year) params.set("anno", String(year));
-  if (page > 1) params.set("pagina", String(page));
-  const qs = params.toString();
-  return `/news${qs ? `?${qs}` : ""}`;
+function newsUrl(page: number) {
+  return page > 1 ? `/news?pagina=${page}` : "/news";
 }
 
 function Cover({ url, style }: { url: string | null; style?: React.CSSProperties }) {
@@ -38,61 +34,20 @@ function Cover({ url, style }: { url: string | null; style?: React.CSSProperties
 
 export default function NewsList({
   items,
-  years,
-  selectedYear,
   currentPage,
   totalPages,
 }: {
   items: ArticleItem[];
-  years: number[];
-  selectedYear: number | null;
   currentPage: number;
   totalPages: number;
 }) {
   const [layout, setLayout] = useState<"griglia" | "lista">("griglia");
 
-  const tabStyle = (active: boolean): React.CSSProperties => ({
-    padding: "7px 16px",
-    border: "1px solid",
-    borderColor: active ? "var(--azure)" : "var(--rule)",
-    borderRadius: "var(--r-pill)",
-    cursor: "pointer",
-    background: active ? "var(--azure)" : "transparent",
-    color: active ? "#fff" : "var(--ink-soft)",
-    fontSize: 14,
-    fontFamily: "var(--sans)",
-    fontWeight: active ? 600 : 400,
-    textDecoration: "none",
-    whiteSpace: "nowrap" as const,
-  });
-
   return (
     <>
-      {/* Toolbar: tabs + layout toggle */}
+      {/* Toolbar: layout toggle */}
       <section style={{ padding: "0 0 8px" }}>
-        <div
-          className="container"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap",
-          }}
-        >
-          {/* Year tabs */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Link href="/news" style={tabStyle(selectedYear === null)}>
-              Tutti
-            </Link>
-            {years.map((year) => (
-              <Link key={year} href={newsUrl(year, 1)} style={tabStyle(selectedYear === year)}>
-                {year}
-              </Link>
-            ))}
-          </div>
-
-          {/* Grid / list toggle */}
+        <div className="container" style={{ display: "flex", justifyContent: "flex-end" }}>
           <div
             style={{
               display: "flex",
@@ -100,7 +55,6 @@ export default function NewsList({
               borderRadius: "var(--r-pill)",
               padding: 3,
               background: "var(--bg)",
-              flexShrink: 0,
             }}
           >
             {(["griglia", "lista"] as const).map((option) => (
@@ -204,7 +158,7 @@ export default function NewsList({
           >
             {currentPage > 1 && (
               <Link
-                href={newsUrl(selectedYear, currentPage - 1)}
+                href={newsUrl(currentPage - 1)}
                 style={{
                   padding: "8px 18px",
                   border: "1px solid var(--rule)",
@@ -222,7 +176,7 @@ export default function NewsList({
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <Link
                 key={page}
-                href={newsUrl(selectedYear, page)}
+                href={newsUrl(page)}
                 style={{
                   width: 36,
                   height: 36,
@@ -245,7 +199,7 @@ export default function NewsList({
 
             {currentPage < totalPages && (
               <Link
-                href={newsUrl(selectedYear, currentPage + 1)}
+                href={newsUrl(currentPage + 1)}
                 style={{
                   padding: "8px 18px",
                   border: "1px solid var(--rule)",
