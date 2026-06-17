@@ -27,9 +27,12 @@ export async function createAnnouncement(
   if (!text) return { error: "Il testo è obbligatorio." };
   if (text.length > 300) return { error: "Il testo non può superare 300 caratteri." };
 
-  await db.insert(announcements).values({ title, text });
+  const [inserted] = await db
+    .insert(announcements)
+    .values({ title, text })
+    .returning({ id: announcements.id });
 
-  sendPushToAll({ title, body: text, url: "/" }).catch(() => {});
+  sendPushToAll({ title, body: text, url: `/?avviso=${inserted.id}` }).catch(() => {});
 
   revalidatePath("/admin");
   revalidatePath("/");

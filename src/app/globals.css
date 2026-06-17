@@ -518,6 +518,10 @@ img { max-width: 100%; display: block; }
   from { opacity: 0; transform: translateX(-40px); }
   to   { opacity: 1; transform: translateX(0); }
 }
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
 
 /* === Griglie responsive (dai mockup) === */
 .hero-grid {

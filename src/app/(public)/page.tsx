@@ -10,11 +10,17 @@ import {
 } from "@/lib/utils";
 import EventCardsWithModal from "@/components/EventCardsWithModal";
 import HeroSlideshow from "@/components/HeroSlideshow";
+import AnnouncementModal from "@/components/AnnouncementModal";
 
 export const dynamic = "force-dynamic";
 
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ avviso?: string }>;
+}) {
+  const { avviso } = await searchParams;
   const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
     db.query.articles.findMany({
       where: eq(articles.published, true),
@@ -31,9 +37,14 @@ export default async function HomePage() {
     }),
   ]);
 
+  const highlightedAnnouncement = avviso
+    ? (activeAnnouncements.find((a) => a.id === Number(avviso)) ?? null)
+    : null;
+
   return (
     <>
       <HeroSlideshow />
+      {highlightedAnnouncement && <AnnouncementModal announcement={highlightedAnnouncement} />}
 
       {/* Prossimi eventi */}
       <section style={{ paddingTop: 0 }}>
