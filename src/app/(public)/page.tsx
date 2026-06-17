@@ -161,20 +161,20 @@ export default async function HomePage({
       {activeAnnouncements.length > 0 && (
         <section className="avvisi-section">
           <div className="container">
-            <div className="avvisi-head">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" style={{ flexShrink: 0 }}>
-                <path d="M16 3v1.5L8.5 8H5a2 2 0 00-2 2v4a2 2 0 002 2h.5l1.5 5h2l-1.5-5H8.5L16 19.5V21l3-1.5V4.5L16 3zM17 18.1l-7-3.5V9.4l7-3.5v12.2z"/>
-              </svg>
+            <div className="section-header" style={{ marginBottom: 0 }}>
               <div>
-                <span className="avvisi-head__kicker">Comunicazioni</span>
-                <h2 className="avvisi-head__title">Avvisi importanti</h2>
+                <span className="kicker">Comunicazioni</span>
+                <h2 style={{ marginTop: 14 }}>Avvisi importanti</h2>
               </div>
             </div>
-            <div className="avvisi-grid">
+            <div className="avvisi-list">
               {activeAnnouncements.map((a) => (
-                <div key={a.id} className="avvisi-card">
-                  <h3 className="avvisi-card__title">{a.title}</h3>
-                  <p className="avvisi-card__text">{a.text}</p>
+                <div key={a.id} className="avvisi-item">
+                  <div className="avvisi-item__bar" />
+                  <div>
+                    <h3 className="avvisi-item__title">{a.title}</h3>
+                    <p className="avvisi-item__text">{a.text}</p>
+                  </div>
                 </div>
               ))}
             </div>
