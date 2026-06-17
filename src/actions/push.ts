@@ -5,11 +5,13 @@ import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
 
-webpush.setVapidDetails(
-  "mailto:gabrielemichelenapoli@gmail.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+function initWebPush() {
+  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const priv = process.env.VAPID_PRIVATE_KEY;
+  if (!pub || !priv) return false;
+  webpush.setVapidDetails("mailto:gabrielemichelenapoli@gmail.com", pub, priv);
+  return true;
+}
 
 export interface PushSubscriptionData {
   endpoint: string;
@@ -30,6 +32,7 @@ export async function unsubscribeUser(endpoint: string) {
 }
 
 export async function sendPushToAll(payload: { title: string; body: string; url: string }) {
+  if (!initWebPush()) return;
   const subs = await db.query.pushSubscriptions.findMany();
   if (subs.length === 0) return;
 
