@@ -26,7 +26,7 @@ export default function LoginPage() {
           <div style={{ textAlign: "center", marginBottom: 32 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-dark.avif"
+              src="/logo-light-center.avif"
               alt="Sant'Alfonso"
               style={{ height: 48, width: "auto", margin: "0 auto 20px", display: "block" }}
             />
