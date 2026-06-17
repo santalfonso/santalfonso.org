@@ -59,9 +59,17 @@ export default function InstallBanner() {
     <div style={{
       position: "fixed",
       bottom: 24,
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "calc(100% - 32px)",
+      left: 0,
+      right: 0,
+      display: "flex",
+      justifyContent: "center",
+      padding: "0 16px",
+      zIndex: 9999,
+      pointerEvents: "none",
+      animation: "hero-slide-right 0.35s cubic-bezier(0.25,0.46,0.45,0.94) both",
+    }}>
+    <div style={{
+      width: "100%",
       maxWidth: 460,
       background: "var(--bg)",
       border: "1px solid var(--rule)",
@@ -71,8 +79,7 @@ export default function InstallBanner() {
       display: "flex",
       alignItems: "center",
       gap: 12,
-      zIndex: 9999,
-      animation: "hero-slide-right 0.35s cubic-bezier(0.25,0.46,0.45,0.94) both",
+      pointerEvents: "auto",
     }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -116,6 +123,7 @@ export default function InstallBanner() {
       >
         ×
       </button>
+    </div>
     </div>
   );
 }
