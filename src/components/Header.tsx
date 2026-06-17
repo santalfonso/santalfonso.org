@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import NotificationCenter from "@/components/NotificationCenter";
 
 const parrocchiaItems = [
   { href: "/parrocchia/storia", label: "Storia della comunità" },
@@ -37,7 +38,6 @@ function ThemeIcon({ dark }: { dark: boolean }) {
 
 export default function Header() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,7 +51,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    setMobileOpen(false);
     setDropdownOpen(false);
   }, [pathname]);
 
@@ -156,47 +155,11 @@ export default function Header() {
             >
               <ThemeIcon dark={theme === "dark"} />
             </button>
-            <button
-              className="icon-btn mobile-toggle"
-              aria-label="Apri menù"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {mobileOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+            <NotificationCenter />
           </div>
         </div>
       </div>
 
-      {mobileOpen && (
-        <nav className="mobile-nav">
-          <Link href="/" onClick={() => setMobileOpen(false)}>
-            Home
-          </Link>
-          <span className="mobile-nav__group">La nostra parrocchia</span>
-          {parrocchiaItems.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-              {item.label}
-            </Link>
-          ))}
-          <span className="mobile-nav__group">Sito</span>
-          {menuItems.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-              {item.label}
-            </Link>
-          ))}
-          {topbarItems.map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-      )}
     </header>
     </>
   );

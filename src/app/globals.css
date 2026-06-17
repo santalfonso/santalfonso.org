@@ -470,36 +470,48 @@ img { max-width: 100%; display: block; }
 }
 .section-header h2 { max-width: 22ch; }
 
-/* Mobile nav */
-.mobile-toggle { display: none; }
+/* Desktop: nasconde nav hamburger, mostra nav links */
 @media (max-width: 860px) {
   .nav { display: none; }
-  .mobile-toggle { display: grid; }
 }
-.mobile-nav {
-  border-top: 1px solid var(--rule);
-  background: var(--bg);
-  padding: 12px var(--gutter) 20px;
+
+/* Bottom navigation — solo mobile */
+.bottom-nav { display: none; }
+@media (max-width: 860px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--bg);
+    border-top: 1px solid var(--rule);
+    z-index: 200;
+    justify-content: space-around;
+    align-items: center;
+  }
+  /* Evita che il footer/contenuto finisca sotto la barra */
+  .site { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+}
+.bottom-nav__item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-.mobile-nav a {
-  padding: 10px 12px;
-  border-radius: var(--r-sm);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ink-soft);
-}
-.mobile-nav a:hover { background: var(--bg-soft); color: var(--ink); }
-.mobile-nav .mobile-nav__group {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 8px 4px;
   color: var(--ink-mute);
-  padding: 14px 12px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--t);
+  -webkit-tap-highlight-color: transparent;
 }
+.bottom-nav__item.active { color: var(--azure); }
+.bottom-nav__item.active svg { stroke: var(--azure); }
+
+/* Campanella notifiche */
+.notif-btn { position: relative; }
 
 .hero { padding-top: 80px; padding-bottom: 96px; }
 
@@ -521,6 +533,10 @@ img { max-width: 100%; display: block; }
 @keyframes sheet-up {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
+}
+@keyframes sheet-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
 }
 
 /* === Griglie responsive (dai mockup) === */
