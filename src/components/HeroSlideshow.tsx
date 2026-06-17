@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 const BLUE = {
@@ -105,6 +105,16 @@ export default function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
   const [dir, setDir] = useState<"right" | "left">("right");
   const slide = slides[current];
+  const touchStartX = useRef<number>(0);
+
+  // Auto-avanzamento: riavvia il countdown a ogni cambio slide
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setDir("right");
+      setCurrent((c) => (c + 1) % slides.length);
+    }, 6000);
+    return () => clearTimeout(id);
+  }, [current]);
 
   function goNext() {
     setDir("right");
@@ -121,10 +131,23 @@ export default function HeroSlideshow() {
     setCurrent(i);
   }
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const delta = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev();
+  }
+
   return (
     <section className="hero">
       <div className="container">
-        <div style={{ overflow: "hidden" }}>
+        <div
+          style={{ overflow: "hidden" }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <div
             key={current}
             className="hero-grid"
