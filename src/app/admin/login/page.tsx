@@ -39,17 +39,8 @@ export default function LoginPage() {
                 margin: 0,
               }}
             >
-              Area riservata
+              AREA RISERVATA
             </h1>
-            <p
-              style={{
-                marginTop: 6,
-                fontSize: 14,
-                color: "var(--ink-mute)",
-              }}
-            >
-              Parrocchia Sant&apos;Alfonso Maria de&apos; Liguori
-            </p>
           </div>
 
           <form action={formAction}>
