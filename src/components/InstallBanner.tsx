@@ -56,6 +56,19 @@ export default function InstallBanner() {
   if (!show) return null;
 
   return (
+    <>
+    <div
+      onClick={dismiss}
+      style={{
+        position: "fixed",
+        inset: 0,
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+        background: "rgba(0,0,0,0.15)",
+        zIndex: 9998,
+        animation: "fade-in 0.25s ease both",
+      }}
+    />
     <div style={{
       position: "fixed",
       bottom: 24,
@@ -125,5 +138,6 @@ export default function InstallBanner() {
       </button>
     </div>
     </div>
+    </>
   );
 }

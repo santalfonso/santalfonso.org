@@ -67,6 +67,19 @@ export default function NotifPromptBanner() {
   if (!show) return null;
 
   return (
+    <>
+    <div
+      onClick={dismiss}
+      style={{
+        position: "fixed",
+        inset: 0,
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+        background: "rgba(0,0,0,0.15)",
+        zIndex: 9998,
+        animation: "fade-in 0.25s ease both",
+      }}
+    />
     <div style={{
       position: "fixed",
       bottom: 88,
@@ -130,5 +143,6 @@ export default function NotifPromptBanner() {
         </button>
       </div>
     </div>
+    </>
   );
 }
