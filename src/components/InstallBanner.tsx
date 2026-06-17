@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -10,7 +10,8 @@ interface BeforeInstallPromptEvent extends Event {
 export default function InstallBanner() {
   const [show, setShow] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
-  const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  // useRef evita problemi di stale closure: l'evento è sempre quello catturato
+  const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     if (localStorage.getItem("pwa-install-dismissed")) return;
@@ -30,7 +31,7 @@ export default function InstallBanner() {
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setPrompt(e as BeforeInstallPromptEvent);
+      promptRef.current = e as BeforeInstallPromptEvent;
       setShow(true);
     };
     window.addEventListener("beforeinstallprompt", handler);
@@ -43,12 +44,13 @@ export default function InstallBanner() {
   }
 
   async function install() {
-    if (!prompt) return;
-    await prompt.prompt();
-    const { outcome } = await prompt.userChoice;
+    const p = promptRef.current;
+    if (!p) return;
+    promptRef.current = null;
+    await p.prompt();
+    const { outcome } = await p.userChoice;
     if (outcome === "accepted") localStorage.setItem("pwa-install-dismissed", "1");
     setShow(false);
-    setPrompt(null);
   }
 
   if (!show) return null;
