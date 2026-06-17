@@ -17,8 +17,8 @@ export default async function AdminLayout({
       <header className="admin-header">
         <div className="admin-header-inner">
           <Link href="/admin" className="admin-brand">
-            <span className="admin-brand__mark">A</span>
-            <span>Admin</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-dark.avif" alt="Sant'Alfonso" style={{ height: 36, width: "auto" }} />
           </Link>
           <AdminNav isAdmin={session.user.role === "admin"} />
           <div className="admin-header-right">

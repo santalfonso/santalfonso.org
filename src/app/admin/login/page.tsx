@@ -24,29 +24,12 @@ export default function LoginPage() {
       >
         <div className="admin-card-body">
           <div style={{ textAlign: "center", marginBottom: 32 }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                background: "var(--ink)",
-                borderRadius: "var(--r-sm)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 20px",
-              }}
-            >
-              <span
-                style={{
-                  color: "var(--gold)",
-                  fontWeight: 800,
-                  fontSize: 22,
-                  fontFamily: "var(--sans)",
-                }}
-              >
-                A
-              </span>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-dark.avif"
+              alt="Sant'Alfonso"
+              style={{ height: 48, width: "auto", margin: "0 auto 20px", display: "block" }}
+            />
             <h1
               style={{
                 fontSize: 22,
