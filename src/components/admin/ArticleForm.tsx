@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import type { Article, ArticleImage } from "@/db/schema";
 import ImageDropzone from "./ImageDropzone";
 import GalleryEditor from "./GalleryEditor";
+import RichTextEditor from "./RichTextEditor";
 import type { ActionState } from "@/actions/articles";
 import { proofreadText, generateTitle, generateExcerpt } from "@/actions/ai";
 
@@ -42,6 +43,17 @@ export default function ArticleForm({
   const [aiPending, startAi] = useTransition();
   const [aiTarget, setAiTarget] = useState<"title" | "excerpt" | "body" | null>(null);
 
+  function stripHtml(html: string) {
+    return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  }
+
+  function textToHtml(text: string) {
+    return text
+      .split(/\n\n+/)
+      .map((p) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
+      .join("");
+  }
+
   function runAi(
     target: "title" | "excerpt" | "body",
     fn: () => Promise<{ data: string } | { error: string }>,
@@ -53,7 +65,7 @@ export default function ArticleForm({
       if ("data" in result) {
         if (target === "title") setTitle(result.data);
         else if (target === "excerpt") setExcerpt(result.data);
-        else setBody(result.data);
+        else setBody(textToHtml(result.data));
       } else {
         setAiError(result.error);
       }
@@ -74,7 +86,7 @@ export default function ArticleForm({
             className="admin-btn-ai"
             disabled={busy || !body.trim()}
             title={!body.trim() ? "Scrivi prima il testo dell'articolo" : ""}
-            onClick={() => runAi("title", () => generateTitle(body))}
+            onClick={() => runAi("title", () => generateTitle(stripHtml(body)))}
           >
             <SparkleIcon />
             {aiTarget === "title" ? "Generazione…" : "Genera titolo"}
@@ -101,7 +113,7 @@ export default function ArticleForm({
             className="admin-btn-ai"
             disabled={busy || !body.trim()}
             title={!body.trim() ? "Scrivi prima il testo dell'articolo" : ""}
-            onClick={() => runAi("excerpt", () => generateExcerpt(body))}
+            onClick={() => runAi("excerpt", () => generateExcerpt(stripHtml(body)))}
           >
             <SparkleIcon />
             {aiTarget === "excerpt" ? "Generazione…" : "Genera sommario"}
@@ -120,35 +132,24 @@ export default function ArticleForm({
       {/* Testo articolo */}
       <div className="admin-form-row">
         <div className="admin-field-head">
-          <label htmlFor="body" className="admin-label">
-            Testo dell&apos;articolo * — supporta Markdown: **grassetto**, ## titoli, elenchi…
-            <span style={{ display: "block", fontWeight: 400, fontSize: 11, color: "var(--ink-mute)", marginTop: 3 }}>
-              Immagini: <code style={{ fontSize: 11 }}>![descrizione](URL)</code> — per allineare aggiungi il titolo:{" "}
-              <code style={{ fontSize: 11 }}>&quot;center&quot;</code>,{" "}
-              <code style={{ fontSize: 11 }}>&quot;left&quot;</code>,{" "}
-              <code style={{ fontSize: 11 }}>&quot;right&quot;</code>,{" "}
-              <code style={{ fontSize: 11 }}>&quot;small&quot;</code>.
-              Es: <code style={{ fontSize: 11 }}>![foto](URL &quot;center&quot;)</code>
-            </span>
+          <label className="admin-label">
+            Testo dell&apos;articolo *
           </label>
           <button
             type="button"
             className="admin-btn-ai"
             disabled={busy || !body.trim()}
-            onClick={() => runAi("body", () => proofreadText(body))}
+            onClick={() => runAi("body", () => proofreadText(stripHtml(body)))}
           >
             <SparkleIcon />
             {aiTarget === "body" ? "Correzione…" : "Correggi testo"}
           </button>
         </div>
-        <textarea
-          id="body"
+        <RichTextEditor
           name="body"
-          rows={16}
-          required
           value={body}
-          onChange={(e) => setBody(e.target.value)}
-          className="admin-input mono"
+          onChange={setBody}
+          required
         />
       </div>
 

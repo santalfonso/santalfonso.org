@@ -46,8 +46,10 @@ export default async function ArticlePage({ params }: Props) {
   const article = await getArticle(slug);
   if (!article) notFound();
 
+  const isHtml = article.body.trimStart().startsWith("<");
+
   const [html, related, gallery] = await Promise.all([
-    articleMarked.parse(article.body),
+    isHtml ? Promise.resolve(article.body) : articleMarked.parse(article.body),
     db.query.articles.findMany({
       where: and(eq(articles.published, true), ne(articles.id, article.id)),
       orderBy: [desc(articles.publishedAt)],
