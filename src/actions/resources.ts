@@ -7,7 +7,6 @@ import { z } from "zod";
 import { requireUser } from "@/auth";
 import { db } from "@/db";
 import { resources } from "@/db/schema";
-import { uploadFile } from "@/lib/uploads";
 import type { ActionState } from "./articles";
 
 const resourceSchema = z.object({
@@ -28,17 +27,13 @@ export async function createResource(
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) {
+  const fileUrl = formData.get("fileUrl");
+  if (typeof fileUrl !== "string" || !fileUrl) {
     return { error: "Seleziona un file da caricare" };
   }
 
-  let fileUrl: string;
-  try {
-    fileUrl = await uploadFile(file);
-  } catch {
-    return { error: "Caricamento non riuscito. Verifica la configurazione Cloudinary." };
-  }
+  const fileName = (formData.get("fileName") as string) || "documento";
+  const fileSize = parseInt(formData.get("fileSize") as string, 10) || 0;
 
   const { title, description, category } = parsed.data;
   await db.insert(resources).values({
@@ -46,8 +41,8 @@ export async function createResource(
     description: description || null,
     category,
     fileUrl,
-    fileName: file.name,
-    fileSize: file.size,
+    fileName,
+    fileSize,
   });
 
   revalidatePath("/risorse");

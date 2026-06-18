@@ -39,6 +39,8 @@ export default function ArticleForm({
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? "");
   const [body, setBody] = useState(article?.body ?? "");
   const [aiError, setAiError] = useState<string | null>(null);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [galleryUploading, setGalleryUploading] = useState(false);
 
   const [aiPending, startAi] = useTransition();
   const [aiTarget, setAiTarget] = useState<"title" | "excerpt" | "body" | null>(null);
@@ -74,6 +76,7 @@ export default function ArticleForm({
   }
 
   const busy = aiPending;
+  const uploading = coverUploading || galleryUploading;
 
   return (
     <form action={formAction} className="admin-form">
@@ -165,9 +168,13 @@ export default function ArticleForm({
         label="Immagine di copertina"
         focusInputName="coverImageFocus"
         currentFocus={article?.coverImageFocus}
+        onUploadingChange={setCoverUploading}
       />
 
-      <GalleryEditor existing={galleryImages.map((img) => ({ id: img.id, url: img.url }))} />
+      <GalleryEditor
+        existing={galleryImages.map((img) => ({ id: img.id, url: img.url }))}
+        onUploadingChange={setGalleryUploading}
+      />
 
       {/* Data di pubblicazione */}
       <div className="admin-form-row">
@@ -208,10 +215,10 @@ export default function ArticleForm({
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || uploading}
         className="admin-btn admin-btn-primary"
       >
-        {pending ? "Salvataggio…" : "Salva articolo"}
+        {uploading ? "Caricamento foto…" : pending ? "Salvataggio…" : "Salva articolo"}
       </button>
     </form>
   );

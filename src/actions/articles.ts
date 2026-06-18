@@ -7,7 +7,6 @@ import { z } from "zod";
 import { requireUser } from "@/auth";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
-import { uploadImage } from "@/lib/uploads";
 import { slugify } from "@/lib/utils";
 import { sendPushToAll } from "@/actions/push";
 
@@ -33,23 +32,15 @@ function parseForm(formData: FormData) {
   });
 }
 
-async function coverFromForm(formData: FormData): Promise<string | undefined> {
-  const file = formData.get("coverImage");
-  if (file instanceof File && file.size > 0) {
-    return uploadImage(file);
-  }
-  return undefined;
+function coverFromForm(formData: FormData): string | undefined {
+  const url = formData.get("coverImage");
+  return typeof url === "string" && url ? url : undefined;
 }
 
-async function galleryFromForm(formData: FormData): Promise<string[]> {
-  const files = formData.getAll("galleryImages");
-  const urls: string[] = [];
-  for (const file of files) {
-    if (file instanceof File && file.size > 0) {
-      urls.push(await uploadImage(file));
-    }
-  }
-  return urls;
+function galleryFromForm(formData: FormData): string[] {
+  return formData
+    .getAll("galleryImageUrl")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
 }
 
 export async function createArticle(
@@ -60,14 +51,8 @@ export async function createArticle(
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-  let coverImageUrl: string | undefined;
-  let galleryUrls: string[] = [];
-  try {
-    coverImageUrl = await coverFromForm(formData);
-    galleryUrls = await galleryFromForm(formData);
-  } catch {
-    return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
-  }
+  const coverImageUrl = coverFromForm(formData);
+  const galleryUrls = galleryFromForm(formData);
 
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   let slug = slugify(title);
@@ -119,14 +104,8 @@ export async function updateArticle(
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
-  let coverImageUrl: string | undefined;
-  let galleryUrls: string[] = [];
-  try {
-    coverImageUrl = await coverFromForm(formData);
-    galleryUrls = await galleryFromForm(formData);
-  } catch {
-    return { error: "Caricamento immagine non riuscito. Verifica la configurazione Cloudinary." };
-  }
+  const coverImageUrl = coverFromForm(formData);
+  const galleryUrls = galleryFromForm(formData);
 
   const current = await db.query.articles.findFirst({
     where: eq(articles.id, id),
