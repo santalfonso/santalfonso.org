@@ -718,3 +718,16 @@ a.lodate-badge { min-height: 32px; }
   .lodate-copyright { margin-top: 12pt !important; padding-top: 6pt !important; break-inside: avoid; }
   .site .lodate-copyright p { font-size: 8.5pt !important; color: #333 !important; }
 }
+
+/* --- Caricamento tra una pagina e l'altra --- */
+.lodate-loading { display: grid; gap: 14px; padding-top: 4px; }
+.lodate-skel {
+  height: 18px;
+  border-radius: var(--lodate-radius-sm);
+  background: var(--lodate-surface-soft);
+  animation: lodate-pulse 1.2s ease-in-out infinite;
+}
+.lodate-skel--title { height: 32px; width: 45%; }
+.lodate-skel--short { width: 60%; }
+@keyframes lodate-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .lodate-skel { animation: none; } }

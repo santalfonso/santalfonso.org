@@ -43,6 +43,26 @@ function clientIp(request: Request | undefined): string {
   return (fwd?.split(",")[0] ?? request?.headers.get("x-real-ip") ?? "unknown").trim().slice(0, 64);
 }
 
+type CurrentUser = { name: string; email: string; role: Role };
+
+// Nelle pagine il cookie della sessione non si può riscrivere, quindi `checkedAt`
+// resta vecchio e il controllo scatterebbe a ogni richiesta: lo si memorizza per
+// istanza, così si fa al massimo una query per utente ogni RECHECK_MS.
+const userCheckCache = new Map<number, { at: number; row: CurrentUser | null }>();
+
+async function currentUser(id: number): Promise<CurrentUser | null> {
+  const hit = userCheckCache.get(id);
+  if (hit && Date.now() - hit.at < RECHECK_MS) return hit.row;
+  const row =
+    (await db.query.users.findFirst({
+      where: eq(users.id, id),
+      columns: { name: true, email: true, role: true },
+    })) ?? null;
+  if (userCheckCache.size > 1000) userCheckCache.clear();
+  userCheckCache.set(id, { at: Date.now(), row });
+  return row;
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   session: { strategy: "jwt" },
@@ -99,10 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const id = Number(token.id);
       if (!Number.isSafeInteger(id) || id <= 0) return null;
       if (typeof token.checkedAt === "number" && Date.now() - token.checkedAt < RECHECK_MS) return token;
-      const row = await db.query.users.findFirst({
-        where: eq(users.id, id),
-        columns: { name: true, email: true, role: true },
-      });
+      const row = await currentUser(id);
       if (!row) return null; // utente eliminato: sessione invalidata
       token.role = row.role;
       token.name = row.name;
