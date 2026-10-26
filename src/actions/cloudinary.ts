@@ -1,7 +1,7 @@
 "use server";
 
 import { v2 as cloudinary } from "cloudinary";
-import { requireUser } from "@/auth";
+import { requireStaff } from "@/auth";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -22,7 +22,7 @@ export async function getUploadSignature(
   folder: string,
   resourceType: "image" | "raw",
 ): Promise<UploadSignature> {
-  await requireUser();
+  await requireStaff();
 
   const timestamp = Math.round(Date.now() / 1000);
   const params: Record<string, string | number> = { folder, timestamp };

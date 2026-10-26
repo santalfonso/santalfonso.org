@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireUser } from "@/auth";
+import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schema";
 import { uploadImage } from "@/lib/uploads";
@@ -40,7 +40,7 @@ export async function createEvent(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireUser();
+  await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -71,7 +71,7 @@ export async function updateEvent(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireUser();
+  await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -103,7 +103,7 @@ export async function updateEvent(
 }
 
 export async function deleteEvent(id: number) {
-  await requireUser();
+  await requireStaff();
   await db.delete(events).where(eq(events.id, id));
   revalidatePath("/");
   revalidatePath("/admin/eventi");

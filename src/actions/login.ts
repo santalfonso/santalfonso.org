@@ -1,6 +1,6 @@
 "use server";
 
-import { AuthError } from "next-auth";
+import { AuthError, CredentialsSignin } from "next-auth";
 import { signIn, signOut } from "@/auth";
 import type { ActionState } from "./articles";
 
@@ -15,6 +15,9 @@ export async function loginAction(
       redirectTo: "/admin",
     });
   } catch (error) {
+    if (error instanceof CredentialsSignin && error.code === "too_many_attempts") {
+      return { error: "Troppi tentativi falliti: riprova tra qualche minuto." };
+    }
     if (error instanceof AuthError) {
       return { error: "Email o password non corretti" };
     }

@@ -5,10 +5,12 @@ import { events } from "@/db/schema";
 import { deleteEvent } from "@/actions/events";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDateTime } from "@/lib/utils";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminEventiPage() {
+  await requireStaffPage();
   const list = await db.query.events.findMany({
     orderBy: [desc(events.startsAt)],
   });

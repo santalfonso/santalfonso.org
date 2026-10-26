@@ -5,6 +5,7 @@ import { updateEvent } from "@/actions/events";
 import EventForm from "@/components/admin/EventForm";
 import { db } from "@/db";
 import { events } from "@/db/schema";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function ModificaEventoPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireStaffPage();
   const { id } = await params;
   const eventId = Number(id);
   if (isNaN(eventId)) notFound();

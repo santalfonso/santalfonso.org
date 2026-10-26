@@ -5,10 +5,12 @@ import { resources } from "@/db/schema";
 import { deleteResource } from "@/actions/resources";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate, formatFileSize } from "@/lib/utils";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminRisorsePage() {
+  await requireStaffPage();
   const list = await db.query.resources.findMany({
     orderBy: [desc(resources.createdAt)],
   });

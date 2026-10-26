@@ -4,7 +4,7 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireUser } from "@/auth";
+import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
 import { slugify } from "@/lib/utils";
@@ -47,7 +47,7 @@ export async function createArticle(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireUser();
+  await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -100,7 +100,7 @@ export async function updateArticle(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireUser();
+  await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -165,7 +165,7 @@ export async function updateArticle(
 }
 
 export async function deleteArticle(id: number) {
-  await requireUser();
+  await requireStaff();
   await db.delete(articleImages).where(eq(articleImages.articleId, id));
   await db.delete(articles).where(eq(articles.id, id));
   revalidatePath("/");

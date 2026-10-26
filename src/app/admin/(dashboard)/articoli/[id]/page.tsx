@@ -5,6 +5,7 @@ import { updateArticle } from "@/actions/articles";
 import ArticleForm from "@/components/admin/ArticleForm";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function ModificaArticoloPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireStaffPage();
   const { id } = await params;
   const articleId = Number(id);
   if (isNaN(articleId)) notFound();

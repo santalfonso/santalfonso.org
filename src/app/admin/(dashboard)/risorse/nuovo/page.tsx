@@ -1,7 +1,9 @@
 import Link from "next/link";
 import ResourceForm from "@/components/admin/ResourceForm";
+import { requireStaffPage } from "@/auth";
 
-export default function NuovaRisorsaPage() {
+export default async function NuovaRisorsaPage() {
+  await requireStaffPage();
   return (
     <>
       <Link href="/admin/risorse" className="admin-back">← Risorse</Link>

@@ -2,6 +2,8 @@
 
 import webpush from "web-push";
 import { eq, inArray } from "drizzle-orm";
+import { z } from "zod";
+import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
 
@@ -18,7 +20,16 @@ export interface PushSubscriptionData {
   keys: { p256dh: string; auth: string };
 }
 
-export async function subscribeUser(sub: PushSubscriptionData) {
+// Endpoint dei servizi push dei browser: solo https, niente indirizzi arbitrari
+const subscriptionSchema = z.object({
+  endpoint: z.string().max(1000).url().refine((u) => u.startsWith("https://"), "Endpoint non valido"),
+  keys: z.object({ p256dh: z.string().min(1).max(200), auth: z.string().min(1).max(100) }),
+});
+
+export async function subscribeUser(input: PushSubscriptionData) {
+  const parsed = subscriptionSchema.safeParse(input);
+  if (!parsed.success) return { success: false };
+  const sub = parsed.data;
   await db
     .insert(pushSubscriptions)
     .values({ endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth })
@@ -27,11 +38,14 @@ export async function subscribeUser(sub: PushSubscriptionData) {
 }
 
 export async function unsubscribeUser(endpoint: string) {
+  if (typeof endpoint !== "string" || endpoint.length > 1000) return { success: false };
   await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
   return { success: true };
 }
 
 export async function sendPushToAll(payload: { title: string; body: string; url: string }) {
+  // Esportata da un file "use server" = chiamabile da chiunque: solo staff.
+  await requireStaff();
   if (!initWebPush()) return;
   const subs = await db.query.pushSubscriptions.findMany();
   if (subs.length === 0) return;

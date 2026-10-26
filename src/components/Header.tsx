@@ -16,6 +16,7 @@ const parrocchiaItems = [
 const menuItems = [
   { href: "/news", label: "News" },
   { href: "/risorse", label: "Risorse" },
+  { href: "/lodate", label: "Lodate" },
 ];
 
 const topbarItems = [

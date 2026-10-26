@@ -1,20 +1,23 @@
 "use server";
 
 import { hash } from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/auth";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { favoriteSongs, setlistItems, setlists, songAnnotations, users } from "@/db/schema";
 import type { ActionState } from "./articles";
 
 const userSchema = z.object({
-  name: z.string().min(1, "Il nome è obbligatorio"),
-  email: z.string().email("Email non valida"),
-  password: z.string().min(8, "La password deve avere almeno 8 caratteri"),
-  role: z.enum(["admin", "editor"]),
+  name: z.string().trim().min(1, "Il nome è obbligatorio").max(100, "Nome troppo lungo"),
+  email: z.string().trim().max(254, "Email troppo lunga").email("Email non valida"),
+  password: z
+    .string()
+    .min(8, "La password deve avere almeno 8 caratteri")
+    .max(200, "La password può avere al massimo 200 caratteri"),
+  role: z.enum(["admin", "editor", "cantore"]),
 });
 
 export async function createUser(
@@ -51,6 +54,16 @@ export async function deleteUser(id: number) {
   if (String(id) === admin.id) {
     throw new Error("Non puoi eliminare il tuo stesso account");
   }
-  await db.delete(users).where(eq(users.id, id));
+  if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Utente non valido");
+  // Le FK hanno ON DELETE CASCADE, ma SQLite le applica solo se abilitate:
+  // cancelliamo esplicitamente scalette (anche quelle condivise), preferiti e annotazioni.
+  await db.transaction(async (tx) => {
+    const own = tx.select({ id: setlists.id }).from(setlists).where(eq(setlists.ownerId, id));
+    await tx.delete(setlistItems).where(inArray(setlistItems.setlistId, own));
+    await tx.delete(setlists).where(eq(setlists.ownerId, id));
+    await tx.delete(favoriteSongs).where(eq(favoriteSongs.userId, id));
+    await tx.delete(songAnnotations).where(eq(songAnnotations.userId, id));
+    await tx.delete(users).where(eq(users.id, id));
+  });
   revalidatePath("/admin/utenti");
 }

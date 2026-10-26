@@ -6,10 +6,12 @@ import { deleteAnnouncement } from "@/actions/announcements";
 import AnnouncementAddForm from "@/components/admin/AnnouncementAddForm";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate } from "@/lib/utils";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
+  await requireStaffPage();
   const [[articleCount], [eventCount], [resourceCount], avvisi] =
     await Promise.all([
       db.select({ value: count() }).from(articles),

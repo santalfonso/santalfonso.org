@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getSetting } from "@/actions/settings";
+import { getSetting } from "@/lib/settings";
 import ConfigurazioniForm from "@/components/admin/ConfigurazioniForm";
 
 export const dynamic = "force-dynamic";

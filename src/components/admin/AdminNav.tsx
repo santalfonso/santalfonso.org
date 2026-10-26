@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin/articoli", label: "Articoli" },
   { href: "/admin/eventi", label: "Eventi" },
   { href: "/admin/risorse", label: "Risorse" },
+  { href: "/admin/canti", label: "Canti" },
 ];
 
 const adminOnlyItems = [

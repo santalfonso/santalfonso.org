@@ -1,10 +1,17 @@
 "use server";
 
-import { getSetting } from "./settings";
+import { requireStaff } from "@/auth";
+import { getSetting } from "@/lib/settings";
 
 type AIResult = { data: string } | { error: string };
 
 async function callGroq(system: string, user: string): Promise<AIResult> {
+  try {
+    await requireStaff();
+  } catch {
+    return { error: "Non autorizzato." };
+  }
+  if (user.length > 50_000) return { error: "Testo troppo lungo." };
   const apiKey = await getSetting("groq_api_key");
   if (!apiKey) {
     return {

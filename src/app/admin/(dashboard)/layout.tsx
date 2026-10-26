@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, isStaff } from "@/auth";
 import { logoutAction } from "@/actions/login";
 import AdminNav from "@/components/admin/AdminNav";
 
@@ -11,6 +11,7 @@ export default async function AdminLayout({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/admin/login");
+  if (!isStaff(session.user.role)) redirect("/lodate");
 
   return (
     <div className="admin">

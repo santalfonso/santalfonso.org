@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createEvent } from "@/actions/events";
 import EventForm from "@/components/admin/EventForm";
+import { requireStaffPage } from "@/auth";
 
-export default function NuovoEventoPage() {
+export default async function NuovoEventoPage() {
+  await requireStaffPage();
   return (
     <>
       <Link href="/admin/eventi" className="admin-back">← Eventi</Link>

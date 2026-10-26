@@ -5,10 +5,12 @@ import { articles } from "@/db/schema";
 import { deleteArticle } from "@/actions/articles";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate } from "@/lib/utils";
+import { requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminArticoliPage() {
+  await requireStaffPage();
   const list = await db.query.articles.findMany({
     orderBy: [desc(articles.createdAt)],
   });

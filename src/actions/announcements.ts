@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { announcements } from "@/db/schema";
 import { sendPushToAll } from "@/actions/push";
-import { requireUser } from "@/auth";
+import { requireStaff } from "@/auth";
 
 export type AnnouncementState = { error?: string } | undefined;
 
@@ -14,7 +14,7 @@ export async function createAnnouncement(
   text: string,
 ): Promise<AnnouncementState> {
   try {
-    await requireUser();
+    await requireStaff();
   } catch {
     return { error: "Non autorizzato." };
   }
@@ -40,7 +40,7 @@ export async function createAnnouncement(
 }
 
 export async function deleteAnnouncement(id: number): Promise<void> {
-  await requireUser();
+  await requireStaff();
   await db.delete(announcements).where(eq(announcements.id, id));
   revalidatePath("/admin");
   revalidatePath("/");

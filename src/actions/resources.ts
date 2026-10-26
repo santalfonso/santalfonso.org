@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireUser } from "@/auth";
+import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { resources } from "@/db/schema";
 import type { ActionState } from "./articles";
@@ -19,7 +19,7 @@ export async function createResource(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireUser();
+  await requireStaff();
   const parsed = resourceSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description") ?? undefined,
@@ -50,7 +50,7 @@ export async function createResource(
 }
 
 export async function deleteResource(id: number) {
-  await requireUser();
+  await requireStaff();
   await db.delete(resources).where(eq(resources.id, id));
   revalidatePath("/risorse");
   revalidatePath("/admin/risorse");
