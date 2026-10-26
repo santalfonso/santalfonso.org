@@ -38,7 +38,7 @@ export default function UserForm() {
         <select id="role" name="role" required defaultValue="editor" className="admin-input">
           <option value="editor">Editor — gestisce i contenuti</option>
           <option value="admin">Admin — gestisce contenuti e utenti</option>
-          <option value="cantore">Cantore — solo l&apos;app Lodate (scalette, preferiti, annotazioni)</option>
+          <option value="utente">Utente registrato — funzioni riservate del sito, senza accesso all&apos;amministrazione</option>
         </select>
       </div>
 

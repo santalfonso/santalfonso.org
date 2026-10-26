@@ -3,18 +3,18 @@
 import { useActionState, useDeferredValue, useMemo, useState } from "react";
 import type { Song } from "@/db/schema";
 import type { SongActionState } from "@/actions/lodate/songs";
-import { detectKey, hasChords, keyName, parseChordPro } from "@/lib/lodate/chordpro";
+import { detectKey, hasChords, italianKeyName, parseChordPro } from "@/lib/lodate/chordpro";
 import { MOMENTS, SEASONS } from "@/lib/lodate/constants";
 import { slugify } from "@/lib/utils";
 import SongSheet from "@/components/lodate/SongSheet";
 import "@/app/lodate.css";
 
 const EXAMPLE = `{c: Strofa 1}
-[G]Tu scendi dalle [D]stelle, o Re del [G]Cielo,
-e vieni in una [D]grotta al freddo e al [G]gelo.
+[Sol]Tu scendi dalle [Re]stelle, o Re del [Sol]Cielo,
+e vieni in una [Re]grotta al freddo e al [Sol]gelo.
 
 {soc}
-[C]Ritornello con [G]accordi
+[Do]Ritornello con [Sol]accordi
 {eoc}`;
 
 export default function SongForm({
@@ -116,12 +116,12 @@ export default function SongForm({
             maxLength={20}
             value={musicalKey}
             onChange={(e) => setMusicalKey(e.target.value)}
-            placeholder={detected ? `es. ${keyName(detected)}` : "es. G, Em, F#m, Bb"}
+            placeholder={detected ? `es. ${italianKeyName(detected)}` : "es. Sol, Mim, Fa#m, Sib"}
             className="admin-input"
           />
           <p className="admin-input-hint">
             Facoltativa: serve a scegliere diesis o bemolli nella trasposizione.
-            {!musicalKey && detected && ` Se vuota si usa il primo accordo (${keyName(detected)}).`}
+            {!musicalKey && detected && ` Se vuota si usa il primo accordo (${italianKeyName(detected)}).`}
           </p>
         </div>
       </div>
@@ -160,12 +160,13 @@ export default function SongForm({
             <summary>Guida rapida al formato</summary>
             <ul>
               <li>
-                Accordo tra quadre <b>prima</b> della sillaba: <code>[G]Tu scendi dalle [D]stelle</code>
+                Accordo tra quadre <b>prima</b> della sillaba: <code>[Sol]Tu scendi dalle [Re]stelle</code>
               </li>
               <li>
-                Notazione anglosassone: C D E F G A B, con <code>#</code> / <code>b</code>, suffissi (
+                Accordi in italiano: Do Re Mi Fa Sol La Si, con <code>#</code> / <code>b</code>, suffissi (
                 <code>m</code>, <code>7</code>, <code>maj7</code>, <code>sus4</code>, <code>dim</code>…) e basso con{" "}
-                <code>/</code> (<code>[D/F#]</code>).
+                <code>/</code> (<code>[Re/Fa#]</code>). Si accetta anche la notazione anglosassone (C D E…); nel
+                sito gli accordi si vedono sempre in italiano.
               </li>
               <li>Una riga vuota separa le strofe.</li>
               <li>
@@ -174,7 +175,7 @@ export default function SongForm({
               <li>
                 Indicazioni: <code>{"{c: Strofa 2}"}</code>, <code>{"{c: Tutti}"}</code>, <code>{"{c: bis}"}</code>.
               </li>
-              <li>Niente HTML. Le annotazioni dei cantori sono legate alle righe: evita di riordinare le righe dopo la pubblicazione.</li>
+              <li>Niente HTML. Le annotazioni degli utenti sono legate alle righe e alle lettere: evita di riordinare le righe dopo la pubblicazione.</li>
             </ul>
             <pre>{EXAMPLE}</pre>
           </details>

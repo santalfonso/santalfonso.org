@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { auth } from "@/auth";
-import CatalogSubnav from "@/components/lodate/CatalogSubnav";
-import LodateLogo from "@/components/lodate/LodateLogo";
+import PageTitle from "@/components/PageTitle";
+import LodateSidebar from "@/components/lodate/LodateSidebar";
 import "@/app/lodate.css";
 
 export const metadata: Metadata = {
@@ -12,14 +12,6 @@ export const metadata: Metadata = {
   },
   description:
     "Canti per cantori e cori nella Messa: testi con accordi, scalette e letture del giorno. Parrocchia Sant'Alfonso Maria de' Liguori, Roma.",
-  icons: {
-    icon: [
-      { url: "/lodate/icon.svg", type: "image/svg+xml" },
-      { url: "/lodate/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/lodate/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [{ url: "/lodate/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-  },
 };
 
 export default async function LodateLayout({ children }: { children: React.ReactNode }) {
@@ -28,15 +20,16 @@ export default async function LodateLayout({ children }: { children: React.React
 
   return (
     <div className="lodate">
-      <div className="lodate-head">
-        <div className="container lodate-head__inner">
-          <Link href="/lodate" className="lodate-brand">
-            <LodateLogo className="lodate-brand__logo" />
-          </Link>
-          <CatalogSubnav loggedIn={loggedIn} />
-        </div>
+      <PageTitle
+        kicker="Canti per la liturgia"
+        title="Lodate, lodate Iddio"
+      />
+      <div className="container lodate-shell">
+        <Suspense fallback={<aside className="lodate-side" aria-label="Menù dei canti" />}>
+          <LodateSidebar loggedIn={loggedIn} />
+        </Suspense>
+        <div className="lodate-main">{children}</div>
       </div>
-      {children}
     </div>
   );
 }

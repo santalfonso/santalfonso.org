@@ -58,7 +58,7 @@
   outline-offset: 2px;
 }
 
-.ls h1 { font-size: clamp(26px, 6vw, 36px); line-height: 1.15; margin: 8px 0 4px; letter-spacing: -0.02em; color: var(--ls-brand); }
+.ls h1, .ls h2.ls-title { font-size: clamp(26px, 6vw, 36px); line-height: 1.15; margin: 8px 0 4px; letter-spacing: -0.02em; color: var(--ls-brand); }
 .ls h2 { font-size: 20px; margin: 0; letter-spacing: -0.01em; color: var(--ls-brand); }
 .ls h3 { font-size: 16px; margin: 0; }
 .ls p { margin: 0; }

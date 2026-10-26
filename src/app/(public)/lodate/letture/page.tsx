@@ -30,7 +30,7 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
     <div className="ls ls-stack">
       <header>
         <span className="ls-kicker">Letture del giorno</span>
-        <h1>{day.title}</h1>
+        <h2 className="ls-title">{day.title}</h2>
         <p className="ls-muted">
           {formatLongDate(date)}
           {date === today && " · oggi"}

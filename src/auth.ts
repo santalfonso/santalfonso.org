@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { isLimited, recordFailure, resetFailures } from "@/lib/rate-limit";
 
-export type Role = "admin" | "editor" | "cantore";
+export type Role = "admin" | "editor" | "utente";
 
 declare module "next-auth" {
   interface User {
@@ -124,7 +124,7 @@ export function isStaff(role: Role | undefined) {
   return role === "admin" || role === "editor";
 }
 
-/** Qualsiasi utente autenticato, compresi i cantori. */
+/** Qualsiasi utente autenticato, compresi gli utenti registrati senza accesso all'admin. */
 export async function requireMember() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non autorizzato");

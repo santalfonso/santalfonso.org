@@ -39,7 +39,7 @@ export default async function ScalettaBuilderPage({ searchParams }: { searchPara
 
   if (editId) {
     if (!userId) {
-      redirect(`/lodate/accedi?next=${encodeURIComponent(`/lodate/scaletta?id=${editId}`)}`);
+      redirect(`/accedi?next=${encodeURIComponent(`/lodate/scaletta?id=${editId}`)}`);
     }
     const saved = await loadSavedSetlist(editId);
     if (!saved || saved.ownerId !== userId) notFound();
@@ -60,7 +60,7 @@ export default async function ScalettaBuilderPage({ searchParams }: { searchPara
       <div className="ls-stack">
         <header>
           <span className="ls-kicker">Scaletta</span>
-          <h1>{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h1>
+          <h2 className="ls-title">{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h2>
           <p className="ls-muted">
             Scegli i canti per ogni momento della Messa. Per ogni momento vengono proposti prima i
             canti adatti, ma puoi cercare qualunque canto.

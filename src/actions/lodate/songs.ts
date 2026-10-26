@@ -41,7 +41,7 @@ const songSchema = z.object({
   author: optionalText(200),
   copyrightNote: optionalText(500),
   musicalKey: optionalText(20).refine((v) => v === null || parseKey(v) !== null, {
-    message: "Tonalità non riconosciuta (es. G, Em, F#m, Bb)",
+    message: "Tonalità non riconosciuta (es. Sol, Mim, Fa#m, Sib)",
   }),
   body: z.string().trim().min(1, "Il testo del canto è obbligatorio").max(50_000, "Testo troppo lungo"),
   published: z.boolean(),

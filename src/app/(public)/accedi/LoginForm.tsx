@@ -1,10 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import { lodateLoginAction } from "@/actions/lodate/login";
+import { loginSiteAction } from "@/actions/account";
 
 export default function LoginForm({ next }: { next: string }) {
-  const [state, formAction, pending] = useActionState(lodateLoginAction, undefined);
+  const [state, formAction, pending] = useActionState(loginSiteAction, undefined);
 
   return (
     <form action={formAction} className="ls-stack" noValidate={false}>

@@ -7,7 +7,7 @@ import { saveAnnotations } from "@/actions/lodate/annotations";
 import {
   detectKey,
   hasChords,
-  keyName,
+  italianKeyName,
   normalizeSemitones,
   parseChordPro,
   transposeKeyInfo,
@@ -120,8 +120,8 @@ export default function SongViewer({
     () => transposeSong(parsed, transpose, song.musicalKey),
     [parsed, transpose, song.musicalKey]
   );
-  const currentKey = baseKey ? keyName(transposeKeyInfo(baseKey, transpose)) : null;
-  const originalKey = baseKey ? keyName(baseKey) : null;
+  const currentKey = baseKey ? italianKeyName(transposeKeyInfo(baseKey, transpose)) : null;
+  const originalKey = baseKey ? italianKeyName(baseKey) : null;
   const shiftLabel = transpose === 0 ? "originale" : `${transpose > 0 ? "+" : "−"}${Math.abs(transpose)}`;
 
   // ── Autoscorrimento ──
@@ -296,7 +296,7 @@ export default function SongViewer({
     <article className="lodate-viewer" style={{ ["--lodate-fs" as string]: `${fontSize}px` }}>
       <header className="lodate-song-head">
         {!song.published && <span className="lodate-badge lodate-badge--draft">Bozza (non pubblicato)</span>}
-        <h1 className="lodate-song-title">{song.title}</h1>
+        <h2 className="lodate-song-title">{song.title}</h2>
         {song.author && <p className="lodate-song-author">{song.author}</p>}
         <p className="lodate-print-only lodate-print-meta">
           {showChords && currentKey ? `Tonalità: ${currentKey}` : ""}
@@ -484,10 +484,10 @@ export default function SongViewer({
           }}
           role="dialog"
           aria-modal="false"
-          aria-label={`Annotazione per “${selected.text}”`}
+          aria-label={`Annotazione sulla lettera “${selected.text}” di “${selected.word}”`}
         >
           <p className="lodate-annot-word">
-            «{selected.text}»
+            Lettera «<b>{selected.text}</b>» in «{selected.word}»
           </p>
           <div className="lodate-annot-actions">
             {ANNOTATION_MARKS.map((m) => (

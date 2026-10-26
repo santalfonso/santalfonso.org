@@ -104,7 +104,7 @@ export default async function CantoPage({
         moments={moments}
         seasons={seasons}
         loggedIn={loggedIn}
-        loginHref={`/lodate/accedi?next=${encodeURIComponent(`/lodate/canti/${song.slug}`)}`}
+        loginHref={`/accedi?next=${encodeURIComponent(`/lodate/canti/${song.slug}`)}`}
         initialFavorite={!!fav}
         initialAnnotations={loggedIn ? parseStoredAnnotations(annot?.data) : []}
       />

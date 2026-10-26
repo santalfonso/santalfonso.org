@@ -64,7 +64,7 @@ export function parseLyricLine(raw: string): { text: string; chords: ChordPos[] 
       // Una "[" senza chiusura (o con un'altra "[" prima della chiusura) è testo.
       const nextOpen = raw.indexOf("[", i + 1);
       if (end !== -1 && (nextOpen === -1 || nextOpen > end)) {
-        const chord = raw.slice(i + 1, end).trim();
+        const chord = chordFromItalian(raw.slice(i + 1, end).trim());
         if (chord) chords.push({ col: text.length, chord });
         i = end + 1;
         continue;
@@ -266,6 +266,44 @@ export function spellingForKey(key: KeyInfo | null): Spelling {
   }
   if (key.pitch === 0) return "neutral"; // Do maggiore
   return FLAT_MAJOR.has(key.pitch) ? "flat" : "sharp";
+}
+
+// ───────────────────────────── Notazione italiana ─────────────────────────────
+
+const SOLFEGE: Record<string, string> = { C: "Do", D: "Re", E: "Mi", F: "Fa", G: "Sol", A: "La", B: "Si" };
+const FROM_SOLFEGE: Record<string, string> = { Do: "C", Re: "D", Mi: "E", Fa: "F", Sol: "G", La: "A", Si: "B" };
+const SOLFEGE_NOTE = "(Sol|Do|Re|Mi|Fa|La|Si)";
+const ITALIAN_CHORD_RE = new RegExp(`^${SOLFEGE_NOTE}([#b♯♭]?)(.*?)(?:\\/${SOLFEGE_NOTE}([#b♯♭]?))?$`);
+
+function asciiAccidental(a: string): string {
+  return a === "♯" ? "#" : a === "♭" ? "b" : a;
+}
+
+/**
+ * Converte un accordo scritto in italiano ("Lam7", "Fa#/La", "Sib") nella
+ * notazione interna anglosassone; gli altri accordi restano invariati.
+ */
+export function chordFromItalian(chord: string): string {
+  const m = chord.match(ITALIAN_CHORD_RE);
+  if (!m) return chord;
+  const bass = m[4] ? `/${FROM_SOLFEGE[m[4]]}${asciiAccidental(m[5])}` : "";
+  return `${FROM_SOLFEGE[m[1]]}${asciiAccidental(m[2])}${m[3]}${bass}`;
+}
+
+function italianNote(n: NoteParts): string {
+  return `${SOLFEGE[n.letter]}${n.accidental === "#" ? "♯" : n.accidental === "b" ? "♭" : ""}`;
+}
+
+/** Accordo da mostrare in notazione italiana: "Am7" → "Lam7", "D/F#" → "Re/Fa♯". */
+export function italianChord(chord: string): string {
+  const p = parseChord(chord);
+  if (!p) return chord;
+  return `${italianNote(p.root)}${p.suffix}${p.bass ? `/${italianNote(p.bass)}` : ""}`;
+}
+
+/** Nome della tonalità in italiano (es. "Mi♭", "Fa♯m"). */
+export function italianKeyName(key: KeyInfo): string {
+  return italianChord(keyName(key));
 }
 
 /** Nome della tonalità (es. "Eb", "F#m"). */

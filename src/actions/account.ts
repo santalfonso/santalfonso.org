@@ -2,26 +2,14 @@
 
 import { AuthError, CredentialsSignin } from "next-auth";
 import { signIn, signOut } from "@/auth";
+import { safeNext } from "@/lib/safe-next";
 
-export type LodateLoginState = { error?: string } | undefined;
+export type SiteLoginState = { error?: string } | undefined;
 
-const DEFAULT_NEXT = "/lodate/area";
-
-/**
- * Accetta solo percorsi interni relativi dell'app (/lodate, /lodate/…, /lodate?…).
- * Rifiuta URL assoluti, protocol-relative (//), backslash e caratteri di controllo.
- */
-function safeNext(value: FormDataEntryValue | null): string {
-  if (typeof value !== "string" || value.length > 2000) return DEFAULT_NEXT;
-  if (!/^\/lodate(?:[/?#]|$)/.test(value)) return DEFAULT_NEXT;
-  if (/[\\\u0000-\u001F\u007F]/.test(value) || value.includes("//")) return DEFAULT_NEXT;
-  return value;
-}
-
-export async function lodateLoginAction(
-  _prev: LodateLoginState,
+export async function loginSiteAction(
+  _prev: SiteLoginState,
   formData: FormData
-): Promise<LodateLoginState> {
+): Promise<SiteLoginState> {
   const email = formData.get("email");
   const password = formData.get("password");
   if (typeof email !== "string" || typeof password !== "string" || !email || !password) {
@@ -44,6 +32,6 @@ export async function lodateLoginAction(
   }
 }
 
-export async function lodateLogoutAction() {
-  await signOut({ redirectTo: "/lodate" });
+export async function logoutSiteAction() {
+  await signOut({ redirectTo: "/" });
 }

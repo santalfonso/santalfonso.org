@@ -164,7 +164,7 @@ export default async function AdminCantiPage({ searchParams }: { searchParams: S
                     </Link>
                     <DeleteButton
                       action={deleteSong.bind(null, s.id)}
-                      confirmMessage={`Eliminare il canto "${s.title}"? Verrà tolto anche dalle scalette, dai preferiti e dalle annotazioni dei cantori.`}
+                      confirmMessage={`Eliminare il canto "${s.title}"? Verrà tolto anche dalle scalette, dai preferiti e dalle annotazioni degli utenti.`}
                     />
                   </div>
                 </td>

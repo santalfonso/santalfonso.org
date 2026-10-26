@@ -88,9 +88,9 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
 
       <section className="lodate-catalog" aria-labelledby="lodate-catalog-title">
         <div className="lodate-catalog__head">
-          <h1 id="lodate-catalog-title" className="lodate-h1">
+          <h2 id="lodate-catalog-title" className="lodate-h1">
             Canti
-          </h1>
+          </h2>
           <p className="lodate-catalog__intro">
             Testi e accordi per i cantori e i cori della Messa. Cerca per titolo o per parole del testo,
             oppure filtra per momento della celebrazione e tempo liturgico.

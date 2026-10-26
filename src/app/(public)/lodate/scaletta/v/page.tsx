@@ -22,7 +22,7 @@ export default async function ScalettaUrlPage({ searchParams }: { searchParams: 
   if (!decoded) {
     return (
       <div className="ls ls-stack">
-        <h1>Scaletta non valida</h1>
+        <h2 className="ls-title">Scaletta non valida</h2>
         <p className="ls-muted">Il link è incompleto, troppo lungo o non più valido.</p>
         <p>
           <Link className="ls-btn ls-btn--primary" href="/lodate/scaletta">

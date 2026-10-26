@@ -23,7 +23,7 @@ export default function SetlistView({ data, songs, selfPath }: Props) {
     <article className="ls-card ls-stack" aria-labelledby="ls-setlist-title">
       <header>
         <span className="ls-kicker">Scaletta</span>
-        <h1 id="ls-setlist-title">{data.title || "Scaletta senza titolo"}</h1>
+        <h2 id="ls-setlist-title" className="ls-title">{data.title || "Scaletta senza titolo"}</h2>
         {(date || data.feast) && (
           <p className="ls-meta">
             {date && <span>{date}</span>}

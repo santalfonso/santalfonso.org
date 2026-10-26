@@ -17,7 +17,7 @@ const userSchema = z.object({
     .string()
     .min(8, "La password deve avere almeno 8 caratteri")
     .max(200, "La password può avere al massimo 200 caratteri"),
-  role: z.enum(["admin", "editor", "cantore"]),
+  role: z.enum(["admin", "editor", "utente"]),
 });
 
 export async function createUser(

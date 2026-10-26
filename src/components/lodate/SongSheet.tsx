@@ -1,8 +1,9 @@
 import { Fragment } from "react";
 import { ANNOTATION_MARKS, type AnnotationMark } from "@/lib/lodate/constants";
-import { splitLine, type LyricLine, type ParsedSong, type Section } from "@/lib/lodate/chordpro";
+import { italianChord, splitLine, type LyricLine, type ParsedSong, type Section } from "@/lib/lodate/chordpro";
 
-export type SelectedWord = { line: number; col: number; text: string };
+/** Lettera selezionata per l'annotazione, con la parola che la contiene. */
+export type SelectedWord = { line: number; col: number; text: string; word: string };
 
 type AnnotateProps = {
   selected: { line: number; col: number } | null;
@@ -30,7 +31,7 @@ export function annotationKey(line: number, col: number) {
 /**
  * Resa del canto: accordi sopra la sillaba giusta (allineati anche quando la
  * riga va a capo, perché si va a capo solo tra parole), annotazioni ↑ ↓ —
- * sopra le parole e, in modalità "Annota", parole selezionabili.
+ * sopra le singole lettere e, in modalità "Annota", lettere selezionabili.
  * Nessun HTML dal testo: solo nodi React.
  */
 export default function SongSheet({
@@ -104,59 +105,105 @@ function SheetLine({
   }
 
   const words = splitLine(line);
+  const lettersMode = lineHasMarks || !!annotate;
   return (
     <div className={`lodate-line lodate-line--grid${chordRow ? " has-chords" : ""}${line.chordOnly ? " is-chord-only" : ""}`}>
       {words.map((word, w) => {
-        const mark = marks?.get(annotationKey(line.index, word.col));
-        const wordText = word.parts.map((p) => p.text).join("");
+        const wordText = word.parts.map((p) => p.text).join("").trim();
         const parts = word.parts.map((part, p) => (
           <span className={`lodate-p${p < word.parts.length - 1 && part.text ? " lodate-p--mid" : ""}`} key={p}>
-            {lineHasMarks && (
-              <span
-                className={`lodate-mk${p === 0 && mark ? ` lodate-mk--${mark}` : ""}`}
-                aria-hidden={p === 0 && mark ? undefined : true}
-                title={p === 0 && mark ? markLabel(mark) : undefined}
-              >
-                {p === 0 && mark ? (
-                  <>
-                    <span aria-hidden="true">{markSymbol(mark)}</span>
-                    <span className="lodate-sr">{markLabel(mark)}: </span>
-                  </>
-                ) : (
-                  "​"
-                )}
-              </span>
-            )}
             {chordRow && (
               <span className="lodate-ch" aria-hidden="true">
-                {part.chord ?? "​"}
+                {part.chord ? italianChord(part.chord) : "\u200b"}
               </span>
             )}
-            <span className="lodate-tx">{part.text || "​"}</span>
+            {lettersMode && part.text ? (
+              <span className="lodate-tx lodate-tx--letters">
+                <Letters
+                  text={part.text}
+                  line={line.index}
+                  startCol={part.col}
+                  word={wordText}
+                  marks={marks}
+                  annotate={word.annotatable ? annotate : null}
+                />
+              </span>
+            ) : (
+              <span className="lodate-tx">{part.text || "\u200b"}</span>
+            )}
           </span>
         ));
-        const selected =
-          annotate?.selected && annotate.selected.line === line.index && annotate.selected.col === word.col;
         return (
           <Fragment key={w}>
-            {w > 0 && "​"}
-            {annotate && word.annotatable ? (
-              <button
-                type="button"
-                className={`lodate-w lodate-w--btn${selected ? " is-selected" : ""}`}
-                data-annot={annotationKey(line.index, word.col)}
-                aria-pressed={!!selected}
-                aria-label={`Annota “${wordText.trim()}”${mark ? ` (${markLabel(mark)})` : ""}`}
-                onClick={() => annotate.onSelect({ line: line.index, col: word.col, text: wordText.trim() })}
-              >
-                {parts}
-              </button>
-            ) : (
-              <span className="lodate-w">{parts}</span>
-            )}
+            {w > 0 && "\u200b"}
+            <span className="lodate-w">{parts}</span>
           </Fragment>
         );
       })}
     </div>
   );
+}
+
+const IS_LETTER = /[\p{L}\p{N}]/u;
+
+/** Le lettere di un pezzo di testo, ciascuna con lo spazio per il segno sopra. */
+function Letters({
+  text,
+  line,
+  startCol,
+  word,
+  marks,
+  annotate,
+}: {
+  text: string;
+  line: number;
+  startCol: number;
+  word: string;
+  marks?: Map<string, AnnotationMark>;
+  annotate?: AnnotateProps | null;
+}) {
+  const cells = [];
+  let col = startCol;
+  for (const ch of text) {
+    const at = col;
+    col += ch.length;
+    const mark = marks?.get(annotationKey(line, at));
+    const mk = (
+      <span className={`lodate-mk${mark ? ` lodate-mk--${mark}` : ""}`} title={mark ? markLabel(mark) : undefined}>
+        {mark ? (
+          <>
+            <span aria-hidden="true">{markSymbol(mark)}</span>
+            <span className="lodate-sr">{markLabel(mark)}: </span>
+          </>
+        ) : (
+          "\u200b"
+        )}
+      </span>
+    );
+    if (annotate && IS_LETTER.test(ch)) {
+      const selected = annotate.selected?.line === line && annotate.selected.col === at;
+      cells.push(
+        <button
+          key={at}
+          type="button"
+          className={`lodate-c lodate-c--btn${selected ? " is-selected" : ""}`}
+          data-annot={annotationKey(line, at)}
+          aria-pressed={selected}
+          aria-label={`Annota la lettera “${ch}” di “${word}”${mark ? ` (${markLabel(mark)})` : ""}`}
+          onClick={() => annotate.onSelect({ line, col: at, text: ch, word })}
+        >
+          {mk}
+          <span className="lodate-c__ch">{ch}</span>
+        </button>
+      );
+    } else {
+      cells.push(
+        <span key={at} className="lodate-c">
+          {mk}
+          <span className="lodate-c__ch">{ch}</span>
+        </span>
+      );
+    }
+  }
+  return <>{cells}</>;
 }

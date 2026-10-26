@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 import { auth } from "@/auth";
-import { lodateLogoutAction } from "@/actions/lodate/login";
 import { db } from "@/db";
 import { favoriteSongs, setlistItems, setlists, songs } from "@/db/schema";
 import { encodeSetlist, formatLongDate, todayInRome } from "@/lib/lodate/setlist";
@@ -13,7 +12,7 @@ import "@/app/lodate-scalette.css";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "La mia area",
+  title: "Le mie scalette",
   robots: { index: false, follow: false },
 };
 
@@ -38,7 +37,7 @@ type Row = {
 
 export default async function AreaPage({ searchParams }: { searchParams: SearchParams }) {
   const session = await auth();
-  if (!session?.user?.id) redirect("/lodate/accedi?next=/lodate/area");
+  if (!session?.user?.id) redirect("/accedi?next=/lodate/area");
   const userId = Number(session.user.id);
   const sp = await searchParams;
 
@@ -115,17 +114,12 @@ export default async function AreaPage({ searchParams }: { searchParams: SearchP
   return (
     <div className="ls ls-stack">
       <header>
-        <span className="ls-kicker">Area personale</span>
-        <h1>Ciao{session.user.name ? `, ${session.user.name}` : ""}</h1>
+        <span className="ls-kicker">Le mie scalette</span>
+        <h2 className="ls-title">Scalette e canti preferiti</h2>
         <div className="ls-row" style={{ marginTop: 12 }}>
           <Link className="ls-btn ls-btn--primary" href="/lodate/scaletta">
             + Nuova scaletta
           </Link>
-          <form action={lodateLogoutAction}>
-            <button type="submit" className="ls-btn">
-              Esci
-            </button>
-          </form>
         </div>
       </header>
 

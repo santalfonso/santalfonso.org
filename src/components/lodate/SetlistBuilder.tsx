@@ -296,7 +296,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
       {!isLoggedIn && (
         <p className="ls-small ls-muted">
           Senza account la scaletta vive solo nel link: conservalo o condividilo.{" "}
-          <Link className="ls-link" href={`/lodate/accedi?next=${encodeURIComponent(loginNext)}`}>
+          <Link className="ls-link" href={`/accedi?next=${encodeURIComponent(loginNext)}`}>
             Accedi
           </Link>{" "}
           per salvarla nella tua area personale.
