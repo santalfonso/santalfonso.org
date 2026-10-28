@@ -4,8 +4,7 @@ import { setlistItems, setlists, songMoments, songSeasons, songs } from "@/db/sc
 import {
   allSongIds,
   filterKnownSongs,
-  itemsFromRows,
-  normalizeSetlist,
+  setlistFromRows,
   type SetlistData,
   type SetlistSong,
 } from "./setlist";
@@ -80,14 +79,6 @@ export async function loadSavedSetlist(publicId: string): Promise<SavedSetlist |
     id: row.id,
     publicId: row.publicId,
     ownerId: row.ownerId,
-    data: normalizeSetlist({
-      title: row.title,
-      date: row.celebrationDate,
-      feast: row.feast,
-      notes: row.notes,
-      extraLabel: row.extraLabel,
-      extraAfter: row.extraAfter,
-      items: itemsFromRows(items),
-    }),
+    data: setlistFromRows(row, items),
   };
 }

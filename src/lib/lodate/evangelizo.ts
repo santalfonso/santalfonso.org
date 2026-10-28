@@ -1,119 +1,96 @@
 /**
- * Letture del giorno dal "Reader Evangelizo" (https://feed.evangelizo.org/), il servizio
- * che Evangelizo.org mette a disposizione per mostrare le letture su altri siti.
- * Testi italiani: © Conferenza Episcopale Italiana. Il servizio copre solo le date
- * entro 30 giorni da oggi; fuori da questo intervallo restituisce null.
+ * Letture del giorno da Evangelizo.org (API pubblica usata dal loro sito e dalle app:
+ * https://publication.evangelizo.ws/IT/days/YYYY-MM-DD). Testi italiani: © Conferenza
+ * Episcopale Italiana. Copre i giorni passati e circa due mesi in avanti; oltre, o se il
+ * servizio non risponde, restituisce null e la pagina rimanda alle fonti ufficiali.
  *
- * Le risposte sono frammenti HTML: qui diventano testo semplice (niente HTML nella pagina).
+ * Il testo arriva semplice, con i numeri dei versetti tra doppie quadre ("[[Ps 24,1]]"):
+ * \r\n va a capo dentro un versetto, \n tra versetti, \n\n tra strofe.
  */
 
-const READER = "https://feed.evangelizo.org/v2/reader.php";
+const API = "https://publication.evangelizo.ws/IT/days";
 const REVALIDATE_SECONDS = 6 * 60 * 60;
 
-export type ReadingKey = "FR" | "PS" | "SR" | "GSP";
-
 export type Reading = {
-  key: ReadingKey;
+  key: string;
   label: string;
-  /** Titolo lungo con il riferimento, es. "Dal Vangelo di Gesù Cristo secondo Luca 6,12-16." */
+  /** Titolo con il riferimento, es. "Salmi 24(23),1-2.3-4ab.5-6." */
   title: string;
+  /** Ritornello del salmo, es. "R. Ecco, viene il Signore, re della gloria." */
+  chorus: string | null;
   text: string;
 };
 
 export type DailyReadings = {
-  /** Titolo liturgico secondo Evangelizo, es. "Santi Simone e Giuda, apostoli, festa". */
+  /** Titolo liturgico secondo Evangelizo, es. "Tutti i Santi, solennità". */
   title: string;
   readings: Reading[];
 };
 
-const READINGS: { key: ReadingKey; label: string }[] = [
-  { key: "FR", label: "Prima lettura" },
-  { key: "PS", label: "Salmo responsoriale" },
-  { key: "SR", label: "Seconda lettura" },
-  { key: "GSP", label: "Vangelo" },
-];
-
-const ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-  nbsp: " ",
-  laquo: "«",
-  raquo: "»",
-  rsquo: "’",
-  lsquo: "‘",
-  rdquo: "”",
-  ldquo: "“",
-  hellip: "…",
-  ndash: "–",
-  mdash: "—",
+type ApiReading = {
+  id?: string;
+  type?: string;
+  title?: string | null;
+  chorus?: string | null;
+  text?: string | null;
+  reference_displayed?: string | null;
+  book?: { full_title?: string | null } | null;
 };
 
-function decodeEntities(s: string): string {
-  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, code: string) => {
-    if (code[0] === "#") {
-      const n = code[1] === "x" || code[1] === "X" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
-      return Number.isFinite(n) && n > 0 && n < 0x110000 ? String.fromCodePoint(n) : "";
-    }
-    return ENTITIES[code.toLowerCase()] ?? match;
-  });
-}
+const ORDINALS = ["Prima", "Seconda", "Terza", "Quarta", "Quinta", "Sesta", "Settima"];
 
-/** Frammento HTML del reader → testo semplice, senza la riga di copyright e l'invito all'iscrizione. */
-export function toPlainText(html: string): string {
-  const cut = html.search(/Copyright\s*@/i);
-  const body = cut >= 0 ? html.slice(0, cut) : html;
-  return decodeEntities(body.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]*>/g, ""))
+/** Testo dell'API → testo semplice con a capo e strofe, senza numeri dei versetti né HTML. */
+export function cleanText(raw: string): string {
+  return raw
+    .replace(/\[\[[^\]]*\]\]/g, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map((l) => l.replace(/\s+/g, " ").trim())
+    .map((l) => l.replace(/[ \t]+/g, " ").trim())
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
-async function read(params: Record<string, string>): Promise<string | null> {
-  const url = `${READER}?${new URLSearchParams({ lang: "IT", ...params })}`;
-  try {
-    const res = await fetch(url, {
-      next: { revalidate: REVALIDATE_SECONDS },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!res.ok) return null;
-    const body = await res.text();
-    // Fuori intervallo o parametri errati il reader risponde con la sua pagina di manuale.
-    if (/<!DOCTYPE|<html/i.test(body)) return null;
-    return body;
-  } catch {
-    return null;
-  }
+function oneLine(s: string | null | undefined): string {
+  return cleanText(s ?? "").replace(/\s+/g, " ");
 }
 
 /** Letture del giorno (YYYY-MM-DD), oppure null se il servizio non le fornisce. */
 export async function getDailyReadings(iso: string): Promise<DailyReadings | null> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
-  const date = iso.replaceAll("-", "");
 
-  const [title, ...parts] = await Promise.all([
-    read({ date, type: "liturgic_t" }),
-    ...READINGS.flatMap(({ key }) => [
-      read({ date, type: "reading_lt", content: key }),
-      read({ date, type: "reading", content: key }),
-    ]),
-  ]);
-  if (title === null) return null;
+  let data: { liturgic_title?: string; readings?: ApiReading[] } | undefined;
+  try {
+    const res = await fetch(`${API}/${iso}`, {
+      next: { revalidate: REVALIDATE_SECONDS },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    data = (await res.json())?.data;
+  } catch {
+    return null;
+  }
+  if (!data || !Array.isArray(data.readings)) return null;
 
+  let readingNo = 0;
   const readings: Reading[] = [];
-  READINGS.forEach(({ key, label }, i) => {
-    const longTitle = parts[i * 2];
-    const text = parts[i * 2 + 1];
-    if (!longTitle || !text) return;
-    const plain = toPlainText(text);
-    if (!plain) return;
-    readings.push({ key, label, title: toPlainText(longTitle), text: plain });
+  data.readings.forEach((r, i) => {
+    const text = cleanText(r.text ?? "");
+    if (!text) return;
+    let label: string;
+    if (r.type === "psalm") label = "Salmo responsoriale";
+    else if (r.type === "gospel") label = "Vangelo";
+    else label = `${ORDINALS[readingNo++] ?? "Altra"} lettura`;
+    readings.push({
+      key: r.id || String(i),
+      label,
+      title: oneLine(`${r.book?.full_title ?? r.title ?? ""} ${r.reference_displayed ?? ""}`),
+      chorus: r.chorus ? oneLine(r.chorus) : null,
+      text,
+    });
   });
   if (readings.length === 0) return null;
 
-  return { title: toPlainText(title), readings };
+  return { title: oneLine(data.liturgic_title), readings };
 }

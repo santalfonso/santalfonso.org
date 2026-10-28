@@ -4,25 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useRef, useState, useTransition } from "react";
 import { saveSetlist } from "@/actions/lodate/setlists";
-import {
-  EXTRA_MOMENT,
-  MOMENTS,
-  isSeason,
-  momentLabel,
-  seasonLabel,
-  type SetlistMoment,
-} from "@/lib/lodate/constants";
+import { MOMENTS, isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
 import { COLOR_LABELS, isValidLiturgicalDate, liturgicalDay } from "@/lib/lodate/liturgia";
 import {
   EXTRA_AT_START,
   LIMITS,
   countSongs,
   encodeSetlist,
+  extraIndex,
   extraPositionLabel,
   orderedSections,
   setlistUrlPath,
   type ExtraPosition,
   type SetlistData,
+  type SetlistExtra,
   type SetlistSong,
 } from "@/lib/lodate/setlist";
 
@@ -46,64 +41,51 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
   const router = useRouter();
   const formId = useId();
   const [data, setData] = useState<SetlistData>(initial);
-  const [extraEnabled, setExtraEnabled] = useState(Boolean(initial.extraLabel || initial.items.extra.length));
   // Festa e tempo liturgico si ricavano dalla data.
   const day = useMemo(
     () => (data.date && isValidLiturgicalDate(data.date) ? liturgicalDay(data.date) : null),
     [data.date]
   );
   const season: string = day?.songSeason ?? (initialSeason && isSeason(initialSeason) ? initialSeason : "");
-  const [openPicker, setOpenPicker] = useState<SetlistMoment | null>(null);
+  const [openPicker, setOpenPicker] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [announce, setAnnounce] = useState("");
   const [pending, startTransition] = useTransition();
 
   const songsById = useMemo(() => new Map(catalog.map((s) => [s.id, s])), [catalog]);
 
-  /** Dati effettivi (momento speciale incluso solo se attivo). */
-  const effective: SetlistData = useMemo(() => {
-    if (!extraEnabled) {
-      return { ...data, extraLabel: null, extraAfter: null, items: { ...data.items, extra: [] } };
-    }
-    return {
-      ...data,
-      extraLabel: data.extraLabel?.trim() || "Momento speciale",
-      extraAfter: data.extraAfter ?? EXTRA_AT_START,
-    };
-  }, [data, extraEnabled]);
+  const output = data;
+  const sections = orderedSections(data, true);
+  const total = countSongs(data);
 
-  /** Dati da salvare/condividere: un momento speciale vuoto e senza nome viene scartato. */
-  const output: SetlistData = useMemo(
-    () =>
-      extraEnabled && !data.extraLabel?.trim() && data.items.extra.length === 0
-        ? { ...effective, extraLabel: null, extraAfter: null }
-        : effective,
-    [effective, extraEnabled, data.extraLabel, data.items.extra.length]
-  );
-
-  const sections = orderedSections(effective, true);
-  const total = countSongs(effective);
-
-  function update<K extends keyof SetlistData>(key: K, value: SetlistData[K]) {
-    setData((d) => ({ ...d, [key]: value }));
+  /** Canti di una sezione: momento della Messa oppure momento speciale (`extra:N`). */
+  function idsOf(d: SetlistData, key: string): number[] {
+    if (isMoment(key)) return d.items[key];
+    return d.extras[extraIndex(key) ?? -1]?.songs ?? [];
   }
 
-  function setItems(moment: SetlistMoment, fn: (ids: number[]) => number[]) {
-    setData((d) => ({ ...d, items: { ...d.items, [moment]: fn(d.items[moment]) } }));
+  function setIds(key: string, fn: (ids: number[]) => number[]) {
+    setData((d) => {
+      if (isMoment(key)) return { ...d, items: { ...d.items, [key]: fn(d.items[key]) } };
+      const i = extraIndex(key);
+      if (i === null || !d.extras[i]) return d;
+      return { ...d, extras: d.extras.map((e, j) => (j === i ? { ...e, songs: fn(e.songs) } : e)) };
+    });
   }
 
-  function addSong(moment: SetlistMoment, id: number) {
-    if (data.items[moment].includes(id)) return;
-    if (data.items[moment].length >= LIMITS.songsPerMoment || total >= LIMITS.totalSongs) {
+  function addSong(key: string, id: number) {
+    const ids = idsOf(data, key);
+    if (ids.includes(id)) return;
+    if (ids.length >= LIMITS.songsPerMoment || total >= LIMITS.totalSongs) {
       setAnnounce("Hai raggiunto il numero massimo di canti.");
       return;
     }
-    setItems(moment, (ids) => [...ids, id]);
+    setIds(key, (list) => [...list, id]);
     setAnnounce(`Aggiunto: ${songsById.get(id)?.title ?? "canto"}`);
   }
 
-  function move(moment: SetlistMoment, index: number, delta: number) {
-    setItems(moment, (ids) => {
+  function move(key: string, index: number, delta: number) {
+    setIds(key, (ids) => {
       const next = [...ids];
       const j = index + delta;
       if (j < 0 || j >= next.length) return ids;
@@ -112,10 +94,26 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
     });
   }
 
-  function remove(moment: SetlistMoment, index: number) {
-    const title = songsById.get(data.items[moment][index])?.title;
-    setItems(moment, (ids) => ids.filter((_, i) => i !== index));
+  function remove(key: string, index: number) {
+    const title = songsById.get(idsOf(data, key)[index])?.title;
+    setIds(key, (ids) => ids.filter((_, i) => i !== index));
     setAnnounce(`Rimosso: ${title ?? "canto"}`);
+  }
+
+  function updateExtra(index: number, patch: Partial<SetlistExtra>) {
+    setData((d) => ({ ...d, extras: d.extras.map((e, j) => (j === index ? { ...e, ...patch } : e)) }));
+  }
+
+  function addExtra() {
+    if (data.extras.length >= LIMITS.extras) return;
+    setData((d) => ({ ...d, extras: [...d.extras, { label: "", after: "finale", songs: [] }] }));
+    setAnnounce("Aggiunto un momento speciale in fondo alla scaletta.");
+  }
+
+  function removeExtra(index: number) {
+    setOpenPicker(null);
+    setData((d) => ({ ...d, extras: d.extras.filter((_, j) => j !== index) }));
+    setAnnounce("Momento speciale rimosso.");
   }
 
   function makeLink() {
@@ -138,17 +136,6 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
     <div className="ls-stack">
       <section className="ls-card ls-stack" aria-labelledby={`${formId}-info`}>
         <h2 id={`${formId}-info`}>Celebrazione</h2>
-        <div className="ls-field">
-          <label htmlFor={`${formId}-title`}>Titolo (facoltativo)</label>
-          <input
-            id={`${formId}-title`}
-            className="ls-input"
-            value={data.title}
-            maxLength={LIMITS.title}
-            placeholder="Es. Messa delle 11"
-            onChange={(e) => update("title", e.target.value)}
-          />
-        </div>
         <div className="ls-field">
           <label htmlFor={`${formId}-date`}>Data della celebrazione</label>
           <input
@@ -173,79 +160,52 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
             </span>
           </p>
         )}
-        <div className="ls-field">
-          <label htmlFor={`${formId}-notes`}>Note</label>
-          <textarea
-            id={`${formId}-notes`}
-            className="ls-textarea"
-            value={data.notes ?? ""}
-            maxLength={LIMITS.notes}
-            onChange={(e) => update("notes", e.target.value || null)}
-          />
-        </div>
-        <label className="ls-check">
-          <input
-            type="checkbox"
-            checked={extraEnabled}
-            onChange={(e) => {
-              setExtraEnabled(e.target.checked);
-              if (!e.target.checked && openPicker === EXTRA_MOMENT) setOpenPicker(null);
-            }}
-          />
-          Aggiungi un momento speciale
-        </label>
-        {extraEnabled && (
-          <div className="ls-grid2">
-            <div className="ls-field">
-              <label htmlFor={`${formId}-extra`}>Nome del momento</label>
-              <input
-                id={`${formId}-extra`}
-                className="ls-input"
-                value={data.extraLabel ?? ""}
-                maxLength={LIMITS.extraLabel}
-                placeholder="Es. Ingresso degli sposi"
-                onChange={(e) => update("extraLabel", e.target.value)}
-              />
-            </div>
-            <div className="ls-field">
-              <label htmlFor={`${formId}-extra-pos`}>Posizione</label>
-              <select
-                id={`${formId}-extra-pos`}
-                className="ls-select"
-                value={effective.extraAfter ?? EXTRA_AT_START}
-                onChange={(e) => update("extraAfter", e.target.value as ExtraPosition)}
-              >
-                {EXTRA_POSITIONS.map((p) => (
-                  <option key={p} value={p}>
-                    {extraPositionLabel(p)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
       </section>
 
       <p className="ls-sr" role="status" aria-live="polite">
         {announce}
       </p>
 
-      {sections.map((section) => (
-        <MomentSection
-          key={section.moment}
-          moment={section.moment}
-          label={section.label}
-          ids={section.songIds}
-          songsById={songsById}
-          catalog={catalog}
-          season={season}
-          open={openPicker === section.moment}
-          onToggle={() => setOpenPicker((o) => (o === section.moment ? null : section.moment))}
-          onAdd={(id) => addSong(section.moment, id)}
-          onMove={(i, d) => move(section.moment, i, d)}
-          onRemove={(i) => remove(section.moment, i)}
-        />
-      ))}
+      {sections.map((section) => {
+        const i = section.extraIndex;
+        const extra = i !== null ? data.extras[i] : null;
+        return (
+          <MomentSection
+            key={section.key}
+            moment={section.key}
+            label={section.label}
+            ids={section.songIds}
+            songsById={songsById}
+            catalog={catalog}
+            season={season}
+            open={openPicker === section.key}
+            onToggle={() => setOpenPicker((o) => (o === section.key ? null : section.key))}
+            onAdd={(id) => addSong(section.key, id)}
+            onMove={(n, d) => move(section.key, n, d)}
+            onRemove={(n) => remove(section.key, n)}
+            extra={
+              extra && i !== null
+                ? {
+                    label: extra.label,
+                    after: extra.after,
+                    onLabel: (label) => updateExtra(i, { label }),
+                    onAfter: (after) => {
+                      setOpenPicker(null);
+                      updateExtra(i, { after });
+                    },
+                    onDelete: () => removeExtra(i),
+                  }
+                : null
+            }
+          />
+        );
+      })}
+
+      {data.extras.length < LIMITS.extras && (
+        <button type="button" className="ls-btn ls-add-extra" onClick={addExtra}>
+          + Aggiungi momento speciale
+        </button>
+      )}
 
       {error && (
         <p className="ls-error" role="alert">
@@ -281,8 +241,17 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
   );
 }
 
+type ExtraControls = {
+  label: string;
+  after: ExtraPosition;
+  onLabel: (label: string) => void;
+  onAfter: (after: ExtraPosition) => void;
+  onDelete: () => void;
+};
+
 type SectionProps = {
-  moment: SetlistMoment;
+  /** Slug del momento oppure `extra:N`. */
+  moment: string;
   label: string;
   ids: number[];
   songsById: Map<number, SetlistSong>;
@@ -293,6 +262,8 @@ type SectionProps = {
   onAdd: (id: number) => void;
   onMove: (index: number, delta: number) => void;
   onRemove: (index: number) => void;
+  /** Presente solo per i momenti speciali: nome e posizione modificabili. */
+  extra: ExtraControls | null;
 };
 
 function MomentSection({
@@ -307,19 +278,56 @@ function MomentSection({
   onAdd,
   onMove,
   onRemove,
+  extra,
 }: SectionProps) {
   const headingId = useId();
   const pickerId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const isExtra = moment === EXTRA_MOMENT;
+  const isExtra = extra !== null;
 
   return (
     <section className={`ls-section${isExtra ? " ls-section--extra" : ""}`} aria-labelledby={headingId}>
       <div className="ls-section-head">
-        <h2 id={headingId}>
-          {label}
-          {ids.length > 0 && <span className="ls-sr">, {ids.length} {ids.length === 1 ? "canto" : "canti"}</span>}
-        </h2>
+        {extra ? (
+          <div className="ls-extra-head">
+            <h2 id={headingId} className="ls-sr">
+              Momento speciale: {label}
+            </h2>
+            <input
+              className="ls-input ls-extra-name"
+              value={extra.label}
+              maxLength={LIMITS.extraLabel}
+              placeholder="Nome del momento, es. Ingresso degli sposi"
+              aria-label="Nome del momento speciale"
+              onChange={(e) => extra.onLabel(e.target.value)}
+            />
+            <select
+              className="ls-select ls-extra-pos"
+              value={extra.after}
+              aria-label="Posizione del momento speciale"
+              onChange={(e) => extra.onAfter(e.target.value as ExtraPosition)}
+            >
+              {EXTRA_POSITIONS.map((p) => (
+                <option key={p} value={p}>
+                  {extraPositionLabel(p)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="ls-btn ls-btn--icon ls-btn--danger"
+              aria-label={`Rimuovi il momento speciale ${label}`}
+              onClick={extra.onDelete}
+            >
+              ×
+            </button>
+          </div>
+        ) : (
+          <h2 id={headingId}>
+            {label}
+            {ids.length > 0 && <span className="ls-sr">, {ids.length} {ids.length === 1 ? "canto" : "canti"}</span>}
+          </h2>
+        )}
         <button
           ref={toggleRef}
           type="button"
@@ -393,7 +401,7 @@ function MomentSection({
 }
 
 type PickerProps = {
-  moment: SetlistMoment;
+  moment: string;
   label: string;
   catalog: SetlistSong[];
   season: string;
@@ -412,7 +420,7 @@ function SongPicker({ moment, label, catalog, season, chosen, onAdd, onClose }: 
     const scored = catalog
       .filter((s) => !q || fold(`${s.title} ${s.author ?? ""}`).includes(q))
       .map((s) => {
-        const forMoment = moment !== EXTRA_MOMENT && s.moments.includes(moment);
+        const forMoment = isMoment(moment) && s.moments.includes(moment);
         const forSeason = Boolean(season) && s.seasons.includes(season);
         return { song: s, forMoment, forSeason, score: (forMoment ? 2 : 0) + (forSeason ? 1 : 0) };
       })
@@ -449,7 +457,7 @@ function SongPicker({ moment, label, catalog, season, chosen, onAdd, onClose }: 
       />
       <p className="ls-small ls-muted" style={{ marginTop: 6 }}>
         {results.suggestedOnly
-          ? `Suggeriti per ${moment === EXTRA_MOMENT ? "questo momento" : momentLabel(moment)}${season ? ` e ${seasonLabel(season)}` : ""}. Puoi cercare qualunque canto.`
+          ? `Suggeriti per ${isMoment(moment) ? momentLabel(moment) : "questo momento"}${season ? ` e ${seasonLabel(season)}` : ""}. Puoi cercare qualunque canto.`
           : `${results.list.length}${results.hasMore ? "+" : ""} risultati`}
       </p>
       {results.list.length === 0 ? (

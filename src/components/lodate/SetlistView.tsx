@@ -41,7 +41,7 @@ export default function SetlistView({ data, songs, selfPath }: Props) {
       ) : (
         <ol className="ls-sheet">
           {sections.map((section) => (
-            <li key={section.moment}>
+            <li key={section.key}>
               <h2 className="ls-sheet-moment">{section.label}</h2>
               <ul className="ls-sheet-songs">
                 {section.songIds.map((id) => {

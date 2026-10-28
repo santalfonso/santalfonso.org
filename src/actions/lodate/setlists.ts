@@ -12,7 +12,8 @@ import {
   allSongIds,
   filterKnownSongs,
   normalizeSetlist,
-  rowsFromItems,
+  extrasMetaToColumns,
+  rowsFromSetlist,
 } from "@/lib/lodate/setlist";
 
 export type SaveSetlistResult = { error: string } | { publicId: string };
@@ -57,10 +58,9 @@ export async function saveSetlist(input: unknown, publicId?: string | null): Pro
     celebrationDate: data.date,
     feast,
     notes: data.notes,
-    extraLabel: data.extraLabel,
-    extraAfter: data.extraAfter,
+    ...extrasMetaToColumns(data.extras),
   };
-  const rows = rowsFromItems(data.items);
+  const rows = rowsFromSetlist(data);
 
   if (publicId) {
     if (typeof publicId !== "string") return { error: "Scaletta non trovata." };

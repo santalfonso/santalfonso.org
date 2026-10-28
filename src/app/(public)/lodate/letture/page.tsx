@@ -84,6 +84,7 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
             <section key={r.key} className="ls-card ls-stack ls-reading" aria-labelledby={`ls-reading-${r.key}`}>
               <span className="ls-kicker">{r.label}</span>
               <h3 id={`ls-reading-${r.key}`}>{r.title}</h3>
+              {r.chorus && <p className="ls-reading__chorus">{r.chorus}</p>}
               <p className="ls-reading__text">{r.text}</p>
             </section>
           ))}
@@ -98,8 +99,8 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
       ) : (
         <section className="ls-card ls-stack" aria-label="Letture sulla fonte ufficiale">
           <p className="ls-muted">
-            Il testo delle letture per questa data non è disponibile qui (il servizio copre i 30 giorni
-            prima e dopo oggi). Puoi leggerle sulla fonte ufficiale.
+            Il testo delle letture per questa data non è disponibile qui (il servizio copre i giorni passati e
+            circa due mesi in avanti). Puoi leggerle sulla fonte ufficiale.
           </p>
           <div className="ls-row">
             <a className="ls-btn ls-btn--primary" href={primary.href} target="_blank" rel="noopener noreferrer">

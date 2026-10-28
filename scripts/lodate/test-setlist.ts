@@ -10,10 +10,11 @@ import {
   emptySetlist,
   encodeSetlist,
   filterKnownSongs,
-  itemsFromRows,
+  extrasMetaToColumns,
   normalizeSetlist,
   orderedSections,
-  rowsFromItems,
+  rowsFromSetlist,
+  setlistFromRows,
   todayInRome,
   formatLongDate,
   isValidIsoDate,
@@ -38,21 +39,22 @@ const sample: SetlistData = {
   date: "2026-06-13",
   feast: "Matrimonio",
   notes: "Entrata sposa: organo\nComunione: 2 canti",
-  extraLabel: "Ingresso degli sposi",
-  extraAfter: "inizio",
   items: {
     ...emptySetlist().items,
     iniziale: [3],
     gloria: [7],
     comunione: [12, 4],
     finale: [9],
-    extra: [21],
   },
+  extras: [
+    { label: "Ingresso degli sposi", after: "inizio", songs: [21] },
+    { label: "Scambio degli anelli", after: "gloria", songs: [] },
+  ],
 };
 
 test("roundtrip encode/decode", () => {
   const enc = encodeSetlist(sample);
-  assert.match(enc, /^1\.[A-Za-z0-9_-]+$/);
+  assert.match(enc, /^2\.[A-Za-z0-9_-]+$/);
   assert.deepEqual(decodeSetlist(enc), normalizeSetlist(sample));
 });
 
@@ -66,6 +68,7 @@ test("link vuoto è corto", () => {
 });
 
 test("versione sconosciuta o input rotto → null", () => {
+  assert.equal(decodeSetlist("3.abc"), null);
   assert.equal(decodeSetlist("2.abc"), null);
   assert.equal(decodeSetlist("1.%%%"), null);
   assert.equal(decodeSetlist("1.bm90IGpzb24"), null); // "not json"
@@ -73,6 +76,13 @@ test("versione sconosciuta o input rotto → null", () => {
   assert.equal(decodeSetlist(undefined), null);
   assert.equal(decodeSetlist(["1.x"]), null);
   assert.equal(decodeSetlist("1." + "A".repeat(LIMITS.encoded)), null);
+});
+
+test("link v1 (un solo momento speciale) ancora leggibili", () => {
+  const v1 = ["Sposi", "2026-06-13", "", "", "Ingresso", "inizio", [[3]], [21]];
+  const d = decodeSetlist("1." + Buffer.from(JSON.stringify(v1)).toString("base64url"));
+  assert.deepEqual(d?.items.iniziale, [3]);
+  assert.deepEqual(d?.extras, [{ label: "Ingresso", after: "inizio", songs: [21] }]);
 });
 
 test("JSON valido ma non array → null", () => {
@@ -92,8 +102,7 @@ test("normalizzazione: id non validi, doppioni, limiti", () => {
   assert.deepEqual(n.items.iniziale, [1, 2]);
   assert.deepEqual(n.items.gloria, []);
   assert.equal("pippo" in n.items, false);
-  assert.equal(n.extraLabel, null);
-  assert.equal(n.extraAfter, null);
+  assert.deepEqual(n.extras, []);
 });
 
 test("limite canti per momento e totale", () => {
@@ -120,48 +129,59 @@ test("date valide", () => {
   assert.ok(!isValidIsoDate("2025-1-01"));
 });
 
-test("ordine sezioni con extra all'inizio", () => {
-  const order = orderedSections(normalizeSetlist(sample)).map((s) => s.moment);
-  assert.deepEqual(order, ["extra", "iniziale", "gloria", "comunione", "finale"]);
+test("ordine sezioni: momenti speciali al loro posto, vuoti nascosti", () => {
+  const order = orderedSections(normalizeSetlist(sample)).map((s) => s.key);
+  assert.deepEqual(order, ["extra:0", "iniziale", "gloria", "comunione", "finale"]);
 });
 
-test("ordine sezioni con extra dopo la gloria (includeEmpty)", () => {
-  const s = normalizeSetlist({ ...sample, extraAfter: "gloria" });
-  const order = orderedSections(s, true).map((x) => x.moment);
+test("ordine sezioni con più momenti speciali (includeEmpty)", () => {
+  const s = normalizeSetlist(sample);
+  const order = orderedSections(s, true).map((x) => x.key);
   assert.deepEqual(order, [
-    "iniziale", "gloria", "extra", "offertorio", "santo", "pace", "agnello", "comunione", "finale",
+    "extra:0", "iniziale", "gloria", "extra:1", "offertorio", "santo", "pace", "agnello", "comunione", "finale",
   ]);
-  assert.equal(orderedSections(s, true)[2].label, "Ingresso degli sposi");
+  assert.equal(orderedSections(s, true)[3].label, "Scambio degli anelli");
 });
 
-test("nessun extra se non definito", () => {
+test("nessun momento speciale se non definito", () => {
   const s = normalizeSetlist({ items: { santo: [1] } });
-  assert.deepEqual(orderedSections(s, true).map((x) => x.moment).includes("extra"), false);
+  assert.equal(orderedSections(s, true).some((x) => x.extraIndex !== null), false);
 });
 
-test("extra con canti ma senza etichetta → etichetta di default, dopo il finale", () => {
-  const s = normalizeSetlist({ items: { extra: [4] } });
-  assert.equal(s.extraLabel, "Momento speciale");
-  assert.equal(s.extraAfter, "finale");
-  assert.deepEqual(orderedSections(s).map((x) => x.moment), ["extra"]);
+test("momento speciale senza nome → nome di default, dopo il finale", () => {
+  const s = normalizeSetlist({ extras: [{ label: "  ", songs: [4] }] });
+  assert.deepEqual(s.extras, [{ label: "Momento speciale", after: "finale", songs: [4] }]);
+  assert.deepEqual(orderedSections(s).map((x) => x.key), ["extra:0"]);
+});
+
+test("al massimo LIMITS.extras momenti speciali", () => {
+  const s = normalizeSetlist({ extras: Array.from({ length: 20 }, () => ({ label: "x" })) });
+  assert.equal(s.extras.length, LIMITS.extras);
 });
 
 test("filterKnownSongs ignora id inesistenti", () => {
   const s = filterKnownSongs(normalizeSetlist(sample), new Set([3, 4, 21]));
   assert.deepEqual(s.items.comunione, [4]);
   assert.deepEqual(s.items.gloria, []);
-  assert.deepEqual(s.items.extra, [21]);
+  assert.deepEqual(s.extras[0].songs, [21]);
 });
 
-test("righe DB ↔ items", () => {
+test("righe DB ↔ scaletta", () => {
   const n = normalizeSetlist(sample);
-  const rows = rowsFromItems(n.items);
+  const rows = rowsFromSetlist(n);
   assert.deepEqual(
     rows.filter((r) => r.moment === "comunione").map((r) => [r.songId, r.position]),
     [[12, 0], [4, 1]]
   );
-  const back = itemsFromRows([...rows.reverse(), { moment: "boh", songId: 1, position: 0 }]);
-  assert.deepEqual(back, n.items);
+  const row = { title: n.title, celebrationDate: n.date, feast: n.feast, notes: n.notes, ...extrasMetaToColumns(n.extras) };
+  const back = setlistFromRows(row, [...rows.reverse(), { moment: "boh", songId: 1, position: 0 }]);
+  assert.deepEqual(back, n);
+});
+
+test("scalette salvate col vecchio formato (un solo extra)", () => {
+  const row = { title: "x", celebrationDate: null, feast: null, notes: null, extraLabel: "Ingresso", extraAfter: "gloria" };
+  const back = setlistFromRows(row, [{ moment: "extra", songId: 5, position: 0 }]);
+  assert.deepEqual(back.extras, [{ label: "Ingresso", after: "gloria", songs: [5] }]);
 });
 
 test("date in italiano e fuso di Roma", () => {
