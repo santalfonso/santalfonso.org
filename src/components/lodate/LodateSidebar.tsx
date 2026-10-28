@@ -2,14 +2,38 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SEASONS } from "@/lib/lodate/constants";
 
-/** Menù laterale di "Lodate, lodate Iddio": a sinistra su schermi larghi, a scomparsa sul telefono. */
+/**
+ * Menù laterale di "Lodate, lodate Iddio": a sinistra su schermi larghi; sul telefono
+ * si apre dal pulsante a tre righe come pannello che scorre da sinistra.
+ */
 export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
   const pathname = usePathname();
   const params = useSearchParams();
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Pannello aperto: niente scorrimento della pagina sotto, Esc chiude, focus dentro il pannello.
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
 
   const onCatalog = pathname === "/lodate";
   const tempo = onCatalog ? params.get("tempo") : null;
@@ -30,19 +54,46 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
   return (
     <aside className={`lodate-side${open ? " is-open" : ""}`} aria-label="Menù dei canti">
       <button
+        ref={toggleRef}
         type="button"
         className="lodate-side__toggle"
         aria-expanded={open}
         aria-controls="lodate-side-menu"
-        onClick={() => setOpen((o) => !o)}
+        aria-label="Apri il menù dei canti"
+        onClick={() => setOpen(true)}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
-        Menù dei canti
       </button>
 
+      <div
+        className="lodate-side__backdrop"
+        aria-hidden="true"
+        onClick={() => {
+          setOpen(false);
+          toggleRef.current?.focus();
+        }}
+      />
+
       <nav id="lodate-side-menu" className="lodate-side__menu">
+        <div className="lodate-side__drawer-head">
+          <span>Lodate, lodate Iddio</span>
+          <button
+            ref={closeRef}
+            type="button"
+            className="lodate-side__close"
+            aria-label="Chiudi il menù dei canti"
+            onClick={() => {
+              setOpen(false);
+              toggleRef.current?.focus();
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
         <p className="lodate-side__group">Canti</p>
         <ul>
           {item("/lodate", "Tutti i canti", onCatalog && !params.get("momento") && !tempo)}
