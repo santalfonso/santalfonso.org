@@ -111,7 +111,7 @@
   padding-right: 8px;
   border-right: 1px solid var(--lodate-line);
 }
-.lodate-side__toggle,
+.lodate-side__bar,
 .lodate-side__backdrop,
 .lodate-side__drawer-head { display: none; }
 .lodate-side .lodate-side__group {
@@ -147,25 +147,46 @@
 .lodate-side__toggle:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
 
 @media (max-width: 900px) {
-  .lodate-shell { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .lodate-side {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    padding: 0;
-    border-right: 0;
+  /* Sul telefono: barra del menù sempre visibile sotto l'intestazione del sito */
+  .lodate-shell { display: block; }
+  .lodate-side { display: contents; }
+  .lodate-side__bar {
+    display: block;
+    position: sticky;
+    top: var(--lodate-sticky-top, 139px);
+    z-index: 40;
+    margin: 0 calc(-1 * var(--gutter)) 20px;
+    padding: 8px var(--gutter);
+    background: var(--lodate-bg, var(--bg));
+    border-bottom: 1px solid var(--lodate-line);
   }
   .lodate-side__toggle {
-    display: inline-grid;
-    place-items: center;
-    width: var(--lodate-tap);
-    height: var(--lodate-tap);
-    padding: 0;
-    border: 1px solid var(--lodate-line-strong);
-    border-radius: var(--lodate-radius-sm);
-    background: var(--lodate-surface);
-    color: var(--lodate-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: var(--r-pill);
+    background: var(--lodate-primary);
+    color: var(--lodate-primary-ink);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: left;
+    box-shadow: var(--shadow-sm);
     cursor: pointer;
+  }
+  .lodate-side__toggle:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
+  .lodate-side__bar-current {
+    margin-left: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    opacity: 0.85;
   }
   /* Pannello che scorre da sinistra */
   .lodate-side__menu {

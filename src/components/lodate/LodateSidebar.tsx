@@ -38,6 +38,19 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
   const onCatalog = pathname === "/lodate";
   const tempo = onCatalog ? params.get("tempo") : null;
 
+  // Sezione corrente, mostrata nella barra del menù sul telefono.
+  const current = onCatalog
+    ? (SEASONS.find((x) => x.slug === tempo)?.label ?? "Tutti i canti")
+    : pathname.startsWith("/lodate/canti/")
+      ? "Canto"
+      : pathname.startsWith("/lodate/scaletta") || pathname.startsWith("/lodate/s/")
+        ? "Scaletta"
+        : pathname.startsWith("/lodate/letture")
+          ? "Letture del giorno"
+          : pathname.startsWith("/lodate/area")
+            ? "Le mie scalette"
+            : "";
+
   const item = (href: string, label: string, active: boolean) => (
     <li key={href}>
       <Link
@@ -53,19 +66,27 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
 
   return (
     <aside className={`lodate-side${open ? " is-open" : ""}`} aria-label="Menù dei canti">
-      <button
-        ref={toggleRef}
-        type="button"
-        className="lodate-side__toggle"
-        aria-expanded={open}
-        aria-controls="lodate-side-menu"
-        aria-label="Apri il menù dei canti"
-        onClick={() => setOpen(true)}
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-          <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+      <div className="lodate-side__bar">
+        <button
+          ref={toggleRef}
+          type="button"
+          className="lodate-side__toggle"
+          aria-expanded={open}
+          aria-controls="lodate-side-menu"
+          onClick={() => setOpen(true)}
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+            <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span className="lodate-side__bar-title">Menù dei canti</span>
+          {current && (
+            <span className="lodate-side__bar-current">
+              <span className="lodate-sr">, sezione attuale: </span>
+              {current}
+            </span>
+          )}
+        </button>
+      </div>
 
       <div
         className="lodate-side__backdrop"
@@ -76,7 +97,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
         }}
       />
 
-      <nav id="lodate-side-menu" className="lodate-side__menu">
+      <nav id="lodate-side-menu" className="lodate-side__menu" aria-label="Menù dei canti">
         <div className="lodate-side__drawer-head">
           <span>Lodate, lodate Iddio</span>
           <button

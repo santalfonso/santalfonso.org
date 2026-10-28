@@ -71,9 +71,12 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
         </p>
       )}
 
-      <section className={`ls-card ls-readings-card ls-lit-b--${day.color} ls-stack`} aria-label="Giorno liturgico">
+      <section className={`ls-card ls-readings-card ls-lit-b--${day.color}`} aria-label="Giorno liturgico">
         <ReadingsDayInfo day={day} />
-        <Link className="ls-link" href={newSetlist}>
+        <Link className="ls-btn ls-btn--small ls-readings-card__cta" href={newSetlist}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h11M9 12h11M9 18h7M4 6h.01M4 12h.01M4 18h.01" />
+          </svg>
           Prepara la scaletta per questo giorno
         </Link>
       </section>
