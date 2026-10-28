@@ -561,6 +561,8 @@ a.lodate-badge { min-height: 32px; }
 .lodate-tx--letters { display: inline-flex; align-items: flex-end; padding-top: 1.05em; }
 .lodate-c { position: relative; display: inline-block; }
 .lodate-c__ch { white-space: pre; }
+/* segni su lettere vicine: un po' di spazio in più ai lati della lettera */
+.lodate-c.lodate-c--wide { padding-left: 0.2em; padding-right: 0.2em; }
 .lodate-c .lodate-mk {
   position: absolute;
   bottom: 100%;
@@ -834,3 +836,56 @@ a.lodate-badge { min-height: 32px; }
 .lodate-lang:hover { color: var(--lodate-text); }
 .lodate-lang.is-on { background: var(--lodate-primary); border-color: var(--lodate-primary); color: var(--lodate-primary-ink); }
 .lodate-lang:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
+
+
+/* --- Lettore: pulsanti generali fuori, impostazioni musicali nel riquadro --- */
+.lodate-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 12px;
+}
+.lodate-tools__size { display: inline-flex; gap: 6px; margin-left: auto; }
+
+.lodate-music {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: var(--lodate-surface-soft);
+  border: 1px solid var(--lodate-line);
+  border-radius: var(--lodate-radius);
+}
+.lodate-music__box {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  background: var(--lodate-surface);
+  border: 1px solid var(--lodate-line);
+  border-radius: var(--lodate-radius-sm);
+}
+.lodate-music__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lodate-gold);
+}
+.lodate-music__row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.lodate-music__row .lodate-key { flex: 1; }
+.lodate-music__row .lodate-capo__select { flex: 1; min-width: 0; }
+.lodate-music__reset { color: var(--lodate-accent); flex: none; }
+.lodate-music__error { grid-column: 1 / -1; margin: 0; }
+
+@media (max-width: 600px) {
+  .site .lodate-song-title { font-size: 28px; line-height: 1.15; }
+  .lodate-song-head .lodate-badges { gap: 4px; }
+  .lodate-song-head .lodate-badge { padding: 2px 9px; font-size: 12px; }
+  .lodate-song-head a.lodate-badge { min-height: 28px; }
+  .lodate-tools > .lodate-btn { flex: 1 1 calc(50% - 4px); justify-content: center; }
+  .lodate-tools__size { flex: 1 1 100%; justify-content: center; margin-left: 0; }
+  .lodate-tools__size .lodate-btn { flex: 1; }
+  .lodate-music { grid-template-columns: minmax(0, 1fr); }
+}

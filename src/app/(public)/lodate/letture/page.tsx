@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ReadingsDayInfo from "@/components/lodate/ReadingsDayInfo";
 import { getDailyReadings } from "@/lib/lodate/evangelizo";
 import { addDays, isValidLiturgicalDate, liturgicalDay, readingsLinks } from "@/lib/lodate/liturgia";
 import { emptySetlist, encodeSetlist, formatLongDate, todayInRome } from "@/lib/lodate/setlist";
@@ -71,15 +70,15 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
         </p>
       )}
 
-      <section className={`ls-card ls-readings-card ls-lit-b--${day.color}`} aria-label="Giorno liturgico">
-        <ReadingsDayInfo day={day} />
-        <Link className="ls-btn ls-btn--small ls-readings-card__cta" href={newSetlist}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h11M9 12h11M9 18h7M4 6h.01M4 12h.01M4 18h.01" />
-          </svg>
-          Prepara la scaletta per questo giorno
-        </Link>
-      </section>
+      <Link className={`ls-cta-lit ls-cta-lit--${day.color}`} href={newSetlist}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h11M9 12h11M9 18h7M4 6h.01M4 12h.01M4 18h.01" />
+        </svg>
+        <span className="ls-cta-lit__text">Prepara la scaletta per questo giorno</span>
+        <svg className="ls-cta-lit__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </Link>
 
       {readings ? (
         <>
@@ -91,13 +90,6 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
               <p className="ls-reading__text">{r.text}</p>
             </section>
           ))}
-          <p className="ls-small ls-muted">
-            Testi: © Conferenza Episcopale Italiana. Fornite dal servizio di{" "}
-            <a className="ls-link" href="https://vangelodelgiorno.org/IT/gospel" target="_blank" rel="noopener noreferrer">
-              Evangelizo.org — Vangelo del giorno
-            </a>
-            .
-          </p>
         </>
       ) : (
         <section className="ls-card ls-stack" aria-label="Letture sulla fonte ufficiale">

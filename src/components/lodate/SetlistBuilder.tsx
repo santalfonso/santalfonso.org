@@ -98,12 +98,13 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
     setAnnounce(`Aggiunto: ${songsById.get(id)?.title ?? "canto"}`);
   }
 
-  function move(key: string, index: number, delta: number) {
+  /** Sposta un canto dentro lo stesso momento (trascinamento o frecce della tastiera). */
+  function reorder(key: string, from: number, to: number) {
     setIds(key, (ids) => {
+      if (from === to || to < 0 || to >= ids.length) return ids;
       const next = [...ids];
-      const j = index + delta;
-      if (j < 0 || j >= next.length) return ids;
-      [next[index], next[j]] = [next[j], next[index]];
+      const [id] = next.splice(from, 1);
+      next.splice(to, 0, id);
       return next;
     });
   }
@@ -235,7 +236,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
           />
         </div>
         {day && (
-          <p className="ls-note" aria-live="polite">
+          <p className="ls-note ls-day-note" aria-live="polite">
             <strong>{day.title}</strong>
             <br />
             <span className="ls-small ls-muted">
@@ -266,7 +267,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
             open={openPicker === section.key}
             onToggle={() => setOpenPicker((o) => (o === section.key ? null : section.key))}
             onAdd={(id) => addSong(section.key, id)}
-            onMove={(n, d) => move(section.key, n, d)}
+            onReorder={(from, to) => reorder(section.key, from, to)}
             onRemove={(n) => remove(section.key, n)}
             extra={
               extra && i !== null
@@ -347,7 +348,7 @@ type SectionProps = {
   open: boolean;
   onToggle: () => void;
   onAdd: (id: number) => void;
-  onMove: (index: number, delta: number) => void;
+  onReorder: (from: number, to: number) => void;
   onRemove: (index: number) => void;
   /** Presente solo per i momenti speciali: nome e posizione modificabili. */
   extra: ExtraControls | null;
@@ -363,13 +364,53 @@ function MomentSection({
   open,
   onToggle,
   onAdd,
-  onMove,
+  onReorder,
   onRemove,
   extra,
 }: SectionProps) {
   const headingId = useId();
   const pickerId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  const idsRef = useRef(ids);
+  useEffect(() => {
+    idsRef.current = ids;
+  }, [ids]);
+  const [dragId, setDragId] = useState<number | null>(null);
+
+  /** Trascinamento di un canto dentro il momento: la riga si sposta mentre la si muove. */
+  function startSongDrag(id: number, event: React.PointerEvent) {
+    event.preventDefault();
+    setDragId(id);
+    const onPointerMove = (e: PointerEvent) => {
+      const list = listRef.current;
+      const current = idsRef.current.indexOf(id);
+      if (!list || current < 0) return;
+      const others = [...list.querySelectorAll<HTMLElement>("[data-song-id]")].filter(
+        (el) => el.dataset.songId !== String(id)
+      );
+      const to = others.filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top + r.height / 2 < e.clientY;
+      }).length;
+      if (to !== current) {
+        const next = [...idsRef.current];
+        next.splice(current, 1);
+        next.splice(to, 0, id);
+        idsRef.current = next;
+        onReorder(current, to);
+      }
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      setDragId(null);
+    };
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+  }
   const isExtra = extra !== null;
 
   return (
@@ -443,31 +484,42 @@ function MomentSection({
       </div>
 
       {ids.length > 0 && (
-        <ol className="ls-chosen">
+        <ol className="ls-chosen" ref={listRef}>
           {ids.map((id, i) => {
             const song = songsById.get(id);
             const title = song?.title ?? "Canto non disponibile";
             return (
-              <li key={id}>
+              <li key={id} data-song-id={id} className={dragId === id ? "is-dragging" : undefined}>
+                {ids.length > 1 && (
+                  <button
+                    type="button"
+                    className="ls-drag ls-drag--song"
+                    data-drag-song={id}
+                    aria-label={`Sposta ${title}: trascina, oppure usa le frecce su e giù`}
+                    title="Trascina per cambiare l'ordine"
+                    onPointerDown={(e) => startSongDrag(id, e)}
+                    onKeyDown={(e) => {
+                      if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+                      e.preventDefault();
+                      const to = i + (e.key === "ArrowUp" ? -1 : 1);
+                      if (to < 0 || to >= ids.length) return;
+                      onReorder(i, to);
+                      requestAnimationFrame(() => {
+                        listRef.current?.querySelector<HTMLElement>(`[data-drag-song="${id}"]`)?.focus();
+                      });
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <circle cx="9" cy="6" r="1.6" />
+                      <circle cx="15" cy="6" r="1.6" />
+                      <circle cx="9" cy="12" r="1.6" />
+                      <circle cx="15" cy="12" r="1.6" />
+                      <circle cx="9" cy="18" r="1.6" />
+                      <circle cx="15" cy="18" r="1.6" />
+                    </svg>
+                  </button>
+                )}
                 <span className="ls-chosen-title">{title}</span>
-                <button
-                  type="button"
-                  className="ls-btn ls-btn--icon"
-                  aria-label={`Sposta su ${title}`}
-                  disabled={i === 0}
-                  onClick={() => onMove(i, -1)}
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  className="ls-btn ls-btn--icon"
-                  aria-label={`Sposta giù ${title}`}
-                  disabled={i === ids.length - 1}
-                  onClick={() => onMove(i, 1)}
-                >
-                  ↓
-                </button>
                 <button
                   type="button"
                   className="ls-btn ls-btn--icon ls-btn--danger"
@@ -490,7 +542,12 @@ function MomentSection({
             catalog={catalog}
             season={season}
             chosen={ids}
-            onAdd={onAdd}
+            onAdd={(id) => {
+              onAdd(id);
+              // scelto il canto, il selettore si chiude
+              onToggle();
+              toggleRef.current?.focus();
+            }}
             onClose={() => {
               onToggle();
               toggleRef.current?.focus();

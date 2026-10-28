@@ -31,22 +31,10 @@
   --ls-tap: var(--lodate-tap, 44px); /* dimensione minima dei controlli */
   --ls-gap: 16px;
 
-  /* colori liturgici */
-  --ls-lit-verde: #2e7d32;
-  --ls-lit-viola: #6a1b9a;
-  --ls-lit-bianco: #c9a24a;
-  --ls-lit-rosso: #c62828;
-  --ls-lit-rosaceo: #d0729b;
-  --ls-lit-nero: #222;
-
   color: var(--ls-ink);
   padding: 24px 16px 96px;
   max-width: 760px;
   margin: 0 auto;
-}
-
-[data-theme="dark"] .ls {
-  --ls-lit-nero: #ddd;
 }
 
 /* annulla il padding verticale delle <section> del sito (.site section) */
@@ -194,35 +182,6 @@
 .ls .ls-month { margin-top: 18px; font-size: 14px; font-weight: 700; text-transform: capitalize; color: var(--ls-ink-soft); }
 
 /* --- Letture / giorno liturgico --- */
-.ls-lit-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--ls-rule-strong); vertical-align: -2px; }
-.ls-lit--verde { background: var(--ls-lit-verde); }
-.ls-lit--viola { background: var(--ls-lit-viola); }
-.ls-lit--bianco { background: #fff; box-shadow: inset 0 0 0 3px var(--ls-lit-bianco); }
-.ls-lit--rosso { background: var(--ls-lit-rosso); }
-.ls-lit--rosaceo { background: var(--ls-lit-rosaceo); }
-.ls-lit--nero { background: var(--ls-lit-nero); }
-.ls-readings-card {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px;
-  border-left: 6px solid var(--ls-lit-verde);
-}
-.ls-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.ls-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  min-height: 32px; padding: 4px 12px;
-  border-radius: var(--ls-pill); background: var(--ls-surface-soft); border: 1px solid var(--ls-rule);
-  font-size: 14px; font-weight: 500; color: var(--ls-ink); white-space: nowrap;
-}
-.ls-chip__k { color: var(--ls-ink-mute); font-weight: 500; }
-.ls-chip--rank { text-transform: capitalize; background: var(--ls-gold-soft); border-color: var(--ls-gold-line); color: var(--ls-gold); font-weight: 600; }
-.ls-readings-card__cta { flex: none; text-decoration: none; }
-@media (max-width: 600px) {
-  .ls-readings-card__cta { width: 100%; }
-}
-.ls-readings-card.ls-lit-b--viola { border-left-color: var(--ls-lit-viola); }
-.ls-readings-card.ls-lit-b--bianco { border-left-color: var(--ls-lit-bianco); }
-.ls-readings-card.ls-lit-b--rosso { border-left-color: var(--ls-lit-rosso); }
-.ls-readings-card.ls-lit-b--rosaceo { border-left-color: var(--ls-lit-rosaceo); }
-.ls-readings-card.ls-lit-b--nero { border-left-color: var(--ls-lit-nero); }
 .ls-daynav { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
 
 /* --- Stampa: solo scaletta e QR, in bianco e nero --- */
@@ -246,3 +205,48 @@
 .ls-reading h3 { font-size: 17px; line-height: 1.35; color: var(--ls-brand); }
 .ls .ls-reading__chorus { margin-top: 12px; font-weight: 600; font-size: 17px; line-height: 1.5; }
 .ls .ls-reading__text { margin-top: 12px; white-space: pre-line; font-size: 17px; line-height: 1.6; }
+
+/* Canti scelti: maniglia per trascinarli dentro lo stesso momento */
+.ls-drag--song { color: var(--ls-ink-mute); width: 36px; }
+.ls-chosen li.is-dragging { box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.08)); background: var(--ls-surface); outline: 2px solid var(--ls-gold-line); }
+
+/* Letture: pulsante "Prepara la scaletta" nel colore liturgico del giorno */
+.ls-cta-lit {
+  --cta-bg: #2e7d32;
+  --cta-ink: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  margin-top: 8px;
+  padding: 12px 20px;
+  border-radius: var(--ls-radius);
+  background: var(--cta-bg);
+  color: var(--cta-ink);
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--cta-bg) 35%, transparent);
+  transition: transform var(--t, 200ms ease), box-shadow var(--t, 200ms ease), filter var(--t, 200ms ease);
+}
+.ls .ls-cta-lit { margin-top: 24px; }
+.ls-cta-lit:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.ls-cta-lit:active { transform: translateY(0); }
+.ls-cta-lit:focus-visible { outline: 3px solid var(--ls-focus); outline-offset: 3px; }
+.ls-cta-lit__text { flex: 1; }
+.ls-cta-lit__arrow { flex: none; transition: transform var(--t, 200ms ease); }
+.ls-cta-lit:hover .ls-cta-lit__arrow { transform: translateX(3px); }
+/* colori liturgici, con testo leggibile (contrasto AA) */
+.ls-cta-lit--verde { --cta-bg: #2e7d32; }
+.ls-cta-lit--viola { --cta-bg: #6a1b9a; }
+.ls-cta-lit--rosso { --cta-bg: #c62828; }
+.ls-cta-lit--rosaceo { --cta-bg: #ad4877; }
+.ls-cta-lit--nero { --cta-bg: #222; }
+.ls-cta-lit--bianco { --cta-bg: #fbf6e7; --cta-ink: #6b5214; border: 2px solid #c9a24a; }
+@media (prefers-reduced-motion: reduce) {
+  .ls-cta-lit, .ls-cta-lit__arrow { transition: none; }
+}
+
+/* Scaletta: giorno liturgico sotto la data, staccato dal campo */
+.ls .ls-day-note { margin-top: 14px; }

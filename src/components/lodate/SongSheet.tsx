@@ -168,6 +168,10 @@ function Letters({
     const at = col;
     col += ch.length;
     const mark = marks?.get(annotationKey(line, at));
+    // Due segni su lettere vicine: le lettere si allargano un poco per non sovrapporli.
+    const crowded =
+      !!mark && (marks!.has(annotationKey(line, at - 1)) || marks!.has(annotationKey(line, at + ch.length)));
+    const wide = crowded ? " lodate-c--wide" : "";
     const mk = (
       <span className={`lodate-mk${mark ? ` lodate-mk--${mark}` : ""}`} title={mark ? markLabel(mark) : undefined}>
         {mark ? (
@@ -186,7 +190,7 @@ function Letters({
         <button
           key={at}
           type="button"
-          className={`lodate-c lodate-c--btn${selected ? " is-selected" : ""}`}
+          className={`lodate-c lodate-c--btn${wide}${selected ? " is-selected" : ""}`}
           data-annot={annotationKey(line, at)}
           aria-pressed={selected}
           aria-label={`Annota la lettera “${ch}” di “${word}”${mark ? ` (${markLabel(mark)})` : ""}`}
@@ -198,7 +202,7 @@ function Letters({
       );
     } else {
       cells.push(
-        <span key={at} className="lodate-c">
+        <span key={at} className={`lodate-c${wide}`}>
           {mk}
           <span className="lodate-c__ch">{ch}</span>
         </span>

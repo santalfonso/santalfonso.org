@@ -383,77 +383,46 @@ export default function SongViewer({
         )}
       </header>
 
-      <div className="lodate-controls lodate-no-print" ref={registerControls} role="toolbar" aria-label="Strumenti del canto">
+      <div className="lodate-tools lodate-no-print" ref={registerControls} role="toolbar" aria-label="Strumenti del canto">
         {withChords && (
-          <div className="lodate-ctl-group" role="group" aria-label="Accordi e tonalità">
-            <button
-              type="button"
-              className={`lodate-btn${prefs.chords ? " is-on" : ""}`}
-              aria-pressed={prefs.chords}
-              onClick={() => updatePrefs({ chords: !prefs.chords })}
-            >
-              <ChordIcon /> Accordi
-            </button>
-            <button
-              type="button"
-              className="lodate-btn lodate-btn--icon"
-              aria-label="Abbassa di un semitono"
-              onClick={() => setTranspose((t) => normalizeSemitones(t - 1))}
-              disabled={!prefs.chords}
-            >
-              −
-            </button>
-            <span className="lodate-key" aria-live="polite" aria-atomic="true">
-              <span className="lodate-sr">Tonalità </span>
-              {currentKey ?? "Tono"}
-              <small> {shiftLabel}</small>
-            </span>
-            <button
-              type="button"
-              className="lodate-btn lodate-btn--icon"
-              aria-label="Alza di un semitono"
-              onClick={() => setTranspose((t) => normalizeSemitones(t + 1))}
-              disabled={!prefs.chords}
-            >
-              +
-            </button>
-            {transpose !== 0 && (
-              <button
-                type="button"
-                className="lodate-btn lodate-btn--icon"
-                aria-label={`Torna alla tonalità originale${originalKey ? ` (${originalKey})` : ""}`}
-                title="Tonalità originale"
-                onClick={() => setTranspose(0)}
-              >
-                ↺
-              </button>
-            )}
-            <label className="lodate-capo">
-              <span>Barrè</span>
-              <select
-                className="lodate-capo__select"
-                value={capo}
-                disabled={!prefs.chords}
-                onChange={(e) => setCapo(Number(e.target.value))}
-              >
-                {CAPO_LABELS.map((label, n) => (
-                  <option key={n} value={n}>
-                    {n === 0 ? label : `${label} tasto`}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {loggedIn && settingsState !== "idle" && (
-              <span className="lodate-settings-state" role="status">
-                {settingsState === "saving" && "Salvataggio…"}
-                {settingsState === "saved" && "Salvato per te"}
-                {settingsState === "error" && "Non salvato"}
-              </span>
-            )}
-          </div>
+          <button
+            type="button"
+            className={`lodate-btn${prefs.chords ? " is-on" : ""}`}
+            aria-pressed={prefs.chords}
+            onClick={() => updatePrefs({ chords: !prefs.chords })}
+          >
+            <ChordIcon /> Accordi
+          </button>
         )}
-
-        <div className="lodate-ctl-group" role="group" aria-label="Dimensione del testo">
+        {loggedIn && (
+          <button
+            type="button"
+            className={`lodate-btn${annotating ? " is-on" : ""}`}
+            aria-pressed={annotating}
+            onClick={() => {
+              setAnnotating((a) => !a);
+              setSelected(null);
+            }}
+          >
+            <PenIcon /> {annotating ? "Fine annotazioni" : "Annota"}
+          </button>
+        )}
+        <button type="button" className="lodate-btn" onClick={() => window.print()}>
+          <PrintIcon /> Stampa
+        </button>
+        {loggedIn && (
+          <button
+            type="button"
+            className={`lodate-btn${favorite ? " is-on" : ""}`}
+            aria-pressed={favorite}
+            aria-label={favorite ? "Preferito: togli dai preferiti" : "Aggiungi ai preferiti"}
+            disabled={favPending}
+            onClick={toggleFavorite}
+          >
+            <StarIcon filled={favorite} /> Preferito
+          </button>
+        )}
+        <span className="lodate-tools__size" role="group" aria-label="Dimensione del testo">
           <button
             type="button"
             className="lodate-btn lodate-btn--icon"
@@ -472,39 +441,89 @@ export default function SongViewer({
           >
             <span className="lodate-a-big">A</span>+
           </button>
-        </div>
-
-        <div className="lodate-ctl-group" role="group" aria-label="Altre azioni">
-          {loggedIn && (
-            <>
-              <button
-                type="button"
-                className={`lodate-btn${favorite ? " is-on" : ""}`}
-                aria-pressed={favorite}
-                aria-label={favorite ? "Preferito: togli dai preferiti" : "Aggiungi ai preferiti"}
-                disabled={favPending}
-                onClick={toggleFavorite}
-              >
-                <StarIcon filled={favorite} /> Preferito
-              </button>
-              <button
-                type="button"
-                className={`lodate-btn${annotating ? " is-on" : ""}`}
-                aria-pressed={annotating}
-                onClick={() => {
-                  setAnnotating((a) => !a);
-                  setSelected(null);
-                }}
-              >
-                <PenIcon /> {annotating ? "Fine annotazioni" : "Annota"}
-              </button>
-            </>
-          )}
-          <button type="button" className="lodate-btn" onClick={() => window.print()}>
-            <PrintIcon /> Stampa
-          </button>
-        </div>
+        </span>
       </div>
+
+      {showChords && (
+        <div className="lodate-music lodate-no-print" ref={registerControls} role="group" aria-label="Impostazioni musicali">
+          <div className="lodate-music__box" role="group" aria-labelledby="lodate-music-key">
+            <span id="lodate-music-key" className="lodate-music__label">
+              Tonalità
+            </span>
+            <div className="lodate-music__row">
+              <button
+                type="button"
+                className="lodate-btn lodate-btn--icon"
+                aria-label="Abbassa di un semitono"
+                onClick={() => setTranspose((t) => normalizeSemitones(t - 1))}
+              >
+                −
+              </button>
+              <span className="lodate-key" aria-live="polite" aria-atomic="true">
+                <span className="lodate-sr">Tonalità </span>
+                {currentKey ?? "Tono"}
+                <small> {shiftLabel}</small>
+              </span>
+              <button
+                type="button"
+                className="lodate-btn lodate-btn--icon"
+                aria-label="Alza di un semitono"
+                onClick={() => setTranspose((t) => normalizeSemitones(t + 1))}
+              >
+                +
+              </button>
+              {transpose !== 0 && (
+                <button
+                  type="button"
+                  className="lodate-btn lodate-btn--icon lodate-music__reset"
+                  aria-label={`Torna alla tonalità originale${originalKey ? ` (${originalKey})` : ""}`}
+                  title="Tonalità originale"
+                  onClick={() => setTranspose(0)}
+                >
+                  ↺
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="lodate-music__box" role="group" aria-labelledby="lodate-music-capo">
+            <label id="lodate-music-capo" htmlFor="lodate-capo" className="lodate-music__label">
+              Barrè
+            </label>
+            <div className="lodate-music__row">
+              <select
+                id="lodate-capo"
+                className="lodate-capo__select"
+                value={capo}
+                onChange={(e) => setCapo(Number(e.target.value))}
+              >
+                {CAPO_LABELS.map((label, n) => (
+                  <option key={n} value={n}>
+                    {n === 0 ? label : `${label} tasto`}
+                  </option>
+                ))}
+              </select>
+              {capo !== songCapo && (
+                <button
+                  type="button"
+                  className="lodate-btn lodate-btn--icon lodate-music__reset"
+                  aria-label={`Torna al Barrè originale (${songCapo > 0 ? `${CAPO_LABELS[songCapo]} tasto` : "nessuno"})`}
+                  title="Barrè originale"
+                  onClick={() => setCapo(songCapo)}
+                >
+                  ↺
+                </button>
+              )}
+            </div>
+          </div>
+
+          {loggedIn && settingsState === "error" && (
+            <p className="lodate-error lodate-music__error" role="status">
+              Le tue impostazioni non sono state salvate.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="lodate-status lodate-no-print" aria-live="polite">
         {favError && <p className="lodate-error">{favError}</p>}
