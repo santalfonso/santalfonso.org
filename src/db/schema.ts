@@ -110,6 +110,8 @@ export const songs = sqliteTable("songs", {
   author: text("author"),
   copyrightNote: text("copyright_note"),
   musicalKey: text("musical_key"),
+  /** Tasto del Barrè per cui sono scritti gli accordi (1-5), null = senza Barrè. */
+  capo: integer("capo"),
   // Testo in ChordPro ridotto: [G]accordi in linea, {soc}/{eoc}, {c: commento}
   body: text("body").notNull(),
   published: integer("published", { mode: "boolean" }).notNull().default(true),
@@ -219,6 +221,27 @@ export const songAnnotations = sqliteTable(
       .references(() => songs.id, { onDelete: "cascade" }),
     // JSON: [{ line, col, mark: "up" | "down" | "steady" }]
     data: text("data").notNull().default("[]"),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.songId] })]
+);
+
+/** Trasposizione e Barrè scelti da ciascun utente per un canto. */
+export const songUserSettings = sqliteTable(
+  "song_user_settings",
+  {
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    songId: integer("song_id")
+      .notNull()
+      .references(() => songs.id, { onDelete: "cascade" }),
+    /** Semitoni rispetto al canto come scritto (-11…11). */
+    transpose: integer("transpose").notNull().default(0),
+    /** Tasto del Barrè scelto (0 = nessuno, 1-5). */
+    capo: integer("capo").notNull().default(0),
     updatedAt: text("updated_at")
       .notNull()
       .default(sql`(datetime('now'))`),

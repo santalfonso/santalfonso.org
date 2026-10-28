@@ -5,7 +5,7 @@ import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 import { auth, isStaff } from "@/auth";
 import { db } from "@/db";
-import { favoriteSongs, songAnnotations, songMoments, songSeasons, songs } from "@/db/schema";
+import { favoriteSongs, songAnnotations, songMoments, songSeasons, songUserSettings, songs } from "@/db/schema";
 import { parseStoredAnnotations } from "@/lib/lodate/annotations";
 import { firstLyric } from "@/lib/lodate/chordpro";
 import { MOMENT_SLUGS, SEASON_SLUGS } from "@/lib/lodate/constants";
@@ -62,7 +62,7 @@ export default async function CantoPage({
   const userId = session?.user?.id ? Number(session.user.id) : null;
   const loggedIn = !!userId && Number.isInteger(userId) && userId > 0;
 
-  const [momentRows, seasonRows, fav, annot] = await Promise.all([
+  const [momentRows, seasonRows, fav, annot, settings] = await Promise.all([
     db.select({ v: songMoments.moment }).from(songMoments).where(eq(songMoments.songId, song.id)),
     db.select({ v: songSeasons.season }).from(songSeasons).where(eq(songSeasons.songId, song.id)),
     loggedIn
@@ -75,6 +75,12 @@ export default async function CantoPage({
       ? db.query.songAnnotations.findFirst({
           where: and(eq(songAnnotations.userId, userId!), eq(songAnnotations.songId, song.id)),
           columns: { data: true },
+        })
+      : undefined,
+    loggedIn
+      ? db.query.songUserSettings.findFirst({
+          where: and(eq(songUserSettings.userId, userId!), eq(songUserSettings.songId, song.id)),
+          columns: { transpose: true, capo: true },
         })
       : undefined,
   ]);
@@ -98,6 +104,7 @@ export default async function CantoPage({
           author: song.author,
           copyrightNote: song.copyrightNote,
           musicalKey: song.musicalKey,
+          capo: song.capo,
           body: song.body,
           published: song.published,
         }}
@@ -107,6 +114,7 @@ export default async function CantoPage({
         loginHref={`/accedi?next=${encodeURIComponent(`/lodate/canti/${song.slug}`)}`}
         initialFavorite={!!fav}
         initialAnnotations={loggedIn ? parseStoredAnnotations(annot?.data) : []}
+        initialSettings={settings ?? null}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { setFavorite } from "@/actions/lodate/favorites";
 import { saveAnnotations } from "@/actions/lodate/annotations";
+import { saveSongSettings } from "@/actions/lodate/song-settings";
 import {
   detectKey,
   hasChords,
@@ -29,9 +30,13 @@ export type ViewerSong = {
   author: string | null;
   copyrightNote: string | null;
   musicalKey: string | null;
+  /** Tasto del Barrè per cui sono scritti gli accordi (1-5), null = senza Barrè. */
+  capo: number | null;
   body: string;
   published: boolean;
 };
+
+const CAPO_LABELS = ["Nessuno", "I", "II", "III", "IV", "V"];
 
 const FONT_SIZES = [14, 16, 18, 20, 22, 24, 27, 30, 34, 38];
 const DEFAULT_SIZE = 2;
@@ -83,6 +88,7 @@ export default function SongViewer({
   loginHref,
   initialFavorite,
   initialAnnotations,
+  initialSettings,
 }: {
   song: ViewerSong;
   moments: string[];
@@ -91,6 +97,8 @@ export default function SongViewer({
   loginHref: string;
   initialFavorite: boolean;
   initialAnnotations: Annotation[];
+  /** Trasposizione e Barrè salvati dall'utente per questo canto, se ci sono. */
+  initialSettings: { transpose: number; capo: number } | null;
 }) {
   const parsed = useMemo(() => parseChordPro(song.body), [song.body]);
   const withChords = useMemo(() => hasChords(parsed), [parsed]);
@@ -114,15 +122,45 @@ export default function SongViewer({
   }, []);
   const showChords = withChords && prefs.chords;
 
-  // ── Trasposizione ──
-  const [transpose, setTranspose] = useState(0);
+  // ── Trasposizione e Barrè ──
+  // Gli accordi sono scritti per il Barrè del canto (song.capo). `transpose` sposta il
+  // suono di tutto il canto; cambiando il Barrè le posizioni degli accordi si adeguano
+  // in modo che il canto suoni nella stessa tonalità.
+  const songCapo = song.capo ?? 0;
+  const [transpose, setTranspose] = useState(initialSettings?.transpose ?? 0);
+  const [capo, setCapo] = useState(initialSettings?.capo ?? songCapo);
+  const shapeShift = normalizeSemitones(transpose + songCapo - capo);
   const shown = useMemo(
-    () => transposeSong(parsed, transpose, song.musicalKey),
-    [parsed, transpose, song.musicalKey]
+    () => transposeSong(parsed, shapeShift, song.musicalKey),
+    [parsed, shapeShift, song.musicalKey]
   );
-  const currentKey = baseKey ? italianKeyName(transposeKeyInfo(baseKey, transpose)) : null;
+  const currentKey = baseKey ? italianKeyName(transposeKeyInfo(baseKey, shapeShift)) : null;
   const originalKey = baseKey ? italianKeyName(baseKey) : null;
   const shiftLabel = transpose === 0 ? "originale" : `${transpose > 0 ? "+" : "−"}${Math.abs(transpose)}`;
+  const capoLabel = capo > 0 ? `Barrè al ${CAPO_LABELS[capo]} tasto` : "";
+
+  // Salvataggio per l'utente collegato (dopo una breve pausa).
+  const [settingsState, setSettingsState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const settingsTimer = useRef<number | undefined>(undefined);
+  const firstSettings = useRef(true);
+  useEffect(() => {
+    if (firstSettings.current) {
+      firstSettings.current = false;
+      return;
+    }
+    if (!loggedIn) return;
+    window.clearTimeout(settingsTimer.current);
+    settingsTimer.current = window.setTimeout(async () => {
+      setSettingsState("saving");
+      try {
+        const res = await saveSongSettings(song.id, transpose, capo);
+        setSettingsState("error" in res ? "error" : "saved");
+      } catch {
+        setSettingsState("error");
+      }
+    }, 800);
+    return () => window.clearTimeout(settingsTimer.current);
+  }, [transpose, capo, loggedIn, song.id]);
 
   // ── Autoscorrimento ──
   const [playing, setPlaying] = useState(false);
@@ -301,6 +339,7 @@ export default function SongViewer({
         <p className="lodate-print-only lodate-print-meta">
           {showChords && currentKey ? `Tonalità: ${currentKey}` : ""}
           {showChords && transpose !== 0 && originalKey ? ` (originale ${originalKey})` : ""}
+          {showChords && capoLabel ? ` · ${capoLabel}` : ""}
         </p>
         {(moments.length > 0 || seasons.length > 0) && (
           <ul className="lodate-badges lodate-no-print" aria-label="Momenti e tempi">
@@ -366,6 +405,28 @@ export default function SongViewer({
               >
                 ↺
               </button>
+            )}
+            <label className="lodate-capo">
+              <span>Barrè</span>
+              <select
+                className="lodate-capo__select"
+                value={capo}
+                disabled={!prefs.chords}
+                onChange={(e) => setCapo(Number(e.target.value))}
+              >
+                {CAPO_LABELS.map((label, n) => (
+                  <option key={n} value={n}>
+                    {n === 0 ? label : `${label} tasto`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {loggedIn && settingsState !== "idle" && (
+              <span className="lodate-settings-state" role="status">
+                {settingsState === "saving" && "Salvataggio…"}
+                {settingsState === "saved" && "Salvato per te"}
+                {settingsState === "error" && "Non salvato"}
+              </span>
             )}
           </div>
         )}

@@ -43,6 +43,12 @@ const songSchema = z.object({
   musicalKey: optionalText(20).refine((v) => v === null || parseKey(v) !== null, {
     message: "Tonalità non riconosciuta (es. Sol, Mim, Fa#m, Sib)",
   }),
+  capo: z
+    .number()
+    .int()
+    .min(0, "Barrè non valido")
+    .max(5, "Barrè non valido")
+    .transform((v) => (v > 0 ? v : null)),
   body: z.string().trim().min(1, "Il testo del canto è obbligatorio").max(50_000, "Testo troppo lungo"),
   published: z.boolean(),
   moments: z.array(z.string().refine(isMoment, "Momento non valido")).max(20),
@@ -60,6 +66,7 @@ function parseForm(formData: FormData) {
     author: str("author"),
     copyrightNote: str("copyrightNote"),
     musicalKey: str("musicalKey"),
+    capo: Number(str("capo") ?? 0),
     body: (str("body") ?? "").replace(/\r\n?/g, "\n"),
     published: formData.get("published") === "on",
     moments: [...new Set(formData.getAll("moments").filter((v): v is string => typeof v === "string"))],

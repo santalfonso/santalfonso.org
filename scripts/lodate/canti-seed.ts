@@ -15,8 +15,10 @@ export type SeedSong = {
   slug: string;
   title: string;
   author?: string;
-  copyrightNote: string;
+  copyrightNote?: string;
   musicalKey?: string;
+  /** Tasto del Barrè per cui sono scritti gli accordi (1-5). */
+  capo?: number;
   body: string;
   moments: string[];
   seasons: string[];

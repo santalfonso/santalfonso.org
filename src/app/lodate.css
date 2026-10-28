@@ -794,3 +794,25 @@ a.lodate-badge { min-height: 32px; }
   .lodate-side.is-open .lodate-side__menu,
   .lodate-side__backdrop { transition: none; }
 }
+
+/* Barrè e salvataggio delle impostazioni del canto */
+.lodate-capo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lodate-text-soft);
+}
+.lodate-capo__select {
+  min-height: var(--lodate-tap);
+  padding: 0 10px;
+  border: 1px solid var(--lodate-line-strong);
+  border-radius: var(--r-pill);
+  background: var(--lodate-surface);
+  color: var(--lodate-text);
+  font: inherit;
+  font-weight: 600;
+}
+.lodate-capo__select:disabled { opacity: 0.45; }
+.lodate-settings-state { font-size: 13px; color: var(--lodate-text-mute); }

@@ -124,6 +124,18 @@ export default function SongForm({
             {!musicalKey && detected && ` Se vuota si usa il primo accordo (${italianKeyName(detected)}).`}
           </p>
         </div>
+        <div className="admin-form-row">
+          <label htmlFor="capo" className="admin-label">Barrè</label>
+          <select id="capo" name="capo" defaultValue={song?.capo ?? 0} className="admin-input">
+            <option value={0}>Nessuno</option>
+            {["I", "II", "III", "IV", "V"].map((label, i) => (
+              <option key={label} value={i + 1}>
+                {label} tasto
+              </option>
+            ))}
+          </select>
+          <p className="admin-input-hint">Il tasto per cui sono scritti gli accordi del testo.</p>
+        </div>
       </div>
 
       <div className="admin-form-row" style={{ maxWidth: 900 }}>
