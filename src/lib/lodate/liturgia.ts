@@ -433,6 +433,11 @@ export function liturgicalDay(iso: string): LiturgicalDay {
   };
 }
 
+/** Nome della celebrazione del giorno (YYYY-MM-DD), o null se la data non è valida. */
+export function feastForDate(iso: string): string | null {
+  return isValidLiturgicalDate(iso) ? liturgicalDay(iso).title : null;
+}
+
 /** Categoria dei canti suggerita per la data (YYYY-MM-DD), o null se non valida. */
 export function seasonForDate(iso: string): Season | null {
   return isValidLiturgicalDate(iso) ? liturgicalDay(iso).songSeason : null;

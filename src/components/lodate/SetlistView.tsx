@@ -18,16 +18,18 @@ type Props = {
 export default function SetlistView({ data, songs, selfPath }: Props) {
   const sections = orderedSections(data);
   const date = formatLongDate(data.date);
+  const title = data.title || data.feast || "Scaletta";
+  const feast = data.feast && data.feast !== title ? data.feast : null;
 
   return (
     <article className="ls-card ls-stack" aria-labelledby="ls-setlist-title">
       <header>
         <span className="ls-kicker">Scaletta</span>
-        <h2 id="ls-setlist-title" className="ls-title">{data.title || "Scaletta senza titolo"}</h2>
-        {(date || data.feast) && (
+        <h2 id="ls-setlist-title" className="ls-title">{title}</h2>
+        {(date || feast) && (
           <p className="ls-meta">
             {date && <span>{date}</span>}
-            {data.feast && <span>{data.feast}</span>}
+            {feast && <span>{feast}</span>}
           </p>
         )}
       </header>

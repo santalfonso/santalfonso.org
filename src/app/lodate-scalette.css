@@ -212,3 +212,7 @@
   .ls-sheet > li { padding: 8px 0 8px 10px; break-inside: avoid; }
   .ls-qr-img { width: 140px; }
 }
+
+/* Letture del giorno */
+.ls-reading h3 { font-size: 17px; line-height: 1.35; color: var(--ls-brand); }
+.ls-reading__text { white-space: pre-line; font-size: 17px; line-height: 1.65; }

@@ -334,15 +334,6 @@
 }
 .lodate-songcard:active { transform: translateY(1px); }
 .lodate-songcard__title { font-size: 17px; font-weight: 650; color: var(--lodate-brand); letter-spacing: -0.01em; }
-.lodate-songcard__author { font-size: 13px; color: var(--lodate-text-mute); }
-.lodate-songcard__excerpt {
-  font-size: 14px;
-  color: var(--lodate-text-soft);
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .lodate-badges {
   display: flex;
   flex-wrap: wrap;

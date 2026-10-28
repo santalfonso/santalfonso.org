@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireMember } from "@/auth";
 import { db } from "@/db";
+import { feastForDate } from "@/lib/lodate/liturgia";
 import { setlistItems, setlists, songs } from "@/db/schema";
 import {
   allSongIds,
@@ -40,7 +41,8 @@ export async function saveSetlist(input: unknown, publicId?: string | null): Pro
   }
 
   const normalized = normalizeSetlist(input);
-  if (!normalized.title) return { error: "Dai un titolo alla scaletta." };
+  // La festività si ricava sempre dalla data; il titolo è facoltativo.
+  const feast = normalized.date ? feastForDate(normalized.date) : null;
 
   const ids = allSongIds(normalized);
   const existing = ids.length
@@ -51,9 +53,9 @@ export async function saveSetlist(input: unknown, publicId?: string | null): Pro
     : [];
   const data = filterKnownSongs(normalized, new Set(existing.map((s) => s.id)));
   const values = {
-    title: data.title,
+    title: data.title || feast || "Scaletta",
     celebrationDate: data.date,
-    feast: data.feast,
+    feast,
     notes: data.notes,
     extraLabel: data.extraLabel,
     extraAfter: data.extraAfter,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { songMoments, songSeasons, songs } from "@/db/schema";
-import { firstLyric, normalizeSearch, plainText } from "@/lib/lodate/chordpro";
+import { normalizeSearch, plainText } from "@/lib/lodate/chordpro";
 import {
   isMoment,
   isSeason,
@@ -12,7 +12,6 @@ import {
   seasonLabel,
 } from "@/lib/lodate/constants";
 import CatalogFilters from "@/components/lodate/CatalogFilters";
-import ReadingsCard from "@/components/lodate/ReadingsCard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +19,6 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 function first(v: string | string[] | undefined): string {
   return (Array.isArray(v) ? v[0] : v) ?? "";
-}
-
-/** Estratto attorno alla prima occorrenza della ricerca nel testo. */
-function snippet(text: string, normQuery: string): string | null {
-  const lines = text.split("\n").filter((l) => l.trim());
-  const firstWord = normQuery.split(" ")[0];
-  const hit = lines.find((l) => normalizeSearch(l).includes(firstWord));
-  return hit ?? null;
 }
 
 export default async function LodateHome({ searchParams }: { searchParams: SearchParams }) {
@@ -84,8 +75,6 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
 
   return (
     <div className="container lodate-page lodate-home">
-      <ReadingsCard />
-
       <section className="lodate-catalog" aria-labelledby="lodate-catalog-title">
         <div className="lodate-catalog__head">
           <h2 id="lodate-catalog-title" className="lodate-h1">
@@ -117,15 +106,10 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
         ) : (
           <ul className="lodate-songlist">
             {results.map((s) => {
-              const excerpt = (!s.titleHit && tokens.length > 0 && snippet(s.text, normQuery)) || firstLyric(s.body);
               return (
                 <li key={s.id}>
                   <Link href={`/lodate/canti/${s.slug}`} className="lodate-songcard">
                     <span className="lodate-songcard__title">{s.title}</span>
-                    {s.author && <span className="lodate-songcard__author">{s.author}</span>}
-                    {excerpt && excerpt !== s.title && (
-                      <span className="lodate-songcard__excerpt">{excerpt}</span>
-                    )}
                     {(s.moments.length > 0 || s.seasons.length > 0) && (
                       <span className="lodate-badges">
                         {s.moments.map((m) => (

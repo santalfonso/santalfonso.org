@@ -7,13 +7,12 @@ import { saveSetlist } from "@/actions/lodate/setlists";
 import {
   EXTRA_MOMENT,
   MOMENTS,
-  SEASONS,
   isSeason,
   momentLabel,
   seasonLabel,
   type SetlistMoment,
 } from "@/lib/lodate/constants";
-import { seasonForDate } from "@/lib/lodate/liturgia";
+import { COLOR_LABELS, isValidLiturgicalDate, liturgicalDay } from "@/lib/lodate/liturgia";
 import {
   EXTRA_AT_START,
   LIMITS,
@@ -48,8 +47,12 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
   const formId = useId();
   const [data, setData] = useState<SetlistData>(initial);
   const [extraEnabled, setExtraEnabled] = useState(Boolean(initial.extraLabel || initial.items.extra.length));
-  const [season, setSeason] = useState<string>(initialSeason && isSeason(initialSeason) ? initialSeason : "");
-  const [seasonTouched, setSeasonTouched] = useState(false);
+  // Festa e tempo liturgico si ricavano dalla data.
+  const day = useMemo(
+    () => (data.date && isValidLiturgicalDate(data.date) ? liturgicalDay(data.date) : null),
+    [data.date]
+  );
+  const season: string = day?.songSeason ?? (initialSeason && isSeason(initialSeason) ? initialSeason : "");
   const [openPicker, setOpenPicker] = useState<SetlistMoment | null>(null);
   const [error, setError] = useState("");
   const [announce, setAnnounce] = useState("");
@@ -122,11 +125,6 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
 
   function save() {
     setError("");
-    if (!effective.title.trim()) {
-      setError("Dai un titolo alla scaletta prima di salvarla.");
-      document.getElementById(`${formId}-title`)?.focus();
-      return;
-    }
     startTransition(async () => {
       const result = await saveSetlist(output, editPublicId);
       if ("error" in result) setError(result.error);
@@ -141,7 +139,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
       <section className="ls-card ls-stack" aria-labelledby={`${formId}-info`}>
         <h2 id={`${formId}-info`}>Celebrazione</h2>
         <div className="ls-field">
-          <label htmlFor={`${formId}-title`}>Titolo</label>
+          <label htmlFor={`${formId}-title`}>Titolo (facoltativo)</label>
           <input
             id={`${formId}-title`}
             className="ls-input"
@@ -151,53 +149,30 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
             onChange={(e) => update("title", e.target.value)}
           />
         </div>
-        <div className="ls-grid2">
-          <div className="ls-field">
-            <label htmlFor={`${formId}-date`}>Data della celebrazione</label>
-            <input
-              id={`${formId}-date`}
-              type="date"
-              className="ls-input"
-              value={data.date ?? ""}
-              onChange={(e) => {
-                const value = e.target.value || null;
-                update("date", value);
-                const auto = value ? seasonForDate(value) : null;
-                if (auto && !seasonTouched) setSeason(auto);
-              }}
-            />
-          </div>
-          <div className="ls-field">
-            <label htmlFor={`${formId}-feast`}>Festività o ricorrenza</label>
-            <input
-              id={`${formId}-feast`}
-              className="ls-input"
-              value={data.feast ?? ""}
-              maxLength={LIMITS.feast}
-              placeholder="Es. II domenica di Avvento"
-              onChange={(e) => update("feast", e.target.value || null)}
-            />
-          </div>
-        </div>
         <div className="ls-field">
-          <label htmlFor={`${formId}-season`}>Tempo liturgico (per suggerire i canti)</label>
-          <select
-            id={`${formId}-season`}
-            className="ls-select"
-            value={season}
+          <label htmlFor={`${formId}-date`}>Data della celebrazione</label>
+          <input
+            id={`${formId}-date`}
+            type="date"
+            className="ls-input"
+            value={data.date ?? ""}
             onChange={(e) => {
-              setSeason(e.target.value);
-              setSeasonTouched(true);
+              const value = e.target.value || null;
+              const feast = value && isValidLiturgicalDate(value) ? liturgicalDay(value).title : null;
+              setData((d) => ({ ...d, date: value, feast }));
             }}
-          >
-            <option value="">Nessuno</option>
-            {SEASONS.map((s) => (
-              <option key={s.slug} value={s.slug}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+          />
         </div>
+        {day && (
+          <p className="ls-note" aria-live="polite">
+            <strong>{day.title}</strong>
+            <br />
+            <span className="ls-small ls-muted">
+              {day.seasonLabel} · colore {COLOR_LABELS[day.color].toLowerCase()}
+              {day.isSunday ? ` · anno ${day.sundayCycle}` : ""}
+            </span>
+          </p>
+        )}
         <div className="ls-field">
           <label htmlFor={`${formId}-notes`}>Note</label>
           <textarea

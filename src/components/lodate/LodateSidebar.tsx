@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { MOMENTS, SEASONS } from "@/lib/lodate/constants";
+import { SEASONS } from "@/lib/lodate/constants";
 
 /** Menù laterale di "Lodate, lodate Iddio": a sinistra su schermi larghi, a scomparsa sul telefono. */
 export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
@@ -12,7 +12,6 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
   const [open, setOpen] = useState(false);
 
   const onCatalog = pathname === "/lodate";
-  const momento = onCatalog ? params.get("momento") : null;
   const tempo = onCatalog ? params.get("tempo") : null;
 
   const item = (href: string, label: string, active: boolean) => (
@@ -46,16 +45,13 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
       <nav id="lodate-side-menu" className="lodate-side__menu">
         <p className="lodate-side__group">Canti</p>
         <ul>
-          {item("/lodate", "Tutti i canti", onCatalog && !momento && !tempo)}
+          {item("/lodate", "Tutti i canti", onCatalog && !params.get("momento") && !tempo)}
           {item("/lodate/scaletta", "Prepara una scaletta", pathname.startsWith("/lodate/scaletta"))}
           {loggedIn
             ? item("/lodate/area", "Le mie scalette e preferiti", pathname.startsWith("/lodate/area"))
             : item(`/accedi?next=${encodeURIComponent("/lodate/area")}`, "Le mie scalette (accedi)", false)}
           {item("/lodate/letture", "Letture del giorno", pathname.startsWith("/lodate/letture"))}
         </ul>
-
-        <p className="lodate-side__group">Momenti della Messa</p>
-        <ul>{MOMENTS.map((m) => item(`/lodate?momento=${m.slug}`, m.label, momento === m.slug))}</ul>
 
         <p className="lodate-side__group">Tempi e occasioni</p>
         <ul>{SEASONS.map((s) => item(`/lodate?tempo=${s.slug}`, s.label, tempo === s.slug))}</ul>
