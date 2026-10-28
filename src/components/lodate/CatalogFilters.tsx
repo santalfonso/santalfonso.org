@@ -2,10 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useTransition } from "react";
-import { MOMENTS, SEASONS } from "@/lib/lodate/constants";
 
 /**
- * Ricerca e filtri del catalogo. Funziona anche senza JavaScript (form GET);
+ * Ricerca nel catalogo (momento e tempo arrivano dal menù laterale). Funziona anche senza JavaScript (form GET);
  * con JavaScript aggiorna l'URL mentre si scrive e al cambio dei filtri.
  */
 export default function CatalogFilters({
@@ -73,35 +72,16 @@ export default function CatalogFilters({
           }}
         />
       </div>
-      <div className="lodate-filters__row">
-        <label className="lodate-select">
-          <span>Momento</span>
-          <select name="momento" defaultValue={momento} onChange={go}>
-            <option value="">Tutti i momenti</option>
-            {MOMENTS.map((m) => (
-              <option key={m.slug} value={m.slug}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="lodate-select">
-          <span>Tempo</span>
-          <select name="tempo" defaultValue={tempo} onChange={go}>
-            <option value="">Tutti i tempi</option>
-            {SEASONS.map((s) => (
-              <option key={s.slug} value={s.slug}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <noscript>
-          <button type="submit" className="lodate-btn">
-            Cerca
-          </button>
-        </noscript>
-        {hasFilters && (
+      {/* Momento e tempo si scelgono dal menù laterale: qui restano solo per la ricerca */}
+      {momento && <input type="hidden" name="momento" value={momento} />}
+      {tempo && <input type="hidden" name="tempo" value={tempo} />}
+      <noscript>
+        <button type="submit" className="lodate-btn">
+          Cerca
+        </button>
+      </noscript>
+      {hasFilters && (
+        <div className="lodate-filters__row">
           <a
             href="/lodate"
             className="lodate-btn lodate-btn--ghost"
@@ -110,14 +90,13 @@ export default function CatalogFilters({
               formRef.current?.reset();
               const input = formRef.current?.querySelector<HTMLInputElement>("input[name=q]");
               if (input) input.value = "";
-              formRef.current?.querySelectorAll("select").forEach((s) => (s.value = ""));
               startTransition(() => router.replace("/lodate", { scroll: false }));
             }}
           >
             Azzera
           </a>
-        )}
-      </div>
+        </div>
+      )}
     </form>
   );
 }

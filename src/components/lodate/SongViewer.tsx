@@ -11,6 +11,7 @@ import {
   italianKeyName,
   normalizeSemitones,
   parseChordPro,
+  songLanguages,
   transposeKeyInfo,
   transposeSong,
 } from "@/lib/lodate/chordpro";
@@ -100,7 +101,10 @@ export default function SongViewer({
   /** Trasposizione e Barrè salvati dall'utente per questo canto, se ci sono. */
   initialSettings: { transpose: number; capo: number } | null;
 }) {
-  const parsed = useMemo(() => parseChordPro(song.body), [song.body]);
+  // Canti in più lingue: si mostra una versione alla volta.
+  const languages = useMemo(() => songLanguages(song.body), [song.body]);
+  const [lang, setLang] = useState<string | null>(languages[0] ?? null);
+  const parsed = useMemo(() => parseChordPro(song.body, lang), [song.body, lang]);
   const withChords = useMemo(() => hasChords(parsed), [parsed]);
   const baseKey = useMemo(() => detectKey(parsed, song.musicalKey), [parsed, song.musicalKey]);
 
@@ -358,6 +362,24 @@ export default function SongViewer({
               </li>
             ))}
           </ul>
+        )}
+        {languages.length > 1 && (
+          <div className="lodate-langs lodate-no-print" role="group" aria-label="Lingua del canto">
+            {languages.map((l) => (
+              <button
+                key={l}
+                type="button"
+                className={`lodate-lang${l === lang ? " is-on" : ""}`}
+                aria-pressed={l === lang}
+                onClick={() => {
+                  setLang(l);
+                  setSelected(null);
+                }}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
         )}
       </header>
 

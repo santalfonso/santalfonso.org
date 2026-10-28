@@ -816,3 +816,21 @@ a.lodate-badge { min-height: 32px; }
 }
 .lodate-capo__select:disabled { opacity: 0.45; }
 .lodate-settings-state { font-size: 13px; color: var(--lodate-text-mute); }
+
+/* Lingue del canto */
+.lodate-langs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.lodate-lang {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--lodate-line-strong);
+  border-radius: var(--r-pill);
+  background: var(--lodate-surface);
+  color: var(--lodate-text-soft);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lodate-lang:hover { color: var(--lodate-text); }
+.lodate-lang.is-on { background: var(--lodate-primary); border-color: var(--lodate-primary); color: var(--lodate-primary-ink); }
+.lodate-lang:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }

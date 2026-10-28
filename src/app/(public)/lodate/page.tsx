@@ -82,7 +82,7 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
           </h2>
           <p className="lodate-catalog__intro">
             Testi e accordi per i cantori e i cori della Messa. Cerca per titolo o per parole del testo,
-            oppure filtra per momento della celebrazione e tempo liturgico.
+            oppure scegli un tempo liturgico dal menù.
           </p>
         </div>
 

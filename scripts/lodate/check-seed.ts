@@ -15,7 +15,7 @@ const SEASONS = [
 ];
 const CHORD_RE = /^[A-G](#|b)?[^/\]]*(\/[A-G](#|b)?)?$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-const DIRECTIVE_RE = /^\{(soc|eoc|c:\s*[^}]+)\}$/;
+const DIRECTIVE_RE = /^\{(soc|eoc|c:\s*[^}]+|lang:\s*[^}]+)\}$/;
 
 const errors: string[] = [];
 const err = (slug: string, msg: string) => errors.push(`[${slug}] ${msg}`);

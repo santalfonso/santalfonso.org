@@ -187,6 +187,10 @@ export default function SongForm({
               <li>
                 Indicazioni: <code>{"{c: Strofa 2}"}</code>, <code>{"{c: Tutti}"}</code>, <code>{"{c: bis}"}</code>.
               </li>
+              <li>
+                Canto in più lingue: <code>{"{lang: Italiano}"}</code>, poi <code>{"{lang: Latino}"}</code> e così via
+                prima di ogni versione; nel sito si sceglie la lingua da mostrare.
+              </li>
               <li>Niente HTML. Le annotazioni degli utenti sono legate alle righe e alle lettere: evita di riordinare le righe dopo la pubblicazione.</li>
             </ul>
             <pre>{EXAMPLE}</pre>

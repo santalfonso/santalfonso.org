@@ -5,6 +5,7 @@
  */
 import assert from "node:assert/strict";
 import {
+  songLanguages,
   detectKey,
   firstLyric,
   keyName,
@@ -324,6 +325,19 @@ test("seed: tutti i canti si analizzano senza avvisi e si traspongono", () => {
       }
     }
   }
+});
+
+test("più lingue: {lang:} sceglie la versione, le righe comuni restano", () => {
+  const body = "Titolo comune\n\n{lang: Italiano}\n[Do]Ave Maria\n\n{lang: Latino}\n[Do]Ave Maria gratia plena";
+  assert.deepEqual(songLanguages(body), ["Italiano", "Latino"]);
+  const texts = (lang: string | null) =>
+    parseChordPro(body, lang).sections.flatMap((s) => s.lines.map((l) => l.text));
+  assert.deepEqual(texts("Latino"), ["Titolo comune", "Ave Maria gratia plena"]);
+  assert.deepEqual(texts("Italiano"), ["Titolo comune", "Ave Maria"]);
+  // indice di riga = riga del body (per le annotazioni)
+  const lat = parseChordPro(body, "Latino").sections[1].lines[0];
+  assert.equal(lat.index, 6);
+  assert.equal(parseChordPro(body).warnings.length, 0);
 });
 
 console.log(`✓ ${passed} test superati`);

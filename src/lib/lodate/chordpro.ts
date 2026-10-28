@@ -82,12 +82,31 @@ export function parseLyricLine(raw: string): { text: string; chords: ChordPos[] 
   };
 }
 
-export function parseChordPro(body: string): ParsedSong {
+/**
+ * Lingue del canto, nell'ordine in cui compaiono: ogni `{lang: Nome}` apre la
+ * versione in quella lingua fino al successivo `{lang: …}`.
+ */
+export function songLanguages(body: string): string[] {
+  const out: string[] = [];
+  for (const raw of bodyLines(body)) {
+    const m = raw.trim().match(DIRECTIVE_RE);
+    const name = m && m[1].toLowerCase() === "lang" ? (m[2] ?? "").trim() : "";
+    if (name && !out.includes(name)) out.push(name);
+  }
+  return out;
+}
+
+/**
+ * Analizza il canto. Con `lang` restituisce solo le righe comuni (prima del primo
+ * `{lang: …}`) e quelle della lingua scelta; gli indici di riga restano quelli del body.
+ */
+export function parseChordPro(body: string, lang?: string | null): ParsedSong {
   const lines = bodyLines(body);
   const sections: Section[] = [];
   const warnings: string[] = [];
   let inChorus = false;
   let current: Section | null = null;
+  let currentLang: string | null = null;
 
   const close = () => {
     if (current && current.lines.length > 0) {
@@ -105,11 +124,17 @@ export function parseChordPro(body: string): ParsedSong {
 
   lines.forEach((raw, index) => {
     const trimmed = raw.trim();
+    const directive = trimmed.match(DIRECTIVE_RE);
+    if (directive && directive[1].toLowerCase() === "lang") {
+      close();
+      currentLang = (directive[2] ?? "").trim() || null;
+      return;
+    }
+    if (lang && currentLang && currentLang !== lang) return;
     if (trimmed === "") {
       close();
       return;
     }
-    const directive = trimmed.match(DIRECTIVE_RE);
     if (directive) {
       const name = directive[1].toLowerCase();
       const value = directive[2] ?? "";
