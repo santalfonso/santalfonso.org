@@ -110,7 +110,7 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
         </section>
       )}
 
-      <p className="ls-small ls-muted">
+      <p className="ls-small ls-muted ls-calendar-note">
         Il giorno liturgico è calcolato secondo il calendario romano per l&apos;Italia (con il proprio
         di Roma e della parrocchia); possono non comparire memorie e feste minori.
       </p>

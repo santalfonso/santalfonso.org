@@ -40,7 +40,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
 
   // Sezione corrente, mostrata nella barra del menù sul telefono.
   const current = onCatalog
-    ? (SEASONS.find((x) => x.slug === tempo)?.label ?? "Tutti i canti")
+    ? (SEASONS.find((x) => x.slug === tempo)?.label ?? "Repertorio")
     : pathname.startsWith("/lodate/canti/")
       ? "Canto"
       : pathname.startsWith("/lodate/scaletta") || pathname.startsWith("/lodate/s/")
@@ -117,7 +117,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
         </div>
         <p className="lodate-side__group">Canti</p>
         <ul>
-          {item("/lodate", "Tutti i canti", onCatalog && !params.get("momento") && !tempo)}
+          {item("/lodate", "Repertorio", onCatalog && !params.get("momento") && !tempo)}
           {item("/lodate/scaletta", "Prepara una scaletta", pathname.startsWith("/lodate/scaletta"))}
           {loggedIn && item("/lodate/area", "Le mie scalette e preferiti", pathname.startsWith("/lodate/area"))}
           {item("/lodate/letture", "Letture del giorno", pathname.startsWith("/lodate/letture"))}

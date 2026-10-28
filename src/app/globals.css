@@ -1239,3 +1239,23 @@ img { max-width: 100%; display: block; }
   }
 }
 /* end santo */
+
+/* === Campi a tendina: freccia ben visibile e staccata dal bordo === */
+select.admin-input,
+select.ls-select,
+select.lodate-capo__select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 46px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F2937' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+select.lodate-capo__select { padding-left: 18px; }
+[data-theme="dark"] select.admin-input,
+[data-theme="dark"] select.ls-select,
+[data-theme="dark"] select.lodate-capo__select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5E7EB' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}

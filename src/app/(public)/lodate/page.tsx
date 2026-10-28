@@ -76,15 +76,9 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
   return (
     <div className="container lodate-page lodate-home">
       <section className="lodate-catalog" aria-labelledby="lodate-catalog-title">
-        <div className="lodate-catalog__head">
-          <h2 id="lodate-catalog-title" className="lodate-h1">
-            Canti
-          </h2>
-          <p className="lodate-catalog__intro">
-            Testi e accordi per i cantori e i cori della Messa. Cerca per titolo o per parole del testo,
-            oppure scegli un tempo liturgico dal menù.
-          </p>
-        </div>
+        <h2 id="lodate-catalog-title" className="lodate-sr">
+          Repertorio
+        </h2>
 
         <CatalogFilters q={q} momento={momento} tempo={tempo} />
 

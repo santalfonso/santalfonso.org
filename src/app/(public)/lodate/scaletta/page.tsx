@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import SetlistBuilder from "@/components/lodate/SetlistBuilder";
@@ -61,17 +60,6 @@ export default async function ScalettaBuilderPage({ searchParams }: { searchPara
         <header>
           <span className="ls-kicker">Scaletta</span>
           <h2 className="ls-title">{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h2>
-          <p className="ls-muted">
-            Scegli i canti per ogni momento della Messa. Per ogni momento vengono proposti prima i
-            canti adatti, ma puoi cercare qualunque canto.
-          </p>
-          {userId && (
-            <p className="ls-small" style={{ marginTop: 8 }}>
-              <Link className="ls-link" href="/lodate/area">
-                Le mie scalette
-              </Link>
-            </p>
-          )}
         </header>
         {invalidLink && (
           <p className="ls-error" role="alert">

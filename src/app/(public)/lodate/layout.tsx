@@ -22,6 +22,7 @@ export default async function LodateLayout({ children }: { children: React.React
     <div className="lodate">
       <PageTitle
         kicker="Canti per la liturgia"
+        lead="Il repertorio dei canti della parrocchia per le Celebrazioni Eucaristiche: testi, accordi e scalette raccolti in un unico luogo."
         title={
           <>
             Lodate, lodate{" "}
