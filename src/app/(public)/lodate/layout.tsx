@@ -22,7 +22,12 @@ export default async function LodateLayout({ children }: { children: React.React
     <div className="lodate">
       <PageTitle
         kicker="Canti per la liturgia"
-        title="Lodate, lodate Iddio"
+        title={
+          <>
+            Lodate, lodate{" "}
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Iddio</span>
+          </>
+        }
       />
       <div className="container lodate-shell">
         <Suspense fallback={<aside className="lodate-side" aria-label="Menù dei canti" />}>

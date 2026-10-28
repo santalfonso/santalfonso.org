@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { saveSetlist } from "@/actions/lodate/setlists";
-import { MOMENTS, isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
+import { isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
 import { COLOR_LABELS, isValidLiturgicalDate, liturgicalDay } from "@/lib/lodate/liturgia";
 import {
-  EXTRA_AT_START,
   LIMITS,
   countSongs,
   encodeSetlist,
   extraIndex,
+  extraKey,
   extraPositionLabel,
+  extraSlot,
   orderedSections,
+  placeExtra,
   setlistUrlPath,
-  type ExtraPosition,
   type SetlistData,
   type SetlistExtra,
   type SetlistSong,
@@ -35,12 +36,25 @@ function fold(s: string) {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-const EXTRA_POSITIONS: ExtraPosition[] = [EXTRA_AT_START, ...MOMENTS.map((m) => m.slug)];
+let uidCounter = 0;
+function newUid() {
+  return `x${++uidCounter}`;
+}
 
 export default function SetlistBuilder({ catalog, initial, editPublicId, isLoggedIn, initialSeason }: Props) {
   const router = useRouter();
   const formId = useId();
-  const [data, setData] = useState<SetlistData>(initial);
+  const [data, setData] = useState<SetlistData>(() => ({
+    ...initial,
+    extras: initial.extras.map((e) => ({ ...e, uid: newUid() })),
+  }));
+  // Trascinamento dei momenti speciali: uid della riga trascinata.
+  const [dragUid, setDragUid] = useState<string | null>(null);
+  const dataRef = useRef(data);
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
   // Festa e tempo liturgico si ricavano dalla data.
   const day = useMemo(
     () => (data.date && isValidLiturgicalDate(data.date) ? liturgicalDay(data.date) : null),
@@ -106,8 +120,78 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
 
   function addExtra() {
     if (data.extras.length >= LIMITS.extras) return;
-    setData((d) => ({ ...d, extras: [...d.extras, { label: "", after: "finale", songs: [] }] }));
+    setData((d) => ({ ...d, extras: [...d.extras, { label: "", after: "finale", songs: [], uid: newUid() }] }));
     setAnnounce("Aggiunto un momento speciale in fondo alla scaletta.");
+  }
+
+  function placeLabel(d: SetlistData, index: number) {
+    const e = d.extras[index];
+    return `${e.label || "Momento speciale"}: ${extraPositionLabel(e.after).toLowerCase()}`;
+  }
+
+  /** Sposta il momento speciale con le frecce della tastiera (un posto alla volta). */
+  function nudgeExtra(index: number, delta: number) {
+    const slot = extraSlot(data, index);
+    const r = placeExtra(data, index, slot + delta);
+    if (extraSlot(r.data, r.index) === slot) return;
+    setOpenPicker(null);
+    setData(r.data);
+    setAnnounce(placeLabel(r.data, r.index));
+    const uid = r.data.extras[r.index].uid;
+    requestAnimationFrame(() => {
+      listRef.current?.querySelector<HTMLElement>(`[data-drag-uid="${uid}"]`)?.focus();
+    });
+  }
+
+  /** Trascinamento con mouse o dito: la riga si sposta mentre la si muove. */
+  function startDrag(uid: string, event: React.PointerEvent) {
+    event.preventDefault();
+    setOpenPicker(null);
+    setDragUid(uid);
+
+    let lastY = event.clientY;
+    const reposition = () => {
+      const d = dataRef.current;
+      const index = d.extras.findIndex((x) => x.uid === uid);
+      if (index < 0 || !listRef.current) return;
+      const others = [...listRef.current.querySelectorAll<HTMLElement>("[data-section-key]")].filter(
+        (el) => el.dataset.sectionKey !== extraKey(index)
+      );
+      const to = others.filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.top + r.height / 2 < lastY;
+      }).length;
+      if (to === extraSlot(d, index)) return;
+      const r = placeExtra(d, index, to);
+      dataRef.current = r.data;
+      setData(r.data);
+    };
+    // Vicino ai bordi della finestra la pagina scorre da sola, anche a dito fermo.
+    const EDGE = 90;
+    const autoScroll = window.setInterval(() => {
+      const step = lastY < EDGE ? -14 : lastY > window.innerHeight - EDGE ? 14 : 0;
+      if (step) {
+        window.scrollBy(0, step);
+        reposition();
+      }
+    }, 16);
+    const onMove = (e: PointerEvent) => {
+      lastY = e.clientY;
+      reposition();
+    };
+    const onUp = () => {
+      window.clearInterval(autoScroll);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      setDragUid(null);
+      const d = dataRef.current;
+      const index = d.extras.findIndex((x) => x.uid === uid);
+      if (index >= 0) setAnnounce(placeLabel(d, index));
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   }
 
   function removeExtra(index: number) {
@@ -166,12 +250,13 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
         {announce}
       </p>
 
+      <div className="ls-stack" ref={listRef}>
       {sections.map((section) => {
         const i = section.extraIndex;
         const extra = i !== null ? data.extras[i] : null;
         return (
           <MomentSection
-            key={section.key}
+            key={extra?.uid ?? section.key}
             moment={section.key}
             label={section.label}
             ids={section.songIds}
@@ -187,12 +272,11 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
               extra && i !== null
                 ? {
                     label: extra.label,
-                    after: extra.after,
+                    uid: extra.uid ?? "",
+                    dragging: dragUid !== null && dragUid === extra.uid,
                     onLabel: (label) => updateExtra(i, { label }),
-                    onAfter: (after) => {
-                      setOpenPicker(null);
-                      updateExtra(i, { after });
-                    },
+                    onDragStart: (e) => extra.uid && startDrag(extra.uid, e),
+                    onNudge: (delta) => nudgeExtra(i, delta),
                     onDelete: () => removeExtra(i),
                   }
                 : null
@@ -200,6 +284,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
           />
         );
       })}
+      </div>
 
       {data.extras.length < LIMITS.extras && (
         <button type="button" className="ls-btn ls-add-extra" onClick={addExtra}>
@@ -243,9 +328,11 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
 
 type ExtraControls = {
   label: string;
-  after: ExtraPosition;
+  uid: string;
+  dragging: boolean;
   onLabel: (label: string) => void;
-  onAfter: (after: ExtraPosition) => void;
+  onDragStart: (event: React.PointerEvent) => void;
+  onNudge: (delta: number) => void;
   onDelete: () => void;
 };
 
@@ -286,10 +373,37 @@ function MomentSection({
   const isExtra = extra !== null;
 
   return (
-    <section className={`ls-section${isExtra ? " ls-section--extra" : ""}`} aria-labelledby={headingId}>
+    <section
+      className={`ls-section${isExtra ? " ls-section--extra" : ""}${extra?.dragging ? " is-dragging" : ""}`}
+      aria-labelledby={headingId}
+      data-section-key={moment}
+    >
       <div className="ls-section-head">
         {extra ? (
           <div className="ls-extra-head">
+            <button
+              type="button"
+              className="ls-drag"
+              data-drag-uid={extra.uid}
+              aria-label={`Sposta il momento speciale ${label}: trascina, oppure usa le frecce su e giù`}
+              title="Trascina per spostare"
+              onPointerDown={extra.onDragStart}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                  e.preventDefault();
+                  extra.onNudge(e.key === "ArrowUp" ? -1 : 1);
+                }
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="9" cy="6" r="1.6" />
+                <circle cx="15" cy="6" r="1.6" />
+                <circle cx="9" cy="12" r="1.6" />
+                <circle cx="15" cy="12" r="1.6" />
+                <circle cx="9" cy="18" r="1.6" />
+                <circle cx="15" cy="18" r="1.6" />
+              </svg>
+            </button>
             <h2 id={headingId} className="ls-sr">
               Momento speciale: {label}
             </h2>
@@ -301,18 +415,6 @@ function MomentSection({
               aria-label="Nome del momento speciale"
               onChange={(e) => extra.onLabel(e.target.value)}
             />
-            <select
-              className="ls-select ls-extra-pos"
-              value={extra.after}
-              aria-label="Posizione del momento speciale"
-              onChange={(e) => extra.onAfter(e.target.value as ExtraPosition)}
-            >
-              {EXTRA_POSITIONS.map((p) => (
-                <option key={p} value={p}>
-                  {extraPositionLabel(p)}
-                </option>
-              ))}
-            </select>
             <button
               type="button"
               className="ls-btn ls-btn--icon ls-btn--danger"

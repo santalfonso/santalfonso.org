@@ -47,9 +47,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
         <ul>
           {item("/lodate", "Tutti i canti", onCatalog && !params.get("momento") && !tempo)}
           {item("/lodate/scaletta", "Prepara una scaletta", pathname.startsWith("/lodate/scaletta"))}
-          {loggedIn
-            ? item("/lodate/area", "Le mie scalette e preferiti", pathname.startsWith("/lodate/area"))
-            : item(`/accedi?next=${encodeURIComponent("/lodate/area")}`, "Le mie scalette (accedi)", false)}
+          {loggedIn && item("/lodate/area", "Le mie scalette e preferiti", pathname.startsWith("/lodate/area"))}
           {item("/lodate/letture", "Letture del giorno", pathname.startsWith("/lodate/letture"))}
         </ul>
 

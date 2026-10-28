@@ -29,7 +29,13 @@ export const URL_FORMAT_VERSION = 2;
 export type SetlistItems = Record<Moment, number[]>;
 
 /** Momento speciale con nome libero, collocato dopo un momento della Messa (o all'inizio). */
-export type SetlistExtra = { label: string; after: ExtraPosition; songs: number[] };
+export type SetlistExtra = {
+  label: string;
+  after: ExtraPosition;
+  songs: number[];
+  /** Identificativo stabile usato solo nel builder (non viene salvato né messo nel link). */
+  uid?: string;
+};
 
 const DEFAULT_EXTRA_LABEL = "Momento speciale";
 
@@ -212,6 +218,41 @@ export function orderedSections(data: SetlistData, includeEmpty = false): Setlis
     sections.push(...extrasAfter(m.slug));
   }
   return includeEmpty ? sections : sections.filter((s) => s.songIds.length > 0);
+}
+
+/**
+ * Sposta il momento speciale `index` nell'elenco completo delle sezioni: `to` è la
+ * posizione nell'elenco senza il momento spostato (0 = in testa). I momenti della
+ * Messa restano fissi; il momento speciale prende come `after` il momento che lo
+ * precede. Restituisce i dati aggiornati e il nuovo indice del momento spostato.
+ */
+export function placeExtra(data: SetlistData, index: number, to: number): { data: SetlistData; index: number } {
+  const own = extraKey(index);
+  const rest = orderedSections(data, true)
+    .map((s) => s.key)
+    .filter((k) => k !== own);
+  rest.splice(Math.max(0, Math.min(to, rest.length)), 0, own);
+
+  let after: ExtraPosition = EXTRA_AT_START;
+  let newIndex = index;
+  const extras: SetlistExtra[] = [];
+  for (const key of rest) {
+    if (isMoment(key)) {
+      after = key;
+      continue;
+    }
+    const i = extraIndex(key);
+    const e = i !== null ? data.extras[i] : undefined;
+    if (!e) continue;
+    if (key === own) newIndex = extras.length;
+    extras.push({ ...e, after });
+  }
+  return { data: { ...data, extras }, index: newIndex };
+}
+
+/** Posizione del momento speciale `index` nell'elenco completo delle sezioni. */
+export function extraSlot(data: SetlistData, index: number): number {
+  return orderedSections(data, true).findIndex((s) => s.key === extraKey(index));
 }
 
 export function extraPositionLabel(pos: ExtraPosition): string {

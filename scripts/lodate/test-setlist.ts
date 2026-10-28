@@ -13,6 +13,7 @@ import {
   extrasMetaToColumns,
   normalizeSetlist,
   orderedSections,
+  placeExtra,
   rowsFromSetlist,
   setlistFromRows,
   todayInRome,
@@ -157,6 +158,26 @@ test("momento speciale senza nome → nome di default, dopo il finale", () => {
 test("al massimo LIMITS.extras momenti speciali", () => {
   const s = normalizeSetlist({ extras: Array.from({ length: 20 }, () => ({ label: "x" })) });
   assert.equal(s.extras.length, LIMITS.extras);
+});
+
+test("placeExtra: trascinamento tra i momenti fissi", () => {
+  const s = normalizeSetlist(sample); // extra:0 all'inizio, extra:1 dopo il Gloria
+  // sposta "Ingresso degli sposi" dopo la Comunione (posizione 8 nell'elenco senza di lui)
+  const moved = placeExtra(s, 0, 8);
+  const keys = orderedSections(moved.data, true).map((x) => x.label);
+  assert.deepEqual(keys, [
+    "Canto iniziale", "Gloria", "Scambio degli anelli", "Offertorio", "Santo", "Pace", "Agnello di Dio",
+    "Comunione", "Ingresso degli sposi", "Canto finale",
+  ]);
+  assert.equal(moved.data.extras[moved.index].label, "Ingresso degli sposi");
+  assert.equal(moved.data.extras[moved.index].after, "comunione");
+  assert.deepEqual(moved.data.items, s.items);
+  // in testa
+  const top = placeExtra(s, 1, 0);
+  assert.deepEqual(top.data.extras.map((e) => [e.label, e.after]), [
+    ["Scambio degli anelli", "inizio"],
+    ["Ingresso degli sposi", "inizio"],
+  ]);
 });
 
 test("filterKnownSongs ignora id inesistenti", () => {

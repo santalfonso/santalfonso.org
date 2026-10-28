@@ -122,7 +122,15 @@
 .ls-section--extra { border-color: var(--ls-gold-line); border-style: dashed; background: var(--ls-gold-soft); }
 .ls-extra-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .ls-extra-name { flex: 1 1 220px; min-width: 0; font-weight: 600; }
-.ls-extra-pos { flex: 0 1 220px; min-width: 0; }
+.ls-drag {
+  display: inline-grid; place-items: center; flex: none;
+  width: var(--ls-tap); height: var(--ls-tap);
+  border: 0; border-radius: var(--ls-radius-sm); background: none;
+  color: var(--ls-gold); cursor: grab; touch-action: none;
+}
+.ls-drag:hover { background: color-mix(in oklab, var(--ls-gold-line) 18%, transparent); }
+.ls-section.is-dragging { box-shadow: var(--shadow-lg, 0 12px 32px rgba(0,0,0,.12)); opacity: 0.92; }
+.ls-section.is-dragging .ls-drag { cursor: grabbing; }
 .ls-section--extra .ls-section-head { flex-wrap: wrap; }
 .ls-add-extra { align-self: flex-start; border-style: dashed; }
 .ls-chosen { list-style: none; margin: 0; padding: 0 8px 8px; }
