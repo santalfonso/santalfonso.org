@@ -565,6 +565,7 @@ export default function SongViewer({
             showChords={showChords}
             marks={marks}
             annotate={annotating ? { selected, onSelect: setSelected } : null}
+            printColumns
           />
         )}
       </div>

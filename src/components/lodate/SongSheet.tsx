@@ -34,51 +34,135 @@ export function annotationKey(line: number, col: number) {
  * sopra le singole lettere e, in modalità "Annota", lettere selezionabili.
  * Nessun HTML dal testo: solo nodi React.
  */
+/**
+ * Stampa su due colonne: le strofe (mai spezzate) vengono distribuite pagina per
+ * pagina — colonna sinistra, poi destra, poi la pagina dopo — così si legge in
+ * ordine anche nei canti lunghi. Il peso di una strofa è il numero di righe (le
+ * righe con accordi contano doppio) più lo spazio tra le strofe.
+ * Restituisce, per ogni pagina, gli indici delle sezioni di ciascuna colonna;
+ * null se il canto ha una sola sezione.
+ */
+const FIRST_PAGE_UNITS = 34; // sotto titolo e sottotitolo
+const PAGE_UNITS = 40;
+
+export function printColumnsLayout(song: ParsedSong, showChords: boolean): number[][][] | null {
+  const weights = song.sections.map(
+    (sec) =>
+      1 +
+      sec.lines.reduce(
+        (n, l) => n + (l.kind === "lyric" && showChords && l.chords.length > 0 ? (l.chordOnly ? 1 : 2) : 1),
+        0
+      )
+  );
+  if (weights.length < 2) return null;
+  const total = weights.reduce((a, b) => a + b, 0);
+
+  // Canto che sta in una pagina: due colonne di altezza simile.
+  if (total <= FIRST_PAGE_UNITS * 2) return [balance(weights.map((_, i) => i), weights)];
+
+  // Canto lungo: si riempie una colonna alla volta, pagina per pagina.
+  const pages: number[][][] = [];
+  let page: number[][] = [[]];
+  let used = 0;
+  let capacity = FIRST_PAGE_UNITS;
+  weights.forEach((w, i) => {
+    const col = page[page.length - 1];
+    if (col.length > 0 && used + w > capacity) {
+      if (page.length === 1) {
+        page.push([]);
+      } else {
+        pages.push(page);
+        page = [[]];
+        capacity = PAGE_UNITS;
+      }
+      used = 0;
+    }
+    page[page.length - 1].push(i);
+    used += w;
+  });
+  // ultima pagina con una sola colonna: la si divide a metà
+  pages.push(page.length === 1 && page[0].length > 1 ? balance(page[0], weights) : page);
+  return pages;
+}
+
+/** Divide le sezioni in due colonne di altezza simile (a parità, più lunga la prima). */
+function balance(indexes: number[], weights: number[]): number[][] {
+  const total = indexes.reduce((n, i) => n + weights[i], 0);
+  let best = 1;
+  let bestDiff = Infinity;
+  let left = 0;
+  for (let k = 1; k < indexes.length; k++) {
+    left += weights[indexes[k - 1]];
+    const diff = Math.abs(left - (total - left)) - (left >= total - left ? 0.5 : 0);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = k;
+    }
+  }
+  return [indexes.slice(0, best), indexes.slice(best)];
+}
+
 export default function SongSheet({
   song,
   showChords,
   marks,
   annotate,
+  printColumns = false,
 }: {
   song: ParsedSong;
   showChords: boolean;
   /** Annotazioni per chiave "riga:colonna". */
   marks?: Map<string, AnnotationMark>;
   annotate?: AnnotateProps | null;
+  /** In stampa divide le strofe su due colonne (a schermo non cambia nulla). */
+  printColumns?: boolean;
 }) {
   const marksByLine = new Set<number>();
   marks?.forEach((_, key) => marksByLine.add(Number(key.split(":")[0])));
 
   let verseNo = 0;
+  const rendered = song.sections.map((section, i) => {
+    if (section.kind === "verse") verseNo++;
+    return (
+      <section
+        key={i}
+        className={`lodate-sec lodate-sec--${section.kind}`}
+        aria-label={section.kind === "verse" ? `${SECTION_LABEL.verse} ${verseNo}` : SECTION_LABEL[section.kind]}
+      >
+        {section.lines.map((line) =>
+          line.kind === "comment" ? (
+            <p key={line.index} className="lodate-comment">
+              {line.text}
+            </p>
+          ) : (
+            <SheetLine
+              key={line.index}
+              line={line}
+              showChords={showChords}
+              marks={marks}
+              lineHasMarks={marksByLine.has(line.index)}
+              annotate={annotate}
+            />
+          )
+        )}
+      </section>
+    );
+  });
+
+  const layout = printColumns ? printColumnsLayout(song, showChords) : null;
+  const className = `lodate-sheet${annotate ? " is-annotating" : ""}`;
+  if (layout === null) return <div className={className}>{rendered}</div>;
   return (
-    <div className={`lodate-sheet${annotate ? " is-annotating" : ""}`}>
-      {song.sections.map((section, i) => {
-        if (section.kind === "verse") verseNo++;
-        return (
-          <section
-            key={i}
-            className={`lodate-sec lodate-sec--${section.kind}`}
-            aria-label={section.kind === "verse" ? `${SECTION_LABEL.verse} ${verseNo}` : SECTION_LABEL[section.kind]}
-          >
-            {section.lines.map((line) =>
-              line.kind === "comment" ? (
-                <p key={line.index} className="lodate-comment">
-                  {line.text}
-                </p>
-              ) : (
-                <SheetLine
-                  key={line.index}
-                  line={line}
-                  showChords={showChords}
-                  marks={marks}
-                  lineHasMarks={marksByLine.has(line.index)}
-                  annotate={annotate}
-                />
-              )
-            )}
-          </section>
-        );
-      })}
+    <div className={`${className} lodate-sheet--cols`}>
+      {layout.map((cols, p) => (
+        <div key={p} className="lodate-sheet__page">
+          {cols.map((indexes, c) => (
+            <div key={c} className="lodate-sheet__col">
+              {indexes.map((i) => rendered[i])}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }

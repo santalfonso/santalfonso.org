@@ -485,6 +485,9 @@ a.lodate-badge { min-height: 32px; }
 
 /* Foglio del canto */
 .lodate-sheet-wrap { padding: 8px 0 24px; }
+/* a schermo le due colonne di stampa non esistono: le strofe scorrono come sempre */
+.lodate-sheet__page,
+.lodate-sheet__col { display: contents; }
 .lodate-sheet {
   font-size: var(--lodate-fs);
   line-height: 1.45;
@@ -790,12 +793,16 @@ a.lodate-badge { min-height: 32px; }
   .site .lodate-song-author { font-size: 11pt !important; margin-top: 3pt !important; }
   .site .lodate-print-meta { margin: 3pt 0 0 !important; font-size: 10pt !important; font-weight: 600; }
 
-  /* testo del canto su due colonne */
-  .lodate-viewer .lodate-sheet {
-    font-size: 11.5pt !important;
-    column-count: 2;
+  /* testo del canto su due colonne (divise prima, così funziona in ogni browser) */
+  .lodate-viewer .lodate-sheet { font-size: 11.5pt !important; }
+  .lodate-sheet--cols .lodate-sheet__page {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: 10mm;
+    align-items: start;
   }
+  .lodate-sheet--cols .lodate-sheet__page + .lodate-sheet__page { break-before: page; page-break-before: always; }
+  .lodate-sheet--cols .lodate-sheet__col { display: block !important; min-width: 0; }
   .lodate-sheet-wrap { padding: 0 !important; }
   .lodate-sec { break-inside: avoid; page-break-inside: avoid; }
   .lodate-sec--chorus { border-left: 2pt solid #888 !important; background: none !important; }
