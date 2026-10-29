@@ -36,8 +36,8 @@
   --lodate-chorus-bar: #C9A24A;
   --lodate-chorus-bg: transparent;
   /* canti alternati */
-  --lodate-uomo: #1D4ED8;
-  --lodate-uomo-bg: #E8F0FE;
+  --lodate-uomo: #0F766E;
+  --lodate-uomo-bg: #E3F4F1;
   --lodate-donna: #BE185D;
   --lodate-donna-bg: #FCE7F3;
   --lodate-mark-up: #15803D;
@@ -66,8 +66,8 @@
   --lodate-danger: #FF8A80;
   --lodate-danger-soft: #3A1512;
   --lodate-chord: #7CC0FF;
-  --lodate-uomo: #93C5FD;
-  --lodate-uomo-bg: #14243D;
+  --lodate-uomo: #5EEAD4;
+  --lodate-uomo-bg: #0F2A27;
   --lodate-donna: #F9A8D4;
   --lodate-donna-bg: #3A1530;
   --lodate-mark-up: #4ADE80;
@@ -512,28 +512,33 @@ a.lodate-badge { min-height: 32px; }
   border-radius: 0 var(--lodate-radius-sm) var(--lodate-radius-sm) 0;
   font-weight: 600;
 }
-/* parti a voci alternate: card colorata con l'indicazione Uomo / Donna */
+/* parti a voci alternate: sfumate come il ritornello, con un'etichetta come i tempi */
 .lodate-sec--uomo,
 .lodate-sec--donna,
 .site .lodate-sec--uomo,
 .site .lodate-sec--donna {
-  padding: 0.45em 0.85em 0.5em;
-  border-radius: var(--lodate-radius-sm);
+  padding: 0.35em 0 0.35em 0.85em;
+  border-left: 3px solid var(--lodate-voice);
+  background: linear-gradient(90deg, var(--lodate-voice-bg), transparent 70%);
+  border-radius: 0 var(--lodate-radius-sm) var(--lodate-radius-sm) 0;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
-.lodate-sec--uomo, .site .lodate-sec--uomo { background: var(--lodate-uomo-bg); }
-.lodate-sec--donna, .site .lodate-sec--donna { background: var(--lodate-donna-bg); }
+.lodate-sec--uomo { --lodate-voice: var(--lodate-uomo); --lodate-voice-bg: var(--lodate-uomo-bg); }
+.lodate-sec--donna { --lodate-voice: var(--lodate-donna); --lodate-voice-bg: var(--lodate-donna-bg); }
 .lodate-voice,
 .site .lodate-voice {
-  margin: 0 0 0.2em;
-  font-size: 0.68em;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  margin: 0.1em 0 0.35em;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  background: var(--lodate-voice-bg);
+  color: var(--lodate-voice);
 }
-.lodate-sec--uomo .lodate-voice { color: var(--lodate-uomo); }
-.lodate-sec--donna .lodate-voice { color: var(--lodate-donna); }
 .lodate-sec--comment { margin-bottom: 0.6em; }
 .lodate-comment,
 .site .lodate-comment {
@@ -807,8 +812,8 @@ a.lodate-badge { min-height: 32px; }
     --lodate-mark-down: #000;
     --lodate-mark-steady: #000;
     --lodate-chorus-bar: #888;
-    --lodate-uomo: #1D4ED8;
-    --lodate-uomo-bg: #E8F0FE;
+    --lodate-uomo: #0F766E;
+    --lodate-uomo-bg: #E3F4F1;
     --lodate-donna: #BE185D;
     --lodate-donna-bg: #FCE7F3;
   }

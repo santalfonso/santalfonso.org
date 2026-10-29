@@ -14,8 +14,8 @@ const SECTION_LABEL: Record<Section["kind"], string> = {
   verse: "Strofa",
   chorus: "Ritornello",
   comment: "Indicazione",
-  uomo: "Uomo",
-  donna: "Donna",
+  uomo: "Uomini",
+  donna: "Donne",
 };
 
 function markSymbol(mark: AnnotationMark) {
