@@ -22,6 +22,7 @@ import {
   type Annotation,
   type AnnotationMark,
 } from "@/lib/lodate/constants";
+import ShareMenu from "./ShareMenu";
 import SongSheet, { annotationKey, type SelectedWord } from "./SongSheet";
 
 export type ViewerSong = {
@@ -420,6 +421,7 @@ export default function SongViewer({
         <button type="button" className="lodate-btn" onClick={() => window.print()}>
           <PrintIcon /> Stampa
         </button>
+        <ShareMenu title={song.title} path={`/lodate/canti/${song.slug}`} />
         {loggedIn && (
           <button
             type="button"

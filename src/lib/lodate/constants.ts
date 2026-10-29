@@ -57,3 +57,6 @@ export const ANNOTATION_MARKS = [
 export type AnnotationMark = (typeof ANNOTATION_MARKS)[number]["mark"];
 
 export type Annotation = { line: number; col: number; mark: AnnotationMark };
+
+/** Suggerimenti dei canti con AI nella scaletta: per ora spenti (pulsante nascosto). */
+export const AI_SUGGESTIONS_ENABLED = false;

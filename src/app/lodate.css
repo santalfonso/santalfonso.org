@@ -977,6 +977,42 @@ a.lodate-badge { min-height: 32px; }
 }
 .lodate-tools__size { display: inline-flex; gap: 6px; margin-left: auto; }
 
+/* Condividi: menù a comparsa sotto il pulsante */
+.lodate-share { position: relative; display: inline-flex; }
+.lodate-share__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 30;
+  min-width: 210px;
+  padding: 6px;
+  background: var(--lodate-surface);
+  border: 1px solid var(--lodate-line-strong);
+  border-radius: var(--lodate-radius-sm);
+  box-shadow: 0 10px 30px rgba(15, 20, 25, 0.16);
+}
+.lodate-share__menu ul { list-style: none; margin: 0; padding: 0; }
+.lodate-share__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--lodate-tap);
+  padding: 0 12px;
+  font: 600 15px/1.2 var(--sans);
+  color: var(--lodate-text);
+  background: none;
+  border: 0;
+  border-radius: var(--lodate-radius-sm);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+}
+.lodate-share__item:hover { background: var(--lodate-surface-soft); }
+.lodate-share__item:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: -3px; }
+.lodate-share__wa { color: #25D366; }
+.lodate-share__tg { color: #229ED9; }
+
 .lodate-music {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1013,7 +1049,10 @@ a.lodate-badge { min-height: 32px; }
   .lodate-song-head .lodate-badges { gap: 4px; }
   .lodate-song-head .lodate-badge { padding: 2px 9px; font-size: 12px; }
   .lodate-song-head a.lodate-badge { min-height: 28px; }
-  .lodate-tools > .lodate-btn { flex: 1 1 calc(50% - 4px); justify-content: center; }
+  .lodate-tools > .lodate-btn,
+  .lodate-tools > .lodate-share { flex: 1 1 calc(50% - 4px); justify-content: center; }
+  .lodate-share > .lodate-btn { flex: 1; }
+  .lodate-share__menu { left: 0; right: 0; min-width: 0; }
   .lodate-tools__size { flex: 1 1 100%; justify-content: center; margin-left: 0; }
   .lodate-tools__size .lodate-btn { flex: 1; }
   .lodate-music { grid-template-columns: minmax(0, 1fr); }

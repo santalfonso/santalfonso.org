@@ -1,6 +1,7 @@
 "use server";
 
 import { requireMember } from "@/auth";
+import { AI_SUGGESTIONS_ENABLED } from "@/lib/lodate/constants";
 import { isValidLiturgicalDate } from "@/lib/lodate/liturgia";
 import { buildSuggestions, type SuggestResult } from "@/lib/lodate/suggest-db";
 
@@ -22,6 +23,7 @@ function rateLimited(userId: string): boolean {
 
 /** Canti del repertorio adatti alle letture del giorno, per ogni momento della Messa. */
 export async function suggestSongs(date: string): Promise<SuggestResult> {
+  if (!AI_SUGGESTIONS_ENABLED) return { error: "I suggerimenti con AI non sono attivi." };
   let userId: string;
   try {
     userId = String((await requireMember()).id);

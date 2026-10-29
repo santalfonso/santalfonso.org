@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { saveSetlist } from "@/actions/lodate/setlists";
 import { suggestSongs, type SongSuggestion } from "@/actions/lodate/suggest";
-import { isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
+import { AI_SUGGESTIONS_ENABLED, isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
 import { COLOR_LABELS, isValidLiturgicalDate, liturgicalDay } from "@/lib/lodate/liturgia";
 import {
   LIMITS,
@@ -288,7 +288,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
             </span>
           </p>
         )}
-        {isLoggedIn ? (
+        {!AI_SUGGESTIONS_ENABLED ? null : isLoggedIn ? (
           <div className="ls-ai">
             <button
               type="button"
