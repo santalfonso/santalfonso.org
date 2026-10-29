@@ -99,7 +99,12 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
 
       <nav id="lodate-side-menu" className="lodate-side__menu" aria-label="Menù dei canti">
         <div className="lodate-side__drawer-head">
-          <span>Lodate, lodate Iddio</span>
+          <span>
+            Lodate, lodate{" "}
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              Iddio
+            </span>
+          </span>
           <button
             ref={closeRef}
             type="button"
