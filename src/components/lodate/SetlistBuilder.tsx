@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { saveSetlist } from "@/actions/lodate/setlists";
+import { suggestSongs, type SongSuggestion } from "@/actions/lodate/suggest";
 import { isMoment, isSeason, momentLabel, seasonLabel } from "@/lib/lodate/constants";
 import { COLOR_LABELS, isValidLiturgicalDate, liturgicalDay } from "@/lib/lodate/liturgia";
 import {
@@ -65,6 +66,9 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
   const [error, setError] = useState("");
   const [announce, setAnnounce] = useState("");
   const [pending, startTransition] = useTransition();
+  const [suggest, setSuggest] = useState<{ date: string; theme: string; suggestions: SongSuggestion[] } | null>(null);
+  const [suggestError, setSuggestError] = useState("");
+  const [suggesting, startSuggest] = useTransition();
 
   const songsById = useMemo(() => new Map(catalog.map((s) => [s.id, s])), [catalog]);
 
@@ -201,6 +205,45 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
     setAnnounce("Momento speciale rimosso.");
   }
 
+  function askSuggestions() {
+    const date = data.date;
+    if (!date) return;
+    setSuggestError("");
+    startSuggest(async () => {
+      try {
+        const result = await suggestSongs(date);
+        if ("error" in result) {
+          setSuggest(null);
+          setSuggestError(result.error);
+        } else {
+          setSuggest({ date, ...result });
+          setAnnounce("Suggerimenti pronti.");
+        }
+      } catch {
+        setSuggestError("Non è stato possibile chiedere i suggerimenti: riprova.");
+      }
+    });
+  }
+
+  function addAllSuggested() {
+    if (!suggest) return;
+    setData((d) => {
+      let next = d;
+      let count = countSongs(d);
+      for (const s of suggest.suggestions) {
+        for (const { id } of s.songs) {
+          const ids = next.items[s.moment];
+          if (!songsById.has(id) || ids.includes(id)) continue;
+          if (ids.length >= LIMITS.songsPerMoment || count >= LIMITS.totalSongs) continue;
+          next = { ...next, items: { ...next.items, [s.moment]: [...ids, id] } };
+          count++;
+        }
+      }
+      return next;
+    });
+    setAnnounce("Canti suggeriti aggiunti alla scaletta.");
+  }
+
   function makeLink() {
     setError("");
     router.push(setlistUrlPath(output));
@@ -243,6 +286,80 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
               {day.seasonLabel} · colore {COLOR_LABELS[day.color].toLowerCase()}
               {day.isSunday ? ` · anno ${day.sundayCycle}` : ""}
             </span>
+          </p>
+        )}
+        {isLoggedIn ? (
+          <div className="ls-ai">
+            <button
+              type="button"
+              className="ls-btn ls-ai__btn"
+              onClick={askSuggestions}
+              disabled={!data.date || suggesting}
+              aria-describedby={`${formId}-ai-hint`}
+            >
+              <span aria-hidden="true">✨</span> {suggesting ? "Sto leggendo le letture…" : "Suggerisci canti con AI"}
+            </button>
+            <p id={`${formId}-ai-hint`} className="ls-small ls-muted">
+              {data.date
+                ? "Propone canti del repertorio adatti alle letture del giorno, guardando i testi e le etichette."
+                : "Scegli la data per avere suggerimenti in base alle letture del giorno."}
+            </p>
+            {suggestError && (
+              <p className="ls-error" role="alert">
+                {suggestError}
+              </p>
+            )}
+            {suggest && suggest.date === data.date && (
+              <div className="ls-ai__result" aria-live="polite">
+                {suggest.theme && <p className="ls-ai__theme">{suggest.theme}</p>}
+                <ul className="ls-ai__list">
+                  {suggest.suggestions.map((s) => (
+                    <li key={s.moment}>
+                      <h3 className="ls-ai__moment">{momentLabel(s.moment)}</h3>
+                      <ul className="ls-ai__songs">
+                        {s.songs.map(({ id, reason }) => {
+                          const song = songsById.get(id);
+                          if (!song) return null;
+                          const added = data.items[s.moment].includes(id);
+                          return (
+                            <li key={id} className="ls-ai__song">
+                              <div className="ls-ai__text">
+                                <Link className="ls-ai__title" href={`/lodate/canti/${song.slug}`} target="_blank">
+                                  {song.title}
+                                </Link>
+                                {reason && <p className="ls-small ls-muted">{reason}</p>}
+                              </div>
+                              <button
+                                type="button"
+                                className="ls-btn ls-btn--small"
+                                onClick={() => addSong(s.moment, id)}
+                                disabled={added}
+                                aria-label={added ? `${song.title}: già in scaletta` : `Aggiungi ${song.title} a ${momentLabel(s.moment)}`}
+                              >
+                                {added ? "Aggiunto" : "Aggiungi"}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+                <button type="button" className="ls-btn ls-btn--primary ls-btn--small" onClick={addAllSuggested}>
+                  Aggiungi tutti i suggeriti
+                </button>
+                <p className="ls-small ls-muted">
+                  Suggerimenti generati con intelligenza artificiale: controllali prima di usarli.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="ls-small ls-muted">
+            <Link className="ls-link" href={`/accedi?next=${encodeURIComponent(loginNext)}`}>
+              Accedi
+            </Link>{" "}
+            per farti suggerire i canti adatti alle letture del giorno.
           </p>
         )}
       </section>

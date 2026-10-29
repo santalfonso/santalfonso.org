@@ -256,3 +256,21 @@
 
 /* Accesso: messaggio staccato dal pulsante */
 .ls .ls-login-note { margin-top: 20px; }
+
+/* Suggerimenti dei canti con intelligenza artificiale (scaletta) */
+.ls-ai { display: grid; gap: 8px; margin-top: 14px; }
+.ls-ai__btn { justify-self: start; gap: 8px; border-color: var(--ls-accent); color: var(--ls-accent); background: var(--ls-accent-soft); }
+.ls-ai__btn:hover { border-color: var(--ls-accent); filter: brightness(0.98); }
+.ls-ai__result { display: grid; gap: 12px; margin-top: 4px; padding: 14px; border-radius: var(--ls-radius-sm); border: 1px solid var(--ls-rule-strong); background: var(--ls-surface); }
+.ls-ai__btn + .ls-small { margin-top: -2px; }
+.ls .ls-ai__theme { font-style: italic; color: var(--ls-ink-soft); }
+.ls-ai__list, .ls-ai__songs { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ls-ai__songs { gap: 6px; margin-top: 4px; }
+.ls .ls-ai__moment { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ls-gold); }
+.ls-ai__song { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--ls-rule); }
+.ls-ai__text { min-width: 0; }
+.ls-ai__title { font-weight: 700; color: var(--ls-ink); text-decoration: none; }
+.ls-ai__title:hover { text-decoration: underline; }
+.ls-ai__song .ls-btn { flex: none; }
+.ls-ai__result > .ls-btn { justify-self: start; }
+.ls .ls-ai p.ls-small { font-size: 14px; line-height: 1.45; }

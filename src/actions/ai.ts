@@ -1,7 +1,7 @@
 "use server";
 
 import { requireStaff } from "@/auth";
-import { getSetting } from "@/lib/settings";
+import { groqChat } from "@/lib/groq";
 
 type AIResult = { data: string } | { error: string };
 
@@ -12,45 +12,7 @@ async function callGroq(system: string, user: string): Promise<AIResult> {
     return { error: "Non autorizzato." };
   }
   if (user.length > 50_000) return { error: "Testo troppo lungo." };
-  const apiKey = await getSetting("groq_api_key");
-  if (!apiKey) {
-    return {
-      error:
-        "Chiave API Groq non configurata. Vai in Configurazioni per aggiungerla.",
-    };
-  }
-
-  let res: Response;
-  try {
-    res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-        temperature: 0.3,
-        max_tokens: 2048,
-      }),
-    });
-  } catch (e) {
-    return { error: `Errore di rete: ${e instanceof Error ? e.message : e}` };
-  }
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    return { error: `Groq ha risposto con errore ${res.status}: ${body}` };
-  }
-
-  const json = await res.json();
-  const content: string = json.choices?.[0]?.message?.content?.trim() ?? "";
-  if (!content) return { error: "Risposta vuota dall'API Groq." };
-  return { data: content };
+  return groqChat({ system, user });
 }
 
 export async function proofreadText(text: string): Promise<AIResult> {
