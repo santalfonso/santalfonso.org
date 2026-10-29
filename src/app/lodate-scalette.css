@@ -96,6 +96,17 @@
   border: 1px solid var(--ls-rule-strong); border-radius: var(--ls-radius-sm);
   width: 100%;
 }
+/* Su iPhone il campo data ha una larghezza minima sua e usciva dal riquadro */
+.ls-input[type="date"] {
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+}
+.ls-input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 .ls-textarea { min-height: 88px; resize: vertical; }
 .ls-grid2 { display: grid; gap: var(--ls-gap); grid-template-columns: 1fr; }
 @media (min-width: 560px) { .ls-grid2 { grid-template-columns: 1fr 1fr; } }
