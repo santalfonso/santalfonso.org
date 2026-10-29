@@ -113,15 +113,7 @@ export default async function AreaPage({ searchParams }: { searchParams: SearchP
 
   return (
     <div className="ls ls-stack">
-      <header>
-        <span className="ls-kicker">Le mie scalette</span>
-        <h2 className="ls-title">Scalette e canti preferiti</h2>
-        <div className="ls-row" style={{ marginTop: 12 }}>
-          <Link className="ls-btn ls-btn--primary" href="/lodate/scaletta">
-            + Nuova scaletta
-          </Link>
-        </div>
-      </header>
+      <h2 className="ls-sr">Scalette e canti preferiti</h2>
 
       <section className="ls-card" aria-labelledby="ls-upcoming">
         <h2 id="ls-upcoming">Prossime scalette</h2>
