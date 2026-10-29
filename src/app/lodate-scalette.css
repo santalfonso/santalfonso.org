@@ -54,6 +54,7 @@
 .ls-muted { color: var(--ls-ink-mute); }
 .ls-small { font-size: 14px; }
 .ls-stack > * + * { margin-top: var(--ls-gap); }
+.ls-stack > .ls-sr:first-child + * { margin-top: 0; }
 .ls-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .ls-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

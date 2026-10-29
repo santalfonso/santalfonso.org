@@ -57,9 +57,8 @@ export default async function ScalettaBuilderPage({ searchParams }: { searchPara
   return (
     <div className="ls">
       <div className="ls-stack">
-        <header>
-          <h2 className="ls-title">{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h2>
-        </header>
+        {/* titolo solo per i lettori di schermo: sulla pagina c'è già nel menù */}
+        <h2 className="ls-sr">{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h2>
         {invalidLink && (
           <p className="ls-error" role="alert">
             Il link della scaletta non è valido: puoi ricominciare da qui.

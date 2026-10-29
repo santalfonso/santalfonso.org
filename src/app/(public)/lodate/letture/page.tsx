@@ -31,7 +31,6 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
   return (
     <div className="ls ls-stack">
       <header>
-        <span className="ls-kicker">Letture del giorno</span>
         <h2 className="ls-title">{day.title}</h2>
         <p className="ls-muted">
           {formatLongDate(date)}
