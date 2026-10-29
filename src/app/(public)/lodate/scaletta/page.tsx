@@ -58,7 +58,6 @@ export default async function ScalettaBuilderPage({ searchParams }: { searchPara
     <div className="ls">
       <div className="ls-stack">
         <header>
-          <span className="ls-kicker">Scaletta</span>
           <h2 className="ls-title">{editPublicId ? "Modifica la scaletta" : "Prepara la scaletta"}</h2>
         </header>
         {invalidLink && (

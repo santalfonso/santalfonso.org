@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ReadingsDateField from "@/components/lodate/ReadingsDateField";
 import { getDailyReadings } from "@/lib/lodate/evangelizo";
 import { addDays, isValidLiturgicalDate, liturgicalDay, readingsLinks } from "@/lib/lodate/liturgia";
 import { emptySetlist, encodeSetlist, formatLongDate, todayInRome } from "@/lib/lodate/setlist";
@@ -49,22 +50,19 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
         <Link className="ls-btn ls-btn--icon" href={`/lodate/letture?data=${prev}`} aria-label={`Giorno precedente, ${formatLongDate(prev)}`}>
           ←
         </Link>
-        <form method="get" className="ls-row" style={{ flexWrap: "nowrap", minWidth: 0 }}>
-          <label htmlFor="ls-data" className="ls-sr">
-            Scegli la data
-          </label>
-          <input id="ls-data" type="date" name="data" defaultValue={date} className="ls-input" required />
-          <button type="submit" className="ls-btn">
-            Vai
-          </button>
-        </form>
+        <ReadingsDateField key={date} date={date} />
         <Link className="ls-btn ls-btn--icon" href={`/lodate/letture?data=${next}`} aria-label={`Giorno successivo, ${formatLongDate(next)}`}>
           →
         </Link>
       </nav>
       {date !== today && (
-        <p>
-          <Link className="ls-link" href="/lodate/letture">
+        <p className="ls-today">
+          <Link className="ls-btn ls-btn--small ls-today__btn" href="/lodate/letture">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <rect x="3.5" y="5" width="17" height="15" rx="2" />
+              <path strokeLinecap="round" d="M3.5 10h17M8 3v4M16 3v4" />
+              <circle cx="12" cy="15" r="1.6" fill="currentColor" stroke="none" />
+            </svg>
             Torna a oggi
           </Link>
         </p>

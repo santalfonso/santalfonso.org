@@ -426,11 +426,14 @@ export function todayInRome(now: Date = new Date()): string {
 export function formatLongDate(iso: string | null): string {
   if (!iso || !isValidIsoDate(iso)) return "";
   const [y, m, d] = iso.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("it-IT", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  return new Date(Date.UTC(y, m - 1, d))
+    .toLocaleDateString("it-IT", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    })
+    // giorno e mese con l'iniziale maiuscola: "Giovedì 29 Ottobre 2026"
+    .replace(/(^|\s)(\p{Ll})/gu, (_, sp: string, ch: string) => sp + ch.toUpperCase());
 }

@@ -193,7 +193,11 @@
 .ls .ls-month { margin-top: 18px; font-size: 14px; font-weight: 700; text-transform: capitalize; color: var(--ls-ink-soft); }
 
 /* --- Letture / giorno liturgico --- */
-.ls-daynav { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.ls-daynav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.ls-daynav .ls-input { width: 100%; }
+.ls .ls-today { margin-top: 10px; }
+.ls-today__btn { gap: 6px; min-height: 36px; padding: 4px 14px; color: var(--ls-accent); border-color: color-mix(in oklab, var(--ls-accent) 35%, transparent); background: var(--ls-accent-soft); }
+.ls-today__btn:hover { border-color: var(--ls-accent); }
 
 /* --- Stampa: solo scaletta e QR, in bianco e nero --- */
 @media print {

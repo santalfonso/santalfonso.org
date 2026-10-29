@@ -262,8 +262,7 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
 
   return (
     <div className="ls-stack">
-      <section className="ls-card ls-stack" aria-labelledby={`${formId}-info`}>
-        <h2 id={`${formId}-info`}>Celebrazione</h2>
+      <section className="ls-card ls-stack" aria-label="Celebrazione">
         <div className="ls-field">
           <label htmlFor={`${formId}-date`}>Data della celebrazione</label>
           <input

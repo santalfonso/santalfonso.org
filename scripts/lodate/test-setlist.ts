@@ -206,7 +206,7 @@ test("scalette salvate col vecchio formato (un solo extra)", () => {
 });
 
 test("date in italiano e fuso di Roma", () => {
-  assert.equal(formatLongDate("2026-11-29"), "domenica 29 novembre 2026");
+  assert.equal(formatLongDate("2026-11-29"), "Domenica 29 Novembre 2026");
   // 23:30 UTC del 31/12 = già 1° gennaio a Roma
   assert.equal(todayInRome(new Date("2026-12-31T23:30:00Z")), "2027-01-01");
 });

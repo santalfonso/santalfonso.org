@@ -112,20 +112,6 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
                 <Link href={`/lodate/canti/${s.slug}`} className="lodate-songrow__link">
                   <span className="lodate-songrow__title">{s.title}</span>
                   {s.author && <span className="lodate-songrow__author">{s.author}</span>}
-                  {(s.moments.length > 0 || s.seasons.length > 0) && (
-                    <span className="lodate-badges lodate-badges--small">
-                      {s.moments.map((m) => (
-                        <span key={m} className={`lodate-badge lodate-badge--moment${m === momento ? " is-active" : ""}`}>
-                          {momentLabel(m)}
-                        </span>
-                      ))}
-                      {s.seasons.map((x) => (
-                        <span key={x} className={`lodate-badge lodate-badge--season${x === tempo ? " is-active" : ""}`}>
-                          {seasonLabel(x)}
-                        </span>
-                      ))}
-                    </span>
-                  )}
                 </Link>
                 {userId && <FavoriteHeart songId={s.id} title={s.title} initial={favorites.has(s.id)} />}
                 <svg className="lodate-songrow__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
