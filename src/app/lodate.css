@@ -36,10 +36,14 @@
   --lodate-chorus-bar: #C9A24A;
   --lodate-chorus-bg: transparent;
   /* canti alternati */
-  --lodate-uomo: #0F766E;
-  --lodate-uomo-bg: #E3F4F1;
-  --lodate-donna: #BE185D;
-  --lodate-donna-bg: #FCE7F3;
+  --lodate-uomo: #38BDF8;
+  --lodate-uomo-ink: #0369A1;
+  --lodate-uomo-pill: #D6EEFD;
+  --lodate-uomo-bg: #F0F9FF;
+  --lodate-donna: #F9A8D4;
+  --lodate-donna-ink: #BE185D;
+  --lodate-donna-pill: #FCE4F1;
+  --lodate-donna-bg: #FFF5FA;
   --lodate-mark-up: #15803D;
   --lodate-mark-down: #C2410C;
   --lodate-mark-steady: #475569;
@@ -66,10 +70,14 @@
   --lodate-danger: #FF8A80;
   --lodate-danger-soft: #3A1512;
   --lodate-chord: #7CC0FF;
-  --lodate-uomo: #5EEAD4;
-  --lodate-uomo-bg: #0F2A27;
+  --lodate-uomo: #38BDF8;
+  --lodate-uomo-ink: #7DD3FC;
+  --lodate-uomo-pill: #0C3A55;
+  --lodate-uomo-bg: #0B2233;
   --lodate-donna: #F9A8D4;
-  --lodate-donna-bg: #3A1530;
+  --lodate-donna-ink: #FBCFE8;
+  --lodate-donna-pill: #4A1A36;
+  --lodate-donna-bg: #261019;
   --lodate-mark-up: #4ADE80;
   --lodate-mark-down: #FB923C;
   --lodate-mark-steady: #CBD5E1;
@@ -524,8 +532,18 @@ a.lodate-badge { min-height: 32px; }
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
-.lodate-sec--uomo { --lodate-voice: var(--lodate-uomo); --lodate-voice-bg: var(--lodate-uomo-bg); }
-.lodate-sec--donna { --lodate-voice: var(--lodate-donna); --lodate-voice-bg: var(--lodate-donna-bg); }
+.lodate-sec--uomo {
+  --lodate-voice: var(--lodate-uomo);
+  --lodate-voice-ink: var(--lodate-uomo-ink);
+  --lodate-voice-pill: var(--lodate-uomo-pill);
+  --lodate-voice-bg: var(--lodate-uomo-bg);
+}
+.lodate-sec--donna {
+  --lodate-voice: var(--lodate-donna);
+  --lodate-voice-ink: var(--lodate-donna-ink);
+  --lodate-voice-pill: var(--lodate-donna-pill);
+  --lodate-voice-bg: var(--lodate-donna-bg);
+}
 .lodate-voice,
 .site .lodate-voice {
   display: inline-flex;
@@ -536,8 +554,8 @@ a.lodate-badge { min-height: 32px; }
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  background: var(--lodate-voice-bg);
-  color: var(--lodate-voice);
+  background: var(--lodate-voice-pill);
+  color: var(--lodate-voice-ink);
 }
 .lodate-sec--comment { margin-bottom: 0.6em; }
 .lodate-comment,
@@ -812,10 +830,14 @@ a.lodate-badge { min-height: 32px; }
     --lodate-mark-down: #000;
     --lodate-mark-steady: #000;
     --lodate-chorus-bar: #888;
-    --lodate-uomo: #0F766E;
-    --lodate-uomo-bg: #E3F4F1;
-    --lodate-donna: #BE185D;
-    --lodate-donna-bg: #FCE7F3;
+    --lodate-uomo: #38BDF8;
+    --lodate-uomo-ink: #0369A1;
+    --lodate-uomo-pill: #D6EEFD;
+    --lodate-uomo-bg: #F0F9FF;
+    --lodate-donna: #F9A8D4;
+    --lodate-donna-ink: #BE185D;
+    --lodate-donna-pill: #FCE4F1;
+    --lodate-donna-bg: #FFF5FA;
   }
   body:has(.lodate-viewer) > :not(.site),
   body:has(.lodate-viewer) .topbar,
