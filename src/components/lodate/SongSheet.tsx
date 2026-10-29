@@ -14,6 +14,8 @@ const SECTION_LABEL: Record<Section["kind"], string> = {
   verse: "Strofa",
   chorus: "Ritornello",
   comment: "Indicazione",
+  uomo: "Uomo",
+  donna: "Donna",
 };
 
 function markSymbol(mark: AnnotationMark) {
@@ -48,7 +50,7 @@ const PAGE_UNITS = 40;
 export function printColumnsLayout(song: ParsedSong, showChords: boolean): number[][][] | null {
   const weights = song.sections.map(
     (sec) =>
-      1 +
+      (sec.kind === "uomo" || sec.kind === "donna" ? 2 : 1) +
       sec.lines.reduce(
         (n, l) => n + (l.kind === "lyric" && showChords && l.chords.length > 0 ? (l.chordOnly ? 1 : 2) : 1),
         0
@@ -129,6 +131,11 @@ export default function SongSheet({
         className={`lodate-sec lodate-sec--${section.kind}`}
         aria-label={section.kind === "verse" ? `${SECTION_LABEL.verse} ${verseNo}` : SECTION_LABEL[section.kind]}
       >
+        {(section.kind === "uomo" || section.kind === "donna") && (
+          <p className="lodate-voice" aria-hidden="true">
+            {SECTION_LABEL[section.kind]}
+          </p>
+        )}
         {section.lines.map((line) =>
           line.kind === "comment" ? (
             <p key={line.index} className="lodate-comment">

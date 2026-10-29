@@ -186,6 +186,11 @@ export default function SongForm({
               </li>
               <li>Una riga vuota separa le strofe.</li>
               <li>
+                Canti alternati: le parti dei soli uomini tra <code>{"{sov_uomo}"}</code> e{" "}
+                <code>{"{eov_uomo}"}</code>, quelle delle sole donne tra <code>{"{sov_donna}"}</code> e{" "}
+                <code>{"{eov_donna}"}</code>.
+              </li>
+              <li>
                 Ritornello tra <code>{"{soc}"}</code> e <code>{"{eoc}"}</code>.
               </li>
               <li>

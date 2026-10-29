@@ -340,4 +340,13 @@ test("più lingue: {lang:} sceglie la versione, le righe comuni restano", () => 
   assert.equal(parseChordPro(body).warnings.length, 0);
 });
 
+test("canti alternati: {sov_uomo}/{sov_donna} creano parti separate", () => {
+  const body = "{sov_uomo}\n[Do]Ascolta Israele\n{eov_uomo}\n{sov_donna}\nUn grande dono\n{eov_donna}\n\nTutti insieme";
+  const parsed = parseChordPro(body);
+  assert.deepEqual(parsed.sections.map((s) => s.kind), ["uomo", "donna", "verse"]);
+  assert.deepEqual(parsed.warnings, []);
+  assert.equal(parseChordPro("{sov_uomo}\nTesto").warnings.length, 1);
+  assert.equal(parseChordPro("Testo\n{eov_donna}").warnings.length, 1);
+});
+
 console.log(`✓ ${passed} test superati`);

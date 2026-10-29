@@ -35,6 +35,11 @@
   --lodate-chord: #1561B8;
   --lodate-chorus-bar: #C9A24A;
   --lodate-chorus-bg: transparent;
+  /* canti alternati */
+  --lodate-uomo: #1D4ED8;
+  --lodate-uomo-bg: #E8F0FE;
+  --lodate-donna: #BE185D;
+  --lodate-donna-bg: #FCE7F3;
   --lodate-mark-up: #15803D;
   --lodate-mark-down: #C2410C;
   --lodate-mark-steady: #475569;
@@ -61,6 +66,10 @@
   --lodate-danger: #FF8A80;
   --lodate-danger-soft: #3A1512;
   --lodate-chord: #7CC0FF;
+  --lodate-uomo: #93C5FD;
+  --lodate-uomo-bg: #14243D;
+  --lodate-donna: #F9A8D4;
+  --lodate-donna-bg: #3A1530;
   --lodate-mark-up: #4ADE80;
   --lodate-mark-down: #FB923C;
   --lodate-mark-steady: #CBD5E1;
@@ -503,6 +512,28 @@ a.lodate-badge { min-height: 32px; }
   border-radius: 0 var(--lodate-radius-sm) var(--lodate-radius-sm) 0;
   font-weight: 600;
 }
+/* parti a voci alternate: card colorata con l'indicazione Uomo / Donna */
+.lodate-sec--uomo,
+.lodate-sec--donna,
+.site .lodate-sec--uomo,
+.site .lodate-sec--donna {
+  padding: 0.45em 0.85em 0.5em;
+  border-radius: var(--lodate-radius-sm);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.lodate-sec--uomo, .site .lodate-sec--uomo { background: var(--lodate-uomo-bg); }
+.lodate-sec--donna, .site .lodate-sec--donna { background: var(--lodate-donna-bg); }
+.lodate-voice,
+.site .lodate-voice {
+  margin: 0 0 0.2em;
+  font-size: 0.68em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lodate-sec--uomo .lodate-voice { color: var(--lodate-uomo); }
+.lodate-sec--donna .lodate-voice { color: var(--lodate-donna); }
 .lodate-sec--comment { margin-bottom: 0.6em; }
 .lodate-comment,
 .site .lodate-comment {
@@ -754,6 +785,7 @@ a.lodate-badge { min-height: 32px; }
 }
 
 @media print {
+  html:has(.lodate-viewer) { background: #fff !important; }
   body:has(.lodate-viewer) {
     --bg: #fff;
     --bg-elev: #fff;
@@ -775,6 +807,10 @@ a.lodate-badge { min-height: 32px; }
     --lodate-mark-down: #000;
     --lodate-mark-steady: #000;
     --lodate-chorus-bar: #888;
+    --lodate-uomo: #1D4ED8;
+    --lodate-uomo-bg: #E8F0FE;
+    --lodate-donna: #BE185D;
+    --lodate-donna-bg: #FCE7F3;
   }
   body:has(.lodate-viewer) > :not(.site),
   body:has(.lodate-viewer) .topbar,

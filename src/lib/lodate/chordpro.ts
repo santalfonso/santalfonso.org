@@ -5,6 +5,8 @@
  * - Riga vuota = separa le strofe
  * - `{soc}` … `{eoc}` = ritornello
  * - `{c: testo}` = commento/indicazione
+ * - `{sov_uomo}` … `{eov_uomo}` e `{sov_donna}` … `{eov_donna}` = parte cantata
+ *   solo dagli uomini o solo dalle donne (canti alternati)
  *
  * Modulo puro (nessuna dipendenza da React/DB): usato dal lettore, dall'anteprima
  * dell'admin e dagli script di test.
@@ -35,7 +37,11 @@ export type CommentLine = { kind: "comment"; index: number; text: string };
 
 export type SongLine = LyricLine | CommentLine;
 
-export type SectionKind = "verse" | "chorus" | "comment";
+export type SectionKind = "verse" | "chorus" | "comment" | "uomo" | "donna";
+
+/** Parti a voci alternate: `{sov_uomo}` … `{eov_uomo}`, `{sov_donna}` … `{eov_donna}`. */
+const VOICES = ["uomo", "donna"] as const;
+type Voice = (typeof VOICES)[number];
 
 export type Section = { kind: SectionKind; lines: SongLine[] };
 
@@ -105,12 +111,13 @@ export function parseChordPro(body: string, lang?: string | null): ParsedSong {
   const sections: Section[] = [];
   const warnings: string[] = [];
   let inChorus = false;
+  let voice: Voice | null = null;
   let current: Section | null = null;
   let currentLang: string | null = null;
 
   const close = () => {
     if (current && current.lines.length > 0) {
-      if (current.kind !== "chorus" && current.lines.every((l) => l.kind === "comment")) {
+      if (current.kind === "verse" && current.lines.every((l) => l.kind === "comment")) {
         current.kind = "comment";
       }
       sections.push(current);
@@ -118,7 +125,7 @@ export function parseChordPro(body: string, lang?: string | null): ParsedSong {
     current = null;
   };
   const push = (line: SongLine) => {
-    if (!current) current = { kind: inChorus ? "chorus" : "verse", lines: [] };
+    if (!current) current = { kind: voice ?? (inChorus ? "chorus" : "verse"), lines: [] };
     current.lines.push(line);
   };
 
@@ -146,6 +153,16 @@ export function parseChordPro(body: string, lang?: string | null): ParsedSong {
         close();
         if (!inChorus) warnings.push(`Riga ${index + 1}: {eoc} senza {soc}`);
         inChorus = false;
+      } else if (/^(sov|eov)_/.test(name) && (VOICES as readonly string[]).includes(name.slice(4))) {
+        const v = name.slice(4) as Voice;
+        close();
+        if (name.startsWith("sov")) {
+          if (voice) warnings.push(`Riga ${index + 1}: {${name}} dentro una parte {sov_${voice}} ancora aperta`);
+          voice = v;
+        } else {
+          if (voice !== v) warnings.push(`Riga ${index + 1}: {${name}} senza {sov_${v}}`);
+          voice = null;
+        }
       } else if (name === "c" || name === "comment") {
         if (value) push({ kind: "comment", index, text: value });
       } else {
@@ -169,6 +186,7 @@ export function parseChordPro(body: string, lang?: string | null): ParsedSong {
   });
   close();
   if (inChorus) warnings.push("Ritornello aperto con {soc} ma mai chiuso con {eoc}");
+  if (voice) warnings.push(`Parte aperta con {sov_${voice}} ma mai chiusa con {eov_${voice}}`);
   return { sections, warnings };
 }
 
