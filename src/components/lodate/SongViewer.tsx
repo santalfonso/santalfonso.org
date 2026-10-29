@@ -79,6 +79,16 @@ type NavigatorWithWakeLock = Navigator & {
   wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinelLike> };
 };
 
+/**
+ * Chrome ed Edge stampano il piè di pagina su ogni pagina con @page; gli altri
+ * browser usano quello in fondo al canto. Il segno serve al CSS di stampa.
+ */
+function markPrintEngine(el: HTMLElement | null) {
+  if (!el) return;
+  const chromium = "chrome" in window || /Chrome\/|Chromium\/|Edg\//.test(navigator.userAgent);
+  el.dataset.engine = chromium ? "chromium" : "other";
+}
+
 const SCROLL_KEYS = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "]);
 
 export default function SongViewer({
@@ -569,13 +579,17 @@ export default function SongViewer({
         </p>
       )}
 
-      <footer className="lodate-copyright">
-        {song.copyrightNote ? <p>{song.copyrightNote}</p> : null}
-        <p className="lodate-print-only">
-          {song.title}
-          {song.author ? ` — ${song.author}` : ""} · Lodate, lodate Iddio · Parrocchia Sant&apos;Alfonso
-        </p>
-      </footer>
+      {song.copyrightNote && (
+        <footer className="lodate-copyright">
+          <p>{song.copyrightNote}</p>
+        </footer>
+      )}
+
+      {/* Piè di pagina della stampa, ripetuto su ogni pagina */}
+      <div className="lodate-print-only lodate-print-footer" aria-hidden="true" ref={markPrintEngine}>
+        <span>Parrocchia Sant&apos;Alfonso Maria de&apos; Liguori</span>
+        <span>santalfonso.org</span>
+      </div>
 
       {selected && (
         <div
