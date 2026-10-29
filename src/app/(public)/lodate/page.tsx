@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { eq } from "drizzle-orm";
+import { auth } from "@/auth";
 import { db } from "@/db";
-import { songMoments, songSeasons, songs } from "@/db/schema";
+import { favoriteSongs, songMoments, songSeasons, songs } from "@/db/schema";
 import { normalizeSearch, plainText } from "@/lib/lodate/chordpro";
 import {
   isMoment,
@@ -12,6 +13,7 @@ import {
   seasonLabel,
 } from "@/lib/lodate/constants";
 import CatalogFilters from "@/components/lodate/CatalogFilters";
+import FavoriteHeart from "@/components/lodate/FavoriteHeart";
 
 export const dynamic = "force-dynamic";
 
@@ -29,14 +31,20 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
   const momento = isMoment(momentoRaw) ? momentoRaw : "";
   const tempo = isSeason(tempoRaw) ? tempoRaw : "";
 
-  const [list, momentRows, seasonRows] = await Promise.all([
+  const session = await auth();
+  const userId = session?.user?.id ? Number(session.user.id) : null;
+  const [list, momentRows, seasonRows, favRows] = await Promise.all([
     db.query.songs.findMany({
       where: eq(songs.published, true),
       columns: { id: true, slug: true, title: true, author: true, body: true },
     }),
     db.select().from(songMoments),
     db.select().from(songSeasons),
+    userId
+      ? db.select({ songId: favoriteSongs.songId }).from(favoriteSongs).where(eq(favoriteSongs.userId, userId))
+      : Promise.resolve([]),
   ]);
+  const favorites = new Set(favRows.map((r) => r.songId));
 
   const momentsBySong = new Map<number, string[]>();
   for (const r of momentRows) momentsBySong.set(r.songId, [...(momentsBySong.get(r.songId) ?? []), r.moment]);
@@ -99,29 +107,32 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
           </div>
         ) : (
           <ul className="lodate-songlist">
-            {results.map((s) => {
-              return (
-                <li key={s.id}>
-                  <Link href={`/lodate/canti/${s.slug}`} className="lodate-songcard">
-                    <span className="lodate-songcard__title">{s.title}</span>
-                    {(s.moments.length > 0 || s.seasons.length > 0) && (
-                      <span className="lodate-badges">
-                        {s.moments.map((m) => (
-                          <span key={m} className={`lodate-badge lodate-badge--moment${m === momento ? " is-active" : ""}`}>
-                            {momentLabel(m)}
-                          </span>
-                        ))}
-                        {s.seasons.map((x) => (
-                          <span key={x} className={`lodate-badge lodate-badge--season${x === tempo ? " is-active" : ""}`}>
-                            {seasonLabel(x)}
-                          </span>
-                        ))}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
+            {results.map((s) => (
+              <li key={s.id} className="lodate-songrow">
+                <Link href={`/lodate/canti/${s.slug}`} className="lodate-songrow__link">
+                  <span className="lodate-songrow__title">{s.title}</span>
+                  {s.author && <span className="lodate-songrow__author">{s.author}</span>}
+                  {(s.moments.length > 0 || s.seasons.length > 0) && (
+                    <span className="lodate-badges lodate-badges--small">
+                      {s.moments.map((m) => (
+                        <span key={m} className={`lodate-badge lodate-badge--moment${m === momento ? " is-active" : ""}`}>
+                          {momentLabel(m)}
+                        </span>
+                      ))}
+                      {s.seasons.map((x) => (
+                        <span key={x} className={`lodate-badge lodate-badge--season${x === tempo ? " is-active" : ""}`}>
+                          {seasonLabel(x)}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </Link>
+                {userId && <FavoriteHeart songId={s.id} title={s.title} initial={favorites.has(s.id)} />}
+                <svg className="lodate-songrow__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6" />
+                </svg>
+              </li>
+            ))}
           </ul>
         )}
       </section>

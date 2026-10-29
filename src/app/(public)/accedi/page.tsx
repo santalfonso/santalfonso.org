@@ -31,9 +31,9 @@ export default async function AccediPage({ searchParams }: { searchParams: Searc
               le scalette dei canti, i canti preferiti e le annotazioni.
             </p>
             <LoginForm next={next} />
-            <p className="ls-note ls-small">
+            <p className="ls-note ls-small ls-login-note">
               Non hai un account? Non è prevista la registrazione online:{" "}
-              <strong>chiedi un account al parroco/amministratore</strong>.
+              <strong>chiedi un account all&apos;amministratore del sito</strong>.
             </p>
             <p className="ls-small">
               Puoi comunque{" "}

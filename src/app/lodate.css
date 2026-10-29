@@ -773,6 +773,14 @@ a.lodate-badge { min-height: 32px; }
     display: none !important;
   }
   body:has(.lodate-viewer) .site { padding-bottom: 0 !important; min-height: 0 !important; }
+  /* in stampa il menù laterale non c'è: il canto usa tutta la larghezza del foglio */
+  body:has(.lodate-viewer) .lodate-shell {
+    display: block !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  body:has(.lodate-viewer) .lodate-main,
+  body:has(.lodate-viewer) .lodate-viewer { width: 100% !important; max-width: none !important; }
   .lodate-print-only { display: block !important; }
   .site .lodate-page { padding: 0 !important; max-width: none !important; }
 
@@ -782,7 +790,12 @@ a.lodate-badge { min-height: 32px; }
   .site .lodate-song-author { font-size: 11pt !important; margin-top: 3pt !important; }
   .site .lodate-print-meta { margin: 3pt 0 0 !important; font-size: 10pt !important; font-weight: 600; }
 
-  .lodate-viewer .lodate-sheet { font-size: 12.5pt !important; }
+  /* testo del canto su due colonne */
+  .lodate-viewer .lodate-sheet {
+    font-size: 11.5pt !important;
+    column-count: 2;
+    column-gap: 10mm;
+  }
   .lodate-sheet-wrap { padding: 0 !important; }
   .lodate-sec { break-inside: avoid; page-break-inside: avoid; }
   .lodate-sec--chorus { border-left: 2pt solid #888 !important; background: none !important; }
@@ -924,3 +937,58 @@ a.lodate-badge { min-height: 32px; }
   .lodate-tools__size .lodate-btn { flex: 1; }
   .lodate-music { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* --- Repertorio: un canto per riga, cuore dei preferiti a destra --- */
+.lodate-songlist { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lodate-songrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--lodate-surface);
+  border: 1px solid var(--lodate-line);
+  border-radius: var(--lodate-radius);
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.lodate-songrow:hover { border-color: var(--lodate-accent-strong); box-shadow: var(--shadow-sm); }
+.lodate-songrow__link {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 16px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--lodate-radius);
+}
+.lodate-songrow__link:focus-visible { outline: none; }
+/* tutta la riga apre il canto (il cuore resta un pulsante a sé, sopra il collegamento) */
+.lodate-songrow__link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.lodate-songrow:has(.lodate-songrow__link:focus-visible) { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
+.lodate-songrow__chevron { flex: none; margin-right: 14px; color: var(--lodate-text-mute); pointer-events: none; transition: transform var(--t), color var(--t); }
+.lodate-songrow:hover .lodate-songrow__chevron { color: var(--lodate-accent); transform: translateX(2px); }
+.lodate-songrow__title { font-size: 16px; font-weight: 700; color: var(--lodate-brand); letter-spacing: -0.01em; }
+.lodate-songrow__author { font-size: 14px; font-weight: 400; color: var(--lodate-text-soft); }
+.lodate-badges--small { gap: 4px; margin-top: 6px; }
+.lodate-badges--small .lodate-badge { padding: 1px 8px; font-size: 11px; font-weight: 600; }
+
+.lodate-heart {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  position: relative;
+  z-index: 1;
+  width: var(--lodate-tap);
+  height: var(--lodate-tap);
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--lodate-text-mute);
+  cursor: pointer;
+  transition: color var(--t), background var(--t), transform var(--t);
+}
+.lodate-heart:hover { background: var(--lodate-surface-soft); }
+.lodate-heart.is-on { color: #d32f2f; }
+.lodate-heart:active { transform: scale(0.92); }
+.lodate-heart:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
+.lodate-heart:disabled { cursor: progress; }

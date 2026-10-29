@@ -713,50 +713,6 @@ export const seedSongs: SeedSong[] = [
     seasons: ["ordinario", "quaresima", "funerali", "matrimoni"],
   },
   {
-    slug: "adoro-te-devote",
-    title: "Adoro te devote",
-    author: "S. Tommaso d'Aquino",
-    copyrightNote: "Pubblico dominio — S. Tommaso d'Aquino (XIII sec.)",
-    body: t(`
-      Adoro te devote, latens Deitas,
-      quae sub his figuris vere latitas:
-      tibi se cor meum totum subicit,
-      quia te contemplans totum deficit.
-
-      Visus, tactus, gustus in te fallitur,
-      sed auditu solo tuto creditur;
-      credo quidquid dixit Dei Filius:
-      nil hoc verbo Veritatis verius.
-
-      In cruce latebat sola Deitas,
-      at hic latet simul et humanitas;
-      ambo tamen credens atque confitens,
-      peto quod petivit latro paenitens.
-
-      Plagas, sicut Thomas, non intueor;
-      Deum tamen meum te confiteor;
-      fac me tibi semper magis credere,
-      in te spem habere, te diligere.
-
-      O memoriale mortis Domini!
-      Panis vivus, vitam praestans homini!
-      Praesta meae menti de te vivere
-      et te illi semper dulce sapere.
-
-      Pie pellicane, Iesu Domine,
-      me immundum munda tuo sanguine,
-      cuius una stilla salvum facere
-      totum mundum quit ab omni scelere.
-
-      Iesu, quem velatum nunc aspicio,
-      oro fiat illud quod tam sitio:
-      ut te revelata cernens facie,
-      visu sim beatus tuae gloriae. Amen.
-    `),
-    moments: ["comunione"],
-    seasons: ["ordinario", "quaresima"],
-  },
-  {
     slug: "pange-lingua",
     title: "Pange lingua",
     author: "S. Tommaso d'Aquino",
