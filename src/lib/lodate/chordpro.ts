@@ -27,7 +27,7 @@ export type LyricLine = {
   text: string;
   /** Accordi con la colonna nel testo senza accordi, in ordine. */
   chords: ChordPos[];
-  /** Riga con soli accordi (es. introduzione strumentale). */
+  /** Riga con soli accordi (es. parte strumentale), anche separati da `|`. */
   chordOnly: boolean;
 };
 
@@ -164,12 +164,28 @@ export function parseChordPro(body: string, lang?: string | null): ParsedSong {
       index,
       text,
       chords,
-      chordOnly: text.trim() === "" && chords.length > 0,
+      chordOnly: isChordOnly(text, chords),
     });
   });
   close();
   if (inChorus) warnings.push("Ritornello aperto con {soc} ma mai chiuso con {eoc}");
   return { sections, warnings };
+}
+
+/** Senza testo, a parte spazi e separatori `|`: è una riga di soli accordi. */
+function isChordOnly(text: string, chords: ChordPos[]): boolean {
+  return chords.length > 0 && text.replace(/\|/g, "").trim() === "";
+}
+
+/** Riga strumentale come sequenza di accordi e separatori `|`, nell'ordine scritto. */
+export function instrumentalTokens(line: LyricLine): ({ chord: string } | { bar: true })[] {
+  const out: ({ chord: string } | { bar: true })[] = [];
+  let next = 0;
+  for (let col = 0; col <= line.text.length; col++) {
+    while (next < line.chords.length && line.chords[next].col === col) out.push({ chord: line.chords[next++].chord });
+    if (line.text[col] === "|") out.push({ bar: true });
+  }
+  return out;
 }
 
 /** Testo semplice del canto (senza accordi né direttive), per ricerca ed estratti. */
@@ -178,7 +194,8 @@ export function plainText(body: string): string {
   for (const raw of bodyLines(body)) {
     const trimmed = raw.trim();
     if (DIRECTIVE_RE.test(trimmed)) continue;
-    out.push(parseLyricLine(raw).text.trim());
+    const { text, chords } = parseLyricLine(raw);
+    out.push(isChordOnly(text, chords) ? "" : text.trim());
   }
   return out.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }

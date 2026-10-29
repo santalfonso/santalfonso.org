@@ -515,6 +515,17 @@ a.lodate-badge { min-height: 32px; }
 .lodate-line { min-height: 1.45em; overflow-wrap: anywhere; }
 .lodate-line--grid { line-height: 1.25; margin-bottom: 0.15em; overflow-wrap: normal; }
 .lodate-line--grid.has-chords { margin-top: 0.25em; }
+/* parte strumentale: soli accordi in fila, con i separatori di battuta */
+.lodate-line--chords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.7em;
+  row-gap: 0.1em;
+  margin: 0.25em 0 0.15em;
+}
+.lodate-line--chords .lodate-ch { padding-right: 0; font-size: 0.9em; }
+.lodate-bar { color: var(--lodate-chord); opacity: 0.6; font-weight: 400; }
 .lodate-w {
   display: inline-flex;
   align-items: flex-end;

@@ -180,6 +180,10 @@ export default function SongForm({
                 <code>/</code> (<code>[Re/Fa#]</code>). Si accetta anche la notazione anglosassone (C D E…); nel
                 sito gli accordi si vedono sempre in italiano.
               </li>
+              <li>
+                Parte strumentale: una riga di soli accordi, separati se vuoi da <code>|</code>, ad esempio{" "}
+                <code>[Re-] | [La-] | [Sib] | [Fa] | [Do]</code>.
+              </li>
               <li>Una riga vuota separa le strofe.</li>
               <li>
                 Ritornello tra <code>{"{soc}"}</code> e <code>{"{eoc}"}</code>.

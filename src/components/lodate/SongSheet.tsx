@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { ANNOTATION_MARKS, type AnnotationMark } from "@/lib/lodate/constants";
-import { italianChord, splitLine, type LyricLine, type ParsedSong, type Section } from "@/lib/lodate/chordpro";
+import { instrumentalTokens, italianChord, splitLine, type LyricLine, type ParsedSong, type Section } from "@/lib/lodate/chordpro";
 
 /** Lettera selezionata per l'annotazione, con la parola che la contiene. */
 export type SelectedWord = { line: number; col: number; text: string; word: string };
@@ -181,6 +181,20 @@ function SheetLine({
   annotate?: AnnotateProps | null;
 }) {
   if (line.chordOnly && !showChords) return null;
+  // Parte strumentale: accordi in fila su una riga, con i separatori `|`.
+  if (line.chordOnly) {
+    return (
+      <div className="lodate-line lodate-line--chords">
+        {instrumentalTokens(line).map((t, i) =>
+          "bar" in t ? (
+            <span key={i} className="lodate-bar" aria-hidden="true">|</span>
+          ) : (
+            <span key={i} className="lodate-ch">{italianChord(t.chord)}</span>
+          )
+        )}
+      </div>
+    );
+  }
   const chordRow = showChords && line.chords.length > 0;
 
   // Riga semplice: testo continuo (migliore per lettori di schermo e a capo naturale).
