@@ -11,6 +11,7 @@ import {
 import EventCardsWithModal from "@/components/EventCardsWithModal";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import AnnouncementModal from "@/components/AnnouncementModal";
+import LodateLogo from "@/components/lodate/LodateLogo";
 
 export const dynamic = "force-dynamic";
 
@@ -268,8 +269,8 @@ export default async function HomePage({
                 Vieni a trovarci
               </span>
               <h2 style={{ color: "var(--bg)", marginTop: 14 }}>
-                La porta della parrocchia è sempre{" "}
-                <span style={{ color: "var(--gold)" }}>aperta</span>.
+                Orari{" "}
+                <span style={{ color: "var(--gold)" }}>Ufficio Parrocchiale</span>
               </h2>
               <p
                 className="lead"
@@ -308,6 +309,26 @@ export default async function HomePage({
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Lodate, lodate Iddio */}
+      <section className="lodate-band" aria-labelledby="lodate-band-title">
+        <div className="container lodate-band__inner">
+          <LodateLogo className="lodate-band__logo" />
+          <div className="lodate-band__body">
+            <h2 id="lodate-band-title" className="lodate-band__title">
+              Lodate, lodate Iddio
+            </h2>
+            <p className="lodate-band__text">
+              Il repertorio dei canti della parrocchia per le celebrazioni: testi e accordi da leggere sul telefono,
+              scalette per la Messa e letture del giorno, tutto in un unico luogo.
+            </p>
+            <Link href="/lodate" className="btn btn--primary">
+              Apri i canti
+              <span aria-hidden="true"> →</span>
+            </Link>
           </div>
         </div>
       </section>
