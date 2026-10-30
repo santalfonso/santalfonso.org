@@ -5,6 +5,9 @@
    =========================== */
 
 :root {
+  /* fine dell'intestazione fissa (barra blu 40px + barra del logo 99px): gli elementi
+     che restano fermi scorrendo si appoggiano qui sotto */
+  --site-sticky-top: 139px;
   /* Colori (light) */
   --bg: #FFFFFF;
   --bg-elev: #FFFFFF;
@@ -1226,7 +1229,7 @@ img { max-width: 100%; display: block; }
 }
 .santo-ritratto {
   position: sticky;
-  top: 116px;
+  top: calc(var(--site-sticky-top) + 24px);
 }
 @media (max-width: 768px) {
   .santo-grid {

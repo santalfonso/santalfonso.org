@@ -122,8 +122,8 @@
 
 .lodate-side {
   position: sticky;
-  top: 128px;
-  max-height: calc(100vh - 148px);
+  top: calc(var(--site-sticky-top) + 24px);
+  max-height: calc(100vh - var(--site-sticky-top) - 48px);
   overflow-y: auto;
   padding-right: 8px;
   border-right: 1px solid var(--lodate-line);
@@ -169,7 +169,7 @@
   .lodate-tabs {
     display: block;
     position: sticky;
-    top: var(--lodate-sticky-top, 139px);
+    top: var(--site-sticky-top);
     z-index: 40;
     margin: 0 calc(-1 * var(--gutter)) 20px;
     padding: 8px var(--gutter);
