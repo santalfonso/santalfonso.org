@@ -8,6 +8,8 @@
  * \r\n va a capo dentro un versetto, \n tra versetti, \n\n tra strofe.
  */
 
+import { getGospelAcclamation } from "@/lib/lodate/cei";
+
 const API = "https://publication.evangelizo.ws/IT/days";
 const REVALIDATE_SECONDS = 6 * 60 * 60;
 
@@ -60,6 +62,8 @@ function oneLine(s: string | null | undefined): string {
 export async function getDailyReadings(iso: string): Promise<DailyReadings | null> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
 
+  // l'acclamazione al Vangelo arriva dalla CEI: la si chiede insieme alle letture
+  const acclamation = getGospelAcclamation(iso);
   let data: { liturgic_title?: string; readings?: ApiReading[] } | undefined;
   try {
     const res = await fetch(`${API}/${iso}`, {
@@ -91,6 +95,18 @@ export async function getDailyReadings(iso: string): Promise<DailyReadings | nul
     });
   });
   if (readings.length === 0) return null;
+
+  const acc = await acclamation;
+  const gospel = readings.findIndex((r) => r.label === "Vangelo");
+  if (acc && gospel >= 0) {
+    readings.splice(gospel, 0, {
+      key: "acclamazione",
+      label: "Acclamazione al Vangelo",
+      title: acc.reference,
+      chorus: null,
+      text: acc.text,
+    });
+  }
 
   return { title: oneLine(data.liturgic_title), readings };
 }

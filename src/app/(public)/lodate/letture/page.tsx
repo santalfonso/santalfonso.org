@@ -80,9 +80,9 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
       {readings ? (
         <>
           {readings.readings.map((r) => (
-            <section key={r.key} className="ls-card ls-stack ls-reading" aria-labelledby={`ls-reading-${r.key}`}>
+            <section key={r.key} className="ls-card ls-stack ls-reading" aria-label={`${r.label}${r.title ? `: ${r.title}` : ""}`}>
               <span className="ls-kicker">{r.label}</span>
-              <h3 id={`ls-reading-${r.key}`}>{r.title}</h3>
+              {r.title && <h3>{r.title}</h3>}
               {r.chorus && <p className="ls-reading__chorus">{r.chorus}</p>}
               <p className="ls-reading__text">{r.text}</p>
             </section>
