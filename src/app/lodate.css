@@ -163,15 +163,19 @@
 .lodate-tabs { display: none; }
 @media (max-width: 900px) {
   .lodate-shell { display: block; }
-  .lodate-side {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    padding: 0;
-    border: 0;
-  }
+  /* contents: così i pulsanti restano fissi per tutta la pagina, non solo dentro il menù */
+  .lodate-side { display: contents; }
   .lodate-side__menu { display: none; }
-  .lodate-tabs { display: block; margin: 0 0 20px; }
+  .lodate-tabs {
+    display: block;
+    position: sticky;
+    top: var(--lodate-sticky-top, 139px);
+    z-index: 40;
+    margin: 0 calc(-1 * var(--gutter)) 20px;
+    padding: 8px var(--gutter);
+    background: var(--lodate-bg, var(--bg));
+    border-bottom: 1px solid var(--lodate-line);
+  }
   .lodate-tabs ul {
     display: grid;
     gap: 8px;
