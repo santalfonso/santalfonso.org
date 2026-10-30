@@ -10,7 +10,7 @@ export default function ContattiPage() {
         kicker="Contatti"
         title={
           <>
-            Siamo qui per{" "}
+            La Chiesa è qui per{" "}
             <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>ascoltarti</span>.
           </>
         }

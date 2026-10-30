@@ -10,9 +10,9 @@ export default function DoveSiamoPage() {
         kicker="Dove siamo"
         title={
           <>
-            Nel cuore di{" "}
-            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Prima Porta</span>,
-            Roma.
+            Prima Porta
+            <br />
+            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Giustiniana</span>
           </>
         }
         lead="Via della Giustiniana, 227 — 00188 Roma (RM). La parrocchia è ben collegata a piedi, con i mezzi pubblici e in auto."
