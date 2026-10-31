@@ -1,13 +1,11 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireOwnerPage } from "@/auth";
 import { getSetting } from "@/lib/settings";
 import ConfigurazioniForm from "@/components/admin/ConfigurazioniForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function ConfigurazioniPage() {
-  const session = await auth();
-  if (session?.user?.role !== "admin") redirect("/admin");
+  await requireOwnerPage();
 
   const groqKey = await getSetting("groq_api_key");
 

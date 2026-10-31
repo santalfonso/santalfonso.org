@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireOwnerPage } from "@/auth";
 import UserForm from "@/components/admin/UserForm";
 
 export default async function NuovoUtentePage() {
-  const session = await auth();
-  if (session?.user?.role !== "admin") redirect("/admin");
+  await requireOwnerPage();
 
   return (
     <>

@@ -16,7 +16,7 @@ import {
 } from "@/lib/lodate/constants";
 import { formatDate } from "@/lib/utils";
 import "@/app/lodate.css";
-import { requireStaffPage } from "@/auth";
+import { requireOwnerPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +24,7 @@ type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
 export default async function AdminCantiPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireStaffPage();
+  await requireOwnerPage();
   const sp = await searchParams;
   const q = first(sp.q).trim().slice(0, 100);
   const momento = isMoment(first(sp.momento)) ? first(sp.momento) : "";

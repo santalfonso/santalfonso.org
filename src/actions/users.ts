@@ -5,7 +5,7 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireAdmin } from "@/auth";
+import { requireOwner } from "@/auth";
 import { db } from "@/db";
 import { favoriteSongs, setlistItems, setlists, songAnnotations, users } from "@/db/schema";
 import type { ActionState } from "./articles";
@@ -17,14 +17,15 @@ const userSchema = z.object({
     .string()
     .min(8, "La password deve avere almeno 8 caratteri")
     .max(200, "La password può avere al massimo 200 caratteri"),
-  role: z.enum(["admin", "editor", "utente"]),
+  // l'owner si assegna solo dal database: dal modulo si creano editor e user
+  role: z.enum(["editor", "utente"], { message: "Scegli il ruolo" }),
 });
 
 export async function createUser(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireAdmin();
+  await requireOwner();
   const parsed = userSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -50,11 +51,13 @@ export async function createUser(
 }
 
 export async function deleteUser(id: number) {
-  const admin = await requireAdmin();
-  if (String(id) === admin.id) {
+  const owner = await requireOwner();
+  if (String(id) === owner.id) {
     throw new Error("Non puoi eliminare il tuo stesso account");
   }
   if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Utente non valido");
+  const target = await db.query.users.findFirst({ where: eq(users.id, id), columns: { role: true } });
+  if (target?.role === "owner") throw new Error("Non puoi eliminare un owner");
   // Le FK hanno ON DELETE CASCADE, ma SQLite le applica solo se abilitate:
   // cancelliamo esplicitamente scalette (anche quelle condivise), preferiti e annotazioni.
   await db.transaction(async (tx) => {

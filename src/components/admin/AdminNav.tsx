@@ -8,15 +8,15 @@ const navItems = [
   { href: "/admin/articoli", label: "Articoli" },
   { href: "/admin/eventi", label: "Eventi" },
   { href: "/admin/risorse", label: "Risorse" },
-  { href: "/admin/canti", label: "Canti" },
 ];
 
-const adminOnlyItems = [
+const ownerOnlyItems = [
+  { href: "/admin/canti", label: "Canti" },
   { href: "/admin/utenti", label: "Utenti" },
   { href: "/admin/configurazioni", label: "Configurazioni" },
 ];
 
-export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
+export default function AdminNav({ isOwner }: { isOwner: boolean }) {
   const pathname = usePathname();
 
   function isActive(href: string) {
@@ -35,8 +35,8 @@ export default function AdminNav({ isAdmin }: { isAdmin: boolean }) {
           {item.label}
         </Link>
       ))}
-      {isAdmin &&
-        adminOnlyItems.map((item) => (
+      {isOwner &&
+        ownerOnlyItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}

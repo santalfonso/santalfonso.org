@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { requireOwnerPage, ROLE_LABEL } from "@/auth";
 import { db } from "@/db";
 import { deleteUser } from "@/actions/users";
 import DeleteButton from "@/components/admin/DeleteButton";
@@ -9,8 +8,7 @@ import { formatDate } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function AdminUtentiPage() {
-  const session = await auth();
-  if (session?.user?.role !== "admin") redirect("/admin");
+  const me = await requireOwnerPage();
 
   const list = await db.query.users.findMany();
 
@@ -43,7 +41,7 @@ export default async function AdminUtentiPage() {
                   <span
                     className="admin-badge"
                     style={
-                      user.role === "admin"
+                      user.role === "owner"
                         ? {
                             background: "var(--gold-soft)",
                             color: "var(--gold-deep)",
@@ -56,12 +54,12 @@ export default async function AdminUtentiPage() {
                           }
                     }
                   >
-                    {user.role}
+                    {ROLE_LABEL[user.role]}
                   </span>
                 </td>
                 <td className="mute">{formatDate(user.createdAt)}</td>
                 <td className="right">
-                  {String(user.id) !== session.user.id && (
+                  {String(user.id) !== me.id && user.role !== "owner" && (
                     <DeleteButton
                       action={deleteUser.bind(null, user.id)}
                       confirmMessage={`Eliminare l'utente ${user.name}? Non potrà più accedere.`}

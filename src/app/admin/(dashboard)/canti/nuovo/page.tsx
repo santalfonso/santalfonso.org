@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { createSong } from "@/actions/lodate/songs";
 import SongForm from "@/components/admin/SongForm";
-import { requireStaffPage } from "@/auth";
+import { requireOwnerPage } from "@/auth";
 
 export default async function NuovoCantoPage() {
-  await requireStaffPage();
+  await requireOwnerPage();
   return (
     <>
       <Link href="/admin/canti" className="admin-back">← Canti</Link>

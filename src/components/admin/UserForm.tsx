@@ -36,9 +36,8 @@ export default function UserForm() {
       <div className="admin-form-row">
         <label htmlFor="role" className="admin-label">Ruolo *</label>
         <select id="role" name="role" required defaultValue="editor" className="admin-input">
-          <option value="editor">Editor — gestisce i contenuti</option>
-          <option value="admin">Admin — gestisce contenuti e utenti</option>
-          <option value="utente">Utente registrato — funzioni riservate del sito, senza accesso all&apos;amministrazione</option>
+          <option value="editor">Editor — aggiunge avvisi, articoli, eventi e risorse</option>
+          <option value="utente">User — usa le funzioni riservate del sito, senza accesso all&apos;amministrazione</option>
         </select>
       </div>
 

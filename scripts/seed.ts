@@ -112,7 +112,7 @@ async function main() {
       name: "Gabriele Michele Napoli",
       email: ADMIN_EMAIL,
       passwordHash: await hash(ADMIN_PASSWORD, 10),
-      role: "admin",
+      role: "owner",
     });
     console.log(`Creato utente admin ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`);
   }

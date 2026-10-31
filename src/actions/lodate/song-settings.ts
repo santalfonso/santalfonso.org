@@ -2,7 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { isStaff, requireMember } from "@/auth";
+import { isOwner, requireMember } from "@/auth";
 import { db } from "@/db";
 import { songUserSettings, songs } from "@/db/schema";
 
@@ -21,7 +21,7 @@ export async function saveSongSettings(songId: number, transpose: number, capo: 
   try {
     const user = await requireMember();
     userId = Number(user.id);
-    staff = isStaff(user.role);
+    staff = isOwner(user.role);
   } catch {
     return { error: "Accedi per salvare le tue impostazioni" };
   }

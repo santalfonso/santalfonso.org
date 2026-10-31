@@ -5,7 +5,7 @@ import { updateSong } from "@/actions/lodate/songs";
 import SongForm from "@/components/admin/SongForm";
 import { db } from "@/db";
 import { songMoments, songSeasons, songs } from "@/db/schema";
-import { requireStaffPage } from "@/auth";
+import { requireOwnerPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function ModificaCantoPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireStaffPage();
+  await requireOwnerPage();
   const { id } = await params;
   const songId = Number(id);
   if (!Number.isInteger(songId) || songId <= 0) notFound();

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, isStaff } from "@/auth";
+import { auth, isStaff, ROLE_LABEL } from "@/auth";
 import { logoutSiteAction } from "@/actions/account";
 import PageTitle from "@/components/PageTitle";
 import "@/app/lodate.css";
@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const ROLE_LABEL = { admin: "Amministratore", editor: "Editor", utente: "Utente registrato" } as const;
 
 export default async function AreaPage() {
   const session = await auth();

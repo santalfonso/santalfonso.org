@@ -7,7 +7,10 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { isLimited, recordFailure, resetFailures } from "@/lib/rate-limit";
 
-export type Role = "admin" | "editor" | "utente";
+export type Role = "owner" | "editor" | "utente";
+
+/** Nomi dei ruoli mostrati nel sito e nell'amministrazione. */
+export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", editor: "Editor", utente: "User" };
 
 declare module "next-auth" {
   interface User {
@@ -137,8 +140,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
+/** Owner o editor: accesso all'area di amministrazione. */
 export function isStaff(role: Role | undefined) {
-  return role === "admin" || role === "editor";
+  return role === "owner" || role === "editor";
+}
+
+/** Solo l'owner gestisce canti, utenti e configurazioni. */
+export function isOwner(role: Role | undefined) {
+  return role === "owner";
 }
 
 /** Qualsiasi utente autenticato, compresi gli utenti registrati senza accesso all'admin. */
@@ -148,7 +157,7 @@ export async function requireMember() {
   return session.user;
 }
 
-/** Admin o editor: accesso all'area di amministrazione. */
+/** Owner o editor: accesso all'area di amministrazione. */
 export async function requireStaff() {
   const user = await requireMember();
   if (!isStaff(user.role)) throw new Error("Non autorizzato");
@@ -166,8 +175,15 @@ export async function requireStaffPage() {
   return session.user;
 }
 
-export async function requireAdmin() {
+export async function requireOwner() {
   const user = await requireMember();
-  if (user.role !== "admin") throw new Error("Riservato agli amministratori");
+  if (!isOwner(user.role)) throw new Error("Riservato all'owner");
+  return user;
+}
+
+/** Per le pagine riservate all'owner (Canti, Utenti, Configurazioni): gli editor tornano alla dashboard. */
+export async function requireOwnerPage() {
+  const user = await requireStaffPage();
+  if (!isOwner(user.role)) redirect("/admin");
   return user;
 }

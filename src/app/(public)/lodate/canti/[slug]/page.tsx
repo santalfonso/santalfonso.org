@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { and, eq } from "drizzle-orm";
-import { auth, isStaff } from "@/auth";
+import { auth, isOwner } from "@/auth";
 import { db } from "@/db";
 import { favoriteSongs, songAnnotations, songMoments, songSeasons, songUserSettings, songs } from "@/db/schema";
 import { parseStoredAnnotations } from "@/lib/lodate/annotations";
@@ -56,7 +56,7 @@ export default async function CantoPage({
   const { slug } = await params;
   const backHref = safeSetlistReturn((await searchParams).from);
   const [song, session] = await Promise.all([getSong(slug), auth()]);
-  const staff = isStaff(session?.user?.role);
+  const staff = isOwner(session?.user?.role);
   if (!song || (!song.published && !staff)) notFound();
 
   const userId = session?.user?.id ? Number(session.user.id) : null;

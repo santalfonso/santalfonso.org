@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, isStaff } from "@/auth";
+import { auth, isOwner, isStaff, ROLE_LABEL } from "@/auth";
 import { logoutAction } from "@/actions/login";
 import AdminNav from "@/components/admin/AdminNav";
 
@@ -21,10 +21,10 @@ export default async function AdminLayout({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-dark.avif" alt="Sant'Alfonso" style={{ height: 36, width: "auto" }} />
           </Link>
-          <AdminNav isAdmin={session.user.role === "admin"} />
+          <AdminNav isOwner={isOwner(session.user.role)} />
           <div className="admin-header-right">
             <span className="admin-user-badge">
-              {session.user.name} · {session.user.role}
+              {session.user.name} · {session.user.role ? ROLE_LABEL[session.user.role] : ""}
             </span>
             <Link href="/" className="admin-header-link">
               Vai al sito ↗

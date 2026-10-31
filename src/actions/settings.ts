@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
-import { requireAdmin } from "@/auth";
+import { requireOwner } from "@/auth";
 
 export type SettingState = { error?: string; success?: boolean } | undefined;
 
@@ -12,7 +12,7 @@ export async function saveSetting(
   formData: FormData,
 ): Promise<SettingState> {
   try {
-    await requireAdmin();
+    await requireOwner();
   } catch {
     return { error: "Non autorizzato." };
   }
