@@ -18,7 +18,7 @@ export default function LodateLogo({ className }: { className?: string }) {
       width="690"
       height="128"
       role="img"
-      aria-label="Lodate, lodate Iddio — canti per la Messa"
+      aria-label="Lodate, lodate Iddio — canti per le celebrazioni"
     >
       <g transform="translate(4 4) scale(.9375)" fill="var(--lodate-logo-pipe, #3399FF)" fillRule="evenodd">
         {PIPES.map((d) => (
@@ -41,12 +41,11 @@ export default function LodateLogo({ className }: { className?: string }) {
           x="152"
           y="104"
           fontSize="20"
-          fontWeight="600"
+          fontWeight="400"
+          letterSpacing="1.5"
           fill="var(--lodate-logo-sub, #1561B8)"
-          textLength="360"
-          lengthAdjust="spacingAndGlyphs"
         >
-          CANTI PER LA MESSA
+          CANTI PER LE CELEBRAZIONI
         </text>
       </g>
     </svg>
