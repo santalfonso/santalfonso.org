@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 
 /**
  * Ricerca nel catalogo (momento e tempo arrivano dal menù laterale). Funziona anche senza JavaScript (form GET);
@@ -20,6 +20,14 @@ export default function CatalogFilters({
   const formRef = useRef<HTMLFormElement>(null);
   const timer = useRef<number | undefined>(undefined);
   const [pending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // cambio di filtro dal menù laterale (o "Indietro"): il campo mostra la ricerca vera, ma non
+  // si tocca mentre si sta scrivendo
+  useEffect(() => {
+    const el = inputRef.current;
+    if (el && document.activeElement !== el && el.value !== q) el.value = q;
+  }, [q]);
 
   const go = () => {
     const form = formRef.current;
@@ -59,6 +67,7 @@ export default function CatalogFilters({
           <path strokeLinecap="round" d="M20 20l-3.5-3.5" />
         </svg>
         <input
+          ref={inputRef}
           id="lodate-q"
           name="q"
           type="search"

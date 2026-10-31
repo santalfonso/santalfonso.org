@@ -252,9 +252,14 @@ export default function SetlistBuilder({ catalog, initial, editPublicId, isLogge
   function save() {
     setError("");
     startTransition(async () => {
-      const result = await saveSetlist(output, editPublicId);
-      if ("error" in result) setError(result.error);
-      else router.push(`/lodate/s/${result.publicId}`);
+      try {
+        const result = await saveSetlist(output, editPublicId);
+        if ("error" in result) setError(result.error);
+        else router.push(`/lodate/s/${result.publicId}`);
+      } catch {
+        // rete assente o server in errore: la scaletta in costruzione resta sulla pagina
+        setError("Salvataggio non riuscito: controlla la connessione e riprova.");
+      }
     });
   }
 

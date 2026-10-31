@@ -25,7 +25,8 @@ export default async function LetturePage({ searchParams }: { searchParams: Sear
   const { primary, secondary } = readingsLinks(date, today);
   const prev = addDays(date, -1);
   const next = addDays(date, 1);
-  const readings = await getDailyReadings(date);
+  // i servizi esterni hanno i testi solo per date vicine: oltre si mostrano le fonti ufficiali
+  const readings = date >= addDays(today, -5 * 366) && date <= addDays(today, 70) ? await getDailyReadings(date) : null;
   const newSetlist = `/lodate/scaletta?d=${encodeSetlist({ ...emptySetlist(), date, feast: day.title })}`;
 
   return (

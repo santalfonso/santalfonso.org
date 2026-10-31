@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, isStaff, ROLE_LABEL } from "@/auth";
 import { logoutSiteAction } from "@/actions/account";
+import ChangePasswordForm from "@/components/ChangePasswordForm";
 import PageTitle from "@/components/PageTitle";
 import "@/app/lodate.css";
 import "@/app/lodate-scalette.css";
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
 };
 
 
-export default async function AreaPage() {
+export default async function AreaPage({ searchParams }: { searchParams: Promise<{ esito?: string }> }) {
+  const passwordChanged = (await searchParams).esito === "password-cambiata";
   const session = await auth();
   if (!session?.user?.id) redirect("/accedi?next=/area");
   const { name, email, role } = session.user;
@@ -23,6 +25,11 @@ export default async function AreaPage() {
       <PageTitle kicker="Area riservata" title={`Ciao${name ? `, ${name}` : ""}`} />
       <div className="container-narrow lodate" style={{ paddingBottom: 64 }}>
         <div className="ls ls-stack" style={{ maxWidth: 560, margin: 0, padding: 0 }}>
+          {passwordChanged && (
+            <p className="ls-card" role="status" style={{ margin: 0, fontWeight: 600 }}>
+              Password cambiata. Gli altri dispositivi dovranno accedere di nuovo.
+            </p>
+          )}
           <div className="ls-card ls-stack">
             <p className="ls-muted">
               {email}
@@ -44,6 +51,7 @@ export default async function AreaPage() {
               </form>
             </div>
           </div>
+          <ChangePasswordForm minLength={isStaff(role) ? 12 : 8} />
         </div>
       </div>
     </>

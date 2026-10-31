@@ -17,6 +17,10 @@ import FavoriteHeart from "@/components/lodate/FavoriteHeart";
 
 export const dynamic = "force-dynamic";
 
+// ordinamento alfabetico italiano, preparato una volta sola (localeCompare lo ricrea a ogni confronto)
+const collator = new Intl.Collator("it", { sensitivity: "base" });
+const SONG_COLUMNS = { id: true, slug: true, title: true, author: true } as const;
+
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 function first(v: string | string[] | undefined): string {
@@ -31,13 +35,16 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
   const momento = isMoment(momentoRaw) ? momentoRaw : "";
   const tempo = isSeason(tempoRaw) ? tempoRaw : "";
 
+  const normQuery = normalizeSearch(q);
+  const tokens = normQuery ? normQuery.split(" ") : [];
+
   const session = await auth();
   const userId = session?.user?.id ? Number(session.user.id) : null;
   const [list, momentRows, seasonRows, favRows] = await Promise.all([
-    db.query.songs.findMany({
-      where: eq(songs.published, true),
-      columns: { id: true, slug: true, title: true, author: true, body: true },
-    }),
+    // il testo dei canti serve solo per cercare: senza ricerca non si scarica
+    tokens.length > 0
+      ? db.query.songs.findMany({ where: eq(songs.published, true), columns: { ...SONG_COLUMNS, body: true } })
+      : db.query.songs.findMany({ where: eq(songs.published, true), columns: SONG_COLUMNS }),
     db.select().from(songMoments),
     db.select().from(songSeasons),
     userId
@@ -51,19 +58,20 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
   const seasonsBySong = new Map<number, string[]>();
   for (const r of seasonRows) seasonsBySong.set(r.songId, [...(seasonsBySong.get(r.songId) ?? []), r.season]);
 
-  const normQuery = normalizeSearch(q);
-  const tokens = normQuery ? normQuery.split(" ") : [];
-
   const results = list
     .map((s) => {
-      const text = plainText(s.body);
-      const normTitle = normalizeSearch(s.title);
-      const haystack = `${normTitle} ${normalizeSearch(s.author ?? "")} ${normalizeSearch(text)}`;
+      let titleHit = false;
+      let match = true;
+      if (tokens.length > 0) {
+        const normTitle = normalizeSearch(s.title);
+        const haystack = `${normTitle} ${normalizeSearch(s.author ?? "")} ${normalizeSearch(plainText("body" in s && typeof s.body === "string" ? s.body : ""))}`;
+        titleHit = tokens.every((t) => normTitle.includes(t));
+        match = tokens.every((t) => haystack.includes(t));
+      }
       return {
         ...s,
-        text,
-        titleHit: tokens.length > 0 && tokens.every((t) => normTitle.includes(t)),
-        match: tokens.every((t) => haystack.includes(t)),
+        titleHit,
+        match,
         moments: MOMENT_SLUGS.filter((m) => momentsBySong.get(s.id)?.includes(m)),
         seasons: SEASON_SLUGS.filter((x) => seasonsBySong.get(s.id)?.includes(x)),
       };
@@ -73,8 +81,7 @@ export default async function LodateHome({ searchParams }: { searchParams: Searc
     .filter((s) => !tempo || s.seasons.includes(tempo))
     .sort(
       (a, b) =>
-        Number(b.titleHit) - Number(a.titleHit) ||
-        a.title.localeCompare(b.title, "it", { sensitivity: "base" })
+        Number(b.titleHit) - Number(a.titleHit) || collator.compare(a.title, b.title)
     );
 
   const filtersLabel = [momento && momentLabel(momento), tempo && seasonLabel(tempo)]

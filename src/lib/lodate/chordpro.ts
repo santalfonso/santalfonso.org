@@ -407,7 +407,8 @@ export function detectKey(song: ParsedSong, declared?: string | null): KeyInfo |
       for (const c of l.chords) {
         const p = parseChord(c.chord);
         if (p) {
-          return { pitch: pitchOf(p.root), minor: /^m(?!aj)/.test(p.suffix) };
+          // minore scritto "m" (Rem) o con il trattino (Re-), come nella tonalità dichiarata
+          return { pitch: pitchOf(p.root), minor: /^(m(?!aj)|-)/.test(p.suffix) };
         }
       }
     }

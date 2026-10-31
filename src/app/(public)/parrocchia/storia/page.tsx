@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
+import { sizedImage } from "@/lib/image-url";
 
 export const metadata: Metadata = { title: "Storia della comunità" };
 
 const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload";
 
 const foto = {
-  primaporta1900: `${CDN}/santalfonso/storia/storia-prima-porta-1900.avif`,
-  costruzioneInterno: `${CDN}/santalfonso/storia/storia-costruzione-interno.avif`,
-  primaPietra: `${CDN}/v1781359289/santalfonso/storia/storia-prima-pietra.avif`,
-  donEulogioGpii: `${CDN}/santalfonso/storia/storia-doneulogio-gpii.avif`,
-  costruzioneEsterno: `${CDN}/santalfonso/storia/storia-costruzione-esterno.avif`,
+  primaporta1900: sizedImage(`${CDN}/santalfonso/storia/storia-prima-porta-1900.avif`, 1600),
+  costruzioneInterno: sizedImage(`${CDN}/santalfonso/storia/storia-costruzione-interno.avif`, 1000),
+  primaPietra: sizedImage(`${CDN}/v1781359289/santalfonso/storia/storia-prima-pietra.avif`, 1000),
+  donEulogioGpii: sizedImage(`${CDN}/santalfonso/storia/storia-doneulogio-gpii.avif`, 1000),
+  costruzioneEsterno: sizedImage(`${CDN}/santalfonso/storia/storia-costruzione-esterno.avif`, 1000),
 };
 
 export default function StoriaPage() {
@@ -69,6 +70,8 @@ export default function StoriaPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={foto.costruzioneInterno}
+            loading="lazy"
+            decoding="async"
             alt="Interno della chiesa in costruzione"
             style={{
               width: "100%",
@@ -104,6 +107,8 @@ export default function StoriaPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={foto.donEulogioGpii}
+            loading="lazy"
+            decoding="async"
             alt="Don Eulogio con Papa Giovanni Paolo II"
             style={{
               width: "100%",
@@ -144,6 +149,8 @@ export default function StoriaPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={foto.primaPietra}
+                loading="lazy"
+                decoding="async"
                 alt="Cerimonia della prima pietra"
                 style={{
                   width: "100%",
@@ -163,6 +170,8 @@ export default function StoriaPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={foto.costruzioneEsterno}
+                loading="lazy"
+                decoding="async"
                 alt="L'interno della chiesa durante i lavori"
                 style={{
                   width: "100%",

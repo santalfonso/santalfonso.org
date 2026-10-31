@@ -1,14 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
-import type { ActionState } from "@/actions/articles";
+import { useActionState, startTransition } from "react";
 import { createUser } from "@/actions/users";
 
 export default function UserForm() {
   const [state, formAction, pending] = useActionState(createUser, undefined);
+  // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+    startTransition(() => formAction(data));
+  };
 
   return (
-    <form action={formAction} className="admin-form admin-form-narrow">
+    <form onSubmit={submit} className="admin-form admin-form-narrow">
       <div className="admin-form-row">
         <label htmlFor="name" className="admin-label">Nome *</label>
         <input id="name" name="name" required className="admin-input" />
@@ -21,7 +26,7 @@ export default function UserForm() {
 
       <div className="admin-form-row">
         <label htmlFor="password" className="admin-label">
-          Password * (minimo 8 caratteri)
+          Password * (almeno 12 caratteri per un editor, 8 per un user)
         </label>
         <input
           id="password"

@@ -18,11 +18,19 @@ export type UploadSignature = {
   format?: string;
 };
 
+/** Cartelle in cui lo staff carica dal pannello: immagini nella principale, documenti in "risorse". */
+const ALLOWED_FOLDERS: Record<"image" | "raw", readonly string[]> = {
+  image: ["santalfonso"],
+  raw: ["santalfonso/risorse"],
+};
+
 export async function getUploadSignature(
   folder: string,
   resourceType: "image" | "raw",
 ): Promise<UploadSignature> {
   await requireStaff();
+  if (resourceType !== "image" && resourceType !== "raw") throw new Error("Tipo di file non valido");
+  if (!ALLOWED_FOLDERS[resourceType].includes(folder)) throw new Error("Cartella non valida");
 
   const timestamp = Math.round(Date.now() / 1000);
   const params: Record<string, string | number> = { folder, timestamp };

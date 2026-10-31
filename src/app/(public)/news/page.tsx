@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { desc, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { articles } from "@/db/schema";
 import NewsList from "@/components/NewsList";
@@ -14,21 +14,20 @@ type Props = { searchParams: Promise<{ pagina?: string }> };
 export default async function NewsPage({ searchParams }: Props) {
   const { pagina } = await searchParams;
 
-  const allArticles = await db.query.articles.findMany({
+  const [{ total }] = await db.select({ total: count() }).from(articles).where(eq(articles.published, true));
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // ?pagina non numerica (o fuori intervallo): prima o ultima pagina, mai un elenco vuoto
+  const requested = parseInt(pagina ?? "1", 10);
+  const currentPage = Math.min(Math.max(1, Number.isFinite(requested) ? requested : 1), totalPages);
+
+  // solo i campi delle card e solo la pagina richiesta (non il testo di tutti gli articoli)
+  const list = await db.query.articles.findMany({
+    columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, publishedAt: true },
     where: eq(articles.published, true),
     orderBy: [desc(articles.publishedAt)],
+    limit: PAGE_SIZE,
+    offset: (currentPage - 1) * PAGE_SIZE,
   });
-
-  const total = allArticles.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const currentPage = Math.min(
-    Math.max(1, parseInt(pagina ?? "1", 10)),
-    totalPages,
-  );
-  const list = allArticles.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  );
 
   return (
     <>

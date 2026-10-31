@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatDayNumber, formatMonthName, formatTime, formatDate } from "@/lib/utils";
+import { sizedImage } from "@/lib/image-url";
 
 type EventItem = {
   id: number;
@@ -13,12 +14,14 @@ type EventItem = {
   endsAt: string | null;
 };
 
-function EventPoster({ event }: { event: EventItem }) {
+function EventPoster({ event, width = 800 }: { event: EventItem; width?: number }) {
   if (event.posterUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={event.posterUrl}
+        src={sizedImage(event.posterUrl, width)}
+        loading="lazy"
+        decoding="async"
         alt={`Locandina: ${event.title}`}
         style={{
           width: "100%",
@@ -156,7 +159,7 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
 
         {/* Poster */}
         <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
-          <EventPoster event={event} />
+          <EventPoster event={event} width={1200} />
         </div>
 
         {/* Contenuto */}

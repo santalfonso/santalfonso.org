@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sizedImage } from "@/lib/image-url";
 
 type Image = { id: number; url: string };
 
@@ -44,8 +45,10 @@ export default function ArticleGallery({ images }: { images: Image[] }) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={img.url}
+              src={sizedImage(img.url, 400)}
               alt=""
+              loading="lazy"
+              decoding="async"
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
           </button>
@@ -96,7 +99,7 @@ export default function ArticleGallery({ images }: { images: Image[] }) {
           <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "90vh" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={images[lightbox].url}
+              src={sizedImage(images[lightbox].url, 1600)}
               alt=""
               style={{
                 maxWidth: "90vw",

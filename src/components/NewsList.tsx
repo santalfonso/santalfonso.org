@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { formatDate } from "@/lib/utils";
+import { sizedImage } from "@/lib/image-url";
 
 type ArticleItem = {
   id: number;
@@ -21,8 +22,10 @@ function Cover({ url, style }: { url: string | null; style?: React.CSSProperties
   return url ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={url}
+      src={sizedImage(url, 800)}
       alt=""
+      loading="lazy"
+      decoding="async"
       style={{ aspectRatio: "16/10", width: "100%", objectFit: "cover", ...style }}
     />
   ) : (

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, startTransition } from "react";
 import { useActionState } from "react";
 import type { Article, ArticleImage } from "@/db/schema";
+import { isoToRomeLocal } from "@/lib/utils";
 import ImageDropzone from "./ImageDropzone";
 import GalleryEditor from "./GalleryEditor";
 import RichTextEditor from "./RichTextEditor";
@@ -34,6 +35,12 @@ export default function ArticleForm({
   galleryImages?: ArticleImage[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+    startTransition(() => formAction(data));
+  };
 
   const [title, setTitle] = useState(article?.title ?? "");
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? "");
@@ -50,10 +57,17 @@ export default function ArticleForm({
   }
 
   function textToHtml(text: string) {
+    const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     return text
       .split(/\n\n+/)
-      .map((p) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
+      .map((p) => `<p>${escape(p.trim()).replace(/\n/g, "<br>")}</p>`)
       .join("");
+  }
+
+  /** Testo corretto dall'AI: di solito HTML con la formattazione originale, altrimenti testo semplice. */
+  function correctedBody(result: string) {
+    const clean = result.replace(/^\s*```(?:html)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
+    return /<(p|h[1-6]|ul|ol|li|blockquote|br|strong|em|a)\b/i.test(clean) ? clean : textToHtml(clean);
   }
 
   function runAi(
@@ -67,7 +81,7 @@ export default function ArticleForm({
       if ("data" in result) {
         if (target === "title") setTitle(result.data);
         else if (target === "excerpt") setExcerpt(result.data);
-        else setBody(textToHtml(result.data));
+        else setBody(correctedBody(result.data));
       } else {
         setAiError(result.error);
       }
@@ -79,7 +93,7 @@ export default function ArticleForm({
   const uploading = coverUploading || galleryUploading;
 
   return (
-    <form action={formAction} className="admin-form">
+    <form onSubmit={submit} className="admin-form">
       {/* Titolo */}
       <div className="admin-form-row">
         <div className="admin-field-head">
@@ -142,7 +156,7 @@ export default function ArticleForm({
             type="button"
             className="admin-btn-ai"
             disabled={busy || !body.trim()}
-            onClick={() => runAi("body", () => proofreadText(stripHtml(body)))}
+            onClick={() => runAi("body", () => proofreadText(body))}
           >
             <SparkleIcon />
             {aiTarget === "body" ? "Correzione…" : "Correggi testo"}
@@ -186,9 +200,8 @@ export default function ArticleForm({
           id="publishedAt"
           name="publishedAt"
           defaultValue={
-            article?.publishedAt
-              ? article.publishedAt.slice(0, 10)
-              : new Date().toISOString().slice(0, 10)
+            // giorno di Roma (il server gira in UTC: vicino a mezzanotte sarebbe il giorno sbagliato)
+            isoToRomeLocal(article?.publishedAt ?? new Date().toISOString()).slice(0, 10)
           }
           className="admin-input"
           style={{ maxWidth: 220 }}

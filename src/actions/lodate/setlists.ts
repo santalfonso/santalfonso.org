@@ -54,7 +54,8 @@ export async function saveSetlist(input: unknown, publicId?: string | null): Pro
     : [];
   const data = filterKnownSongs(normalized, new Set(existing.map((s) => s.id)));
   const values = {
-    title: data.title || feast || "Scaletta",
+    // vuoto: si mostra la festa della data scelta, che segue i cambi di data e i duplicati
+    title: data.title,
     celebrationDate: data.date,
     feast,
     notes: data.notes,
@@ -105,7 +106,8 @@ export async function deleteSetlist(formData: FormData): Promise<void> {
   const row = await db.query.setlists.findFirst({
     where: and(eq(setlists.publicId, publicId), eq(setlists.ownerId, userId)),
   });
-  if (!row) throw new Error("Scaletta non trovata");
+  // già eliminata (doppio clic, due schede aperte): si torna all'elenco senza errori
+  if (!row) redirect("/lodate/area");
   // setlist_items ha ON DELETE CASCADE, ma lo facciamo esplicito per sicurezza
   await db.transaction(async (tx) => {
     await tx.delete(setlistItems).where(eq(setlistItems.setlistId, row.id));

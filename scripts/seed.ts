@@ -10,7 +10,8 @@ import { db } from "../src/db";
 import { articles, events, users } from "../src/db/schema";
 
 const ADMIN_EMAIL = "gabrielemichelenapoli@gmail.com";
-const ADMIN_PASSWORD = "cambiami123"; // Da cambiare al primo accesso!
+// La password iniziale non sta nel codice (il repository è pubblico): si passa per variabile d'ambiente.
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "";
 
 const seedArticles = [
   {
@@ -108,13 +109,16 @@ async function main() {
   if (existingAdmin) {
     console.log(`Utente admin già presente: ${ADMIN_EMAIL}`);
   } else {
+    if (ADMIN_PASSWORD.length < 12) {
+      throw new Error("Imposta SEED_ADMIN_PASSWORD (almeno 12 caratteri) per creare l'utente owner.");
+    }
     await db.insert(users).values({
       name: "Gabriele Michele Napoli",
       email: ADMIN_EMAIL,
-      passwordHash: await hash(ADMIN_PASSWORD, 10),
+      passwordHash: await hash(ADMIN_PASSWORD, 12),
       role: "owner",
     });
-    console.log(`Creato utente admin ${ADMIN_EMAIL} (password: ${ADMIN_PASSWORD})`);
+    console.log(`Creato utente owner ${ADMIN_EMAIL}`);
   }
 
   // Articoli

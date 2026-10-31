@@ -25,7 +25,12 @@ export default function PushSubscribeButton() {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/", updateViaCache: "none" })
         .then((reg) => reg.pushManager.getSubscription())
-        .then((sub) => setSubscription(sub));
+        .then((sub) => {
+          setSubscription(sub);
+          // riallinea il server (iscrizione persa o chiavi cambiate dal browser)
+          if (sub) subscribeUser(JSON.parse(JSON.stringify(sub))).catch(() => {});
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -41,8 +46,10 @@ export default function PushSubscribeButton() {
           process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
         ),
       });
-      setSubscription(sub);
-      await subscribeUser(JSON.parse(JSON.stringify(sub)));
+      const saved = await subscribeUser(JSON.parse(JSON.stringify(sub)));
+      // "attive" solo se il server ha davvero registrato l'iscrizione
+      if (saved.success) setSubscription(sub);
+      else await sub.unsubscribe().catch(() => {});
     } catch {
       // Utente ha negato il permesso o browser non supporta
     } finally {
@@ -57,6 +64,8 @@ export default function PushSubscribeButton() {
       await subscription!.unsubscribe();
       setSubscription(null);
       await unsubscribeUser(endpoint);
+    } catch {
+      // disattivazione non riuscita: lo stato resta quello del browser
     } finally {
       setLoading(false);
     }

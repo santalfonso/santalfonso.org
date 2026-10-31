@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { gte } from "drizzle-orm";
+import { and, gte, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { events } from "@/db/schema";
 import EventCardsWithModal from "@/components/EventCardsWithModal";
@@ -9,7 +9,11 @@ export const dynamic = "force-dynamic";
 
 export default async function CalendarioPage() {
   const list = await db.query.events.findMany({
-    where: gte(events.startsAt, new Date().toISOString()),
+    // gli eventi di più giorni restano finché non finiscono
+    where: or(
+      gte(events.endsAt, new Date().toISOString()),
+      and(isNull(events.endsAt), gte(events.startsAt, new Date().toISOString()))
+    ),
     orderBy: [events.startsAt],
   });
 

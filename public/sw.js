@@ -34,6 +34,8 @@ self.addEventListener("push", function (event) {
   var data = event.data.json();
   event.waitUntil(
     saveNotification(data)
+      // se l'archivio delle notifiche non funziona, la notifica si mostra comunque
+      .catch(function () {})
       .then(function () {
         // Avvisa tutte le finestre aperte che è arrivata una notifica
         return self.clients.matchAll({ includeUncontrolled: true, type: "window" });
@@ -58,13 +60,24 @@ self.addEventListener("notificationclick", function (event) {
   var url = event.notification.data && event.notification.data.url
     ? event.notification.data.url
     : "/";
+  var target = new URL(url, self.location.origin).href;
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
+      // la pagina della notifica è già aperta: basta mostrarla
       for (var i = 0; i < clientList.length; i++) {
-        var client = clientList[i];
-        if (client.url.includes(url) && "focus" in client) return client.focus();
+        if (clientList[i].url === target && "focus" in clientList[i]) return clientList[i].focus();
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      // un'altra pagina del sito è aperta: la si porta alla pagina della notifica
+      for (var j = 0; j < clientList.length; j++) {
+        var client = clientList[j];
+        if ("focus" in client && "navigate" in client) {
+          return client
+            .focus()
+            .then(function (focused) { return (focused || client).navigate(target); })
+            .catch(function () { return clients.openWindow ? clients.openWindow(target) : undefined; });
+        }
+      }
+      if (clients.openWindow) return clients.openWindow(target);
     })
   );
 });

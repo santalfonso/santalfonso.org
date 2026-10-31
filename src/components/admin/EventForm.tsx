@@ -1,17 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, startTransition } from "react";
 import type { Event } from "@/db/schema";
 import type { ActionState } from "@/actions/articles";
+import { isoToRomeLocal } from "@/lib/utils";
 import ImageDropzone from "./ImageDropzone";
-
-function toLocalInput(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const date = new Date(iso);
-  if (isNaN(date.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
 
 export default function EventForm({
   action,
@@ -21,9 +14,16 @@ export default function EventForm({
   event?: Event;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+    startTransition(() => formAction(data));
+  };
+  const [uploading, setUploading] = useState(false);
 
   return (
-    <form action={formAction} className="admin-form">
+    <form onSubmit={submit} className="admin-form">
       <div className="admin-form-row">
         <label htmlFor="title" className="admin-label">Titolo *</label>
         <input
@@ -43,7 +43,7 @@ export default function EventForm({
             name="startsAt"
             type="datetime-local"
             required
-            defaultValue={toLocalInput(event?.startsAt)}
+            defaultValue={isoToRomeLocal(event?.startsAt)}
             className="admin-input"
           />
         </div>
@@ -53,7 +53,7 @@ export default function EventForm({
             id="endsAt"
             name="endsAt"
             type="datetime-local"
-            defaultValue={toLocalInput(event?.endsAt)}
+            defaultValue={isoToRomeLocal(event?.endsAt)}
             className="admin-input"
           />
         </div>
@@ -85,14 +85,15 @@ export default function EventForm({
         name="posterImage"
         currentUrl={event?.posterUrl}
         label="Locandina"
+        onUploadingChange={setUploading}
       />
 
       {state?.error && (
         <div className="admin-error" style={{ marginBottom: 20 }}>{state.error}</div>
       )}
 
-      <button type="submit" disabled={pending} className="admin-btn admin-btn-primary">
-        {pending ? "Salvataggio…" : "Salva evento"}
+      <button type="submit" disabled={pending || uploading} className="admin-btn admin-btn-primary">
+        {uploading ? "Caricamento locandina…" : pending ? "Salvataggio…" : "Salva evento"}
       </button>
     </form>
   );

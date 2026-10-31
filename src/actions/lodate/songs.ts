@@ -12,6 +12,7 @@ import {
   songAnnotations,
   songMoments,
   songSeasons,
+  songUserSettings,
   songs,
 } from "@/db/schema";
 import { isMoment, isSeason } from "@/lib/lodate/constants";
@@ -156,6 +157,7 @@ export async function deleteSong(id: number) {
     await tx.delete(setlistItems).where(eq(setlistItems.songId, id));
     await tx.delete(favoriteSongs).where(eq(favoriteSongs.songId, id));
     await tx.delete(songAnnotations).where(eq(songAnnotations.songId, id));
+    await tx.delete(songUserSettings).where(eq(songUserSettings.songId, id));
     await tx.delete(songMoments).where(eq(songMoments.songId, id));
     await tx.delete(songSeasons).where(eq(songSeasons.songId, id));
     await tx.delete(songs).where(eq(songs.id, id));

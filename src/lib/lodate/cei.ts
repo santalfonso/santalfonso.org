@@ -54,11 +54,16 @@ function decode(s: string): string {
 export function parseAcclamation(html: string): GospelAcclamation | null {
   const start = html.search(/>\s*Acclamazione al Vangelo\s*</);
   if (start < 0) return null;
-  const rest = html.slice(start);
+  // solo fino al titolo della sezione successiva (il Vangelo): mai il testo di altre sezioni
+  let rest = html.slice(start + 1);
+  const nextSection = rest.search(/<h2[\s>]/i);
+  if (nextSection >= 0) rest = rest.slice(0, nextSection);
   const open = rest.indexOf("cci-liturgia-giorno-section-content");
   if (open < 0) return null;
   const body = rest.slice(rest.indexOf(">", open) + 1);
-  const raw = body.slice(0, body.search(/<\/div>/i));
+  const close = body.search(/<\/div>/i);
+  if (close < 0) return null;
+  const raw = body.slice(0, close).replace(/<(script|style)[\s\S]*?<\/\1>/gi, "");
 
   const text = decode(
     raw
@@ -71,7 +76,8 @@ export function parseAcclamation(html: string): GospelAcclamation | null {
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-  if (!text) return null;
+  // controllo di buon senso: un'acclamazione è breve e comincia con l'Alleluia o "Lode a te"
+  if (!text || text.length > 700 || !/alleluia|lode/i.test(text)) return null;
 
   // riferimento tra parentesi alla fine del versetto: "(Gv 10,27)" o "(Cf. Mc 9,7)"
   let reference = "";

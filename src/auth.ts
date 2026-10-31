@@ -1,5 +1,6 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { createHash } from "node:crypto";
 import { compare } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
@@ -15,6 +16,8 @@ export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", editor: "Edito
 declare module "next-auth" {
   interface User {
     role?: Role;
+    /** Impronta della password al momento dell'accesso (vedi passwordStamp). */
+    pwv?: string;
   }
   interface Session {
     user: {
@@ -46,7 +49,15 @@ function clientIp(request: Request | undefined): string {
   return (fwd?.split(",")[0] ?? request?.headers.get("x-real-ip") ?? "unknown").trim().slice(0, 64);
 }
 
-type CurrentUser = { name: string; email: string; role: Role };
+type CurrentUser = { name: string; email: string; role: Role; stamp: string };
+
+/**
+ * Impronta breve dell'hash della password, salvata nel token di sessione: quando la
+ * password cambia, le sessioni aperte altrove non coincidono più e vengono chiuse.
+ */
+export function passwordStamp(passwordHash: string): string {
+  return createHash("sha256").update(passwordHash).digest("base64url").slice(0, 16);
+}
 
 // Nelle pagine il cookie della sessione non si può riscrivere, quindi `checkedAt`
 // resta vecchio e il controllo scatterebbe a ogni richiesta: lo si memorizza per
@@ -56,11 +67,13 @@ const userCheckCache = new Map<number, { at: number; row: CurrentUser | null }>(
 async function currentUser(id: number): Promise<CurrentUser | null> {
   const hit = userCheckCache.get(id);
   if (hit && Date.now() - hit.at < RECHECK_MS) return hit.row;
-  const row =
-    (await db.query.users.findFirst({
-      where: eq(users.id, id),
-      columns: { name: true, email: true, role: true },
-    })) ?? null;
+  const found = await db.query.users.findFirst({
+    where: eq(users.id, id),
+    columns: { name: true, email: true, role: true, passwordHash: true },
+  });
+  const row = found
+    ? { name: found.name, email: found.email, role: found.role, stamp: passwordStamp(found.passwordHash) }
+    : null;
   if (userCheckCache.size > 1000) userCheckCache.clear();
   userCheckCache.set(id, { at: Date.now(), row });
   return row;
@@ -105,6 +118,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
+          pwv: passwordStamp(user.passwordHash),
         };
       },
     }),
@@ -114,6 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.pwv = user.pwv;
         token.checkedAt = Date.now();
         return token;
       }
@@ -124,6 +139,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (typeof token.checkedAt === "number" && Date.now() - token.checkedAt < RECHECK_MS) return token;
       const row = await currentUser(id);
       if (!row) return null; // utente eliminato: sessione invalidata
+      // password cambiata (o token di prima di questo controllo): bisogna rientrare
+      if (token.pwv !== row.stamp) return null;
       token.role = row.role;
       token.name = row.name;
       token.email = row.email;
@@ -151,6 +168,11 @@ export function isOwner(role: Role | undefined) {
 }
 
 /** Qualsiasi utente autenticato, compresi gli utenti registrati senza accesso all'admin. */
+/** Dopo un cambio di password questa istanza smette subito di fidarsi del ruolo in memoria. */
+export function forgetUserCheck(id: number) {
+  userCheckCache.delete(id);
+}
+
 export async function requireMember() {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Non autorizzato");

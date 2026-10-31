@@ -11,6 +11,9 @@ type ConfirmState = {
   correctedTitle: string;
   correctedText: string;
   hasChanges: boolean;
+  /** Testo scritto da chi pubblica, se si preferisce non usare la correzione. */
+  originalTitle: string;
+  originalText: string;
 };
 
 export default function AnnouncementAddForm() {
@@ -25,27 +28,39 @@ export default function AnnouncementAddForm() {
     if (!text.trim()) { setError("Il testo è obbligatorio."); return; }
     setError(null);
 
+    const original = { correctedTitle: title, correctedText: text, hasChanges: false, originalTitle: title, originalText: text };
     startTransition(async () => {
-      const result = await proofreadAnnouncement(title, text);
-      if ("error" in result) {
-        // Proofreading fallita: mostra comunque la conferma senza correzioni
-        setConfirm({ correctedTitle: title, correctedText: text, hasChanges: false });
-      } else {
-        setConfirm(result);
+      try {
+        const result = await proofreadAnnouncement(title, text);
+        // correzione fallita o fuori dai limiti di lunghezza: si conferma il testo originale
+        if ("error" in result || result.correctedTitle.trim().length > TITLE_MAX || result.correctedText.trim().length > TEXT_MAX) {
+          setConfirm(original);
+        } else {
+          setConfirm({ ...result, originalTitle: title, originalText: text });
+        }
+      } catch {
+        setConfirm(original);
       }
     });
   }
 
-  function handleConfirm() {
+  function handleConfirm(useOriginal = false) {
     if (!confirm) return;
+    const publishTitle = useOriginal ? confirm.originalTitle : confirm.correctedTitle;
+    const publishText = useOriginal ? confirm.originalText : confirm.correctedText;
     startTransition(async () => {
-      const result = await createAnnouncement(confirm.correctedTitle, confirm.correctedText);
-      if (result?.error) {
-        setError(result.error);
-        setConfirm(null);
-      } else {
-        setTitle("");
-        setText("");
+      try {
+        const result = await createAnnouncement(publishTitle, publishText);
+        if (result?.error) {
+          setError(result.error);
+          setConfirm(null);
+        } else {
+          setTitle("");
+          setText("");
+          setConfirm(null);
+        }
+      } catch {
+        setError("Pubblicazione non riuscita: controlla la connessione e riprova.");
         setConfirm(null);
       }
     });
@@ -166,7 +181,7 @@ export default function AnnouncementAddForm() {
               </p>
             )}
 
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
               <button
                 type="button"
                 onClick={() => setConfirm(null)}
@@ -175,13 +190,23 @@ export default function AnnouncementAddForm() {
               >
                 Annulla
               </button>
+              {confirm.hasChanges && (
+                <button
+                  type="button"
+                  onClick={() => handleConfirm(true)}
+                  disabled={isPending}
+                  className="admin-btn"
+                >
+                  Pubblica senza correzioni
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleConfirm}
+                onClick={() => handleConfirm()}
                 disabled={isPending}
                 className="admin-btn admin-btn-dark"
               >
-                {isPending ? "Pubblicazione…" : "Pubblica avviso"}
+                {isPending ? "Pubblicazione…" : confirm.hasChanges ? "Pubblica corretto" : "Pubblica avviso"}
               </button>
             </div>
           </div>

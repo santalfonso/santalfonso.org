@@ -1,17 +1,13 @@
 import Link from "next/link";
-import { desc, eq, gte } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, events, announcements } from "@/db/schema";
-import {
-  formatDate,
-  formatDayNumber,
-  formatMonthName,
-  formatTime,
-} from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import EventCardsWithModal from "@/components/EventCardsWithModal";
 import HeroSlideshow from "@/components/HeroSlideshow";
 import AnnouncementModal from "@/components/AnnouncementModal";
 import LodateLogo from "@/components/lodate/LodateLogo";
+import { sizedImage } from "@/lib/image-url";
 
 export const dynamic = "force-dynamic";
 
@@ -24,12 +20,17 @@ export default async function HomePage({
   const { avviso } = await searchParams;
   const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
     db.query.articles.findMany({
+      columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, coverImageFocus: true, publishedAt: true },
       where: eq(articles.published, true),
       orderBy: [desc(articles.publishedAt)],
       limit: 3,
     }),
     db.query.events.findMany({
-      where: gte(events.startsAt, new Date().toISOString()),
+      // gli eventi di più giorni restano finché non finiscono
+      where: or(
+        gte(events.endsAt, new Date().toISOString()),
+        and(isNull(events.endsAt), gte(events.startsAt, new Date().toISOString()))
+      ),
       orderBy: [events.startsAt],
       limit: 4,
     }),
@@ -101,8 +102,10 @@ export default async function HomePage({
                   {article.coverImageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={article.coverImageUrl}
+                      src={sizedImage(article.coverImageUrl, 800)}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         aspectRatio: "16/10",
                         width: "100%",

@@ -16,7 +16,7 @@ type Params = Promise<{ publicId: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const saved = await loadSavedSetlist((await params).publicId);
   return {
-    title: saved?.data.title || "Scaletta",
+    title: saved?.data.title || saved?.data.feast || "Scaletta",
     robots: { index: false, follow: false },
   };
 }
@@ -51,9 +51,9 @@ export default async function SavedSetlistPage({ params }: { params: Params }) {
         <Link className="ls-btn" href={template}>
           Duplica
         </Link>
-        {isOwner && <SetlistDeleteButton publicId={saved.publicId} title={data.title} />}
+        {isOwner && <SetlistDeleteButton publicId={saved.publicId} title={data.title || data.feast || "Scaletta"} />}
       </div>
-      <SetlistShare path={selfPath} title={data.title || "Scaletta"} />
+      <SetlistShare path={selfPath} title={data.title || data.feast || "Scaletta"} />
     </div>
   );
 }

@@ -3,10 +3,13 @@ import { Marked } from "marked";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
+import { sizedImage } from "@/lib/image-url";
 import { formatDate } from "@/lib/utils";
 import ArticleGallery from "@/components/ArticleGallery";
+import { sanitizeArticleHtml } from "@/lib/sanitize-article";
 
 export const dynamic = "force-dynamic";
 
@@ -29,11 +32,12 @@ const articleMarked = new Marked({
 
 type Props = { params: Promise<{ slug: string }> };
 
-async function getArticle(slug: string) {
+// una sola lettura per richiesta, condivisa da generateMetadata e dalla pagina
+const getArticle = cache(async (slug: string) => {
   return db.query.articles.findFirst({
     where: and(eq(articles.slug, slug), eq(articles.published, true)),
   });
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -48,9 +52,10 @@ export default async function ArticlePage({ params }: Props) {
 
   const isHtml = article.body.trimStart().startsWith("<");
 
-  const [html, related, gallery] = await Promise.all([
+  const [rawHtml, related, gallery] = await Promise.all([
     isHtml ? Promise.resolve(article.body) : articleMarked.parse(article.body),
     db.query.articles.findMany({
+      columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, publishedAt: true },
       where: and(eq(articles.published, true), ne(articles.id, article.id)),
       orderBy: [desc(articles.publishedAt)],
       limit: 3,
@@ -60,6 +65,8 @@ export default async function ArticlePage({ params }: Props) {
       orderBy: [articleImages.position],
     }),
   ]);
+  // il testo arriva dall'editor o dal markdown: si tolgono script ed eventi prima di mostrarlo
+  const html = sanitizeArticleHtml(rawHtml);
 
   return (
     <>
@@ -107,8 +114,9 @@ export default async function ArticlePage({ params }: Props) {
           <div className="container">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={article.coverImageUrl}
+              src={sizedImage(article.coverImageUrl, 1600)}
               alt=""
+              fetchPriority="high"
               style={{
                 aspectRatio: "2/1",
                 width: "100%",
@@ -182,8 +190,10 @@ export default async function ArticlePage({ params }: Props) {
                   {item.coverImageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={item.coverImageUrl}
+                      src={sizedImage(item.coverImageUrl, 800)}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         aspectRatio: "16/10",
                         width: "100%",

@@ -8,11 +8,12 @@ import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
 import { slugify } from "@/lib/utils";
-import { sendPushToAll } from "@/actions/push";
+import { after } from "next/server";
+import { deliverPush } from "@/lib/push-send";
 
 const articleSchema = z.object({
-  title: z.string().min(1, "Il titolo è obbligatorio"),
-  excerpt: z.string().optional(),
+  title: z.string().trim().min(1, "Il titolo è obbligatorio").max(300, "Il titolo è troppo lungo"),
+  excerpt: z.string().max(1000, "L'estratto è troppo lungo").optional(),
   body: z.string().min(1, "Il testo è obbligatorio"),
   published: z.boolean(),
   publishedAt: z.string().optional(),
@@ -20,6 +21,14 @@ const articleSchema = z.object({
 });
 
 export type ActionState = { error?: string } | undefined;
+
+/** Data del campo "Data di pubblicazione" (AAAA-MM-GG) → ISO; "invalid" se non è una data vera. */
+function parsePublishedAt(raw: string | undefined): string | null | "invalid" {
+  if (!raw) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return "invalid";
+  const date = new Date(`${raw}T00:00:00.000Z`);
+  return isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== raw ? "invalid" : date.toISOString();
+}
 
 function parseForm(formData: FormData) {
   return articleSchema.safeParse({
@@ -55,15 +64,16 @@ export async function createArticle(
   const galleryUrls = galleryFromForm(formData);
 
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
-  let slug = slugify(title);
+  const chosenDate = parsePublishedAt(publishedAtRaw);
+  if (chosenDate === "invalid") return { error: "La data di pubblicazione non è valida" };
+  // titoli senza lettere latine danno uno slug vuoto: serve comunque un indirizzo
+  let slug = slugify(title) || `articolo-${Date.now()}`;
   const existing = await db.query.articles.findFirst({
     where: eq(articles.slug, slug),
   });
   if (existing) slug = `${slug}-${Date.now()}`;
 
-  const publishedAt = publishedAtRaw
-    ? new Date(publishedAtRaw).toISOString()
-    : published ? new Date().toISOString() : null;
+  const publishedAt = chosenDate ?? (published ? new Date().toISOString() : null);
 
   const [created] = await db.insert(articles).values({
     title,
@@ -83,11 +93,12 @@ export async function createArticle(
   }
 
   if (published) {
-    sendPushToAll({
+    // dopo la risposta: su Vercel l'invio non si interrompe con il redirect
+    after(() => deliverPush({
       title: title,
       body: excerpt || "Leggi la notizia sul sito della parrocchia.",
       url: `/news/${slug}`,
-    }).catch(() => {});
+    }));
   }
 
   revalidatePath("/");
@@ -120,9 +131,11 @@ export async function updateArticle(
 
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   const justPublished = published && !current.published;
+  const chosenDate = parsePublishedAt(publishedAtRaw);
+  if (chosenDate === "invalid") return { error: "La data di pubblicazione non è valida" };
 
   const publishedAt = published
-    ? (publishedAtRaw ? new Date(publishedAtRaw).toISOString() : current.publishedAt ?? new Date().toISOString())
+    ? (chosenDate ?? current.publishedAt ?? new Date().toISOString())
     : current.publishedAt;
 
   await db
@@ -140,11 +153,12 @@ export async function updateArticle(
     .where(eq(articles.id, id));
 
   if (justPublished) {
-    sendPushToAll({
+    // dopo la risposta: su Vercel l'invio non si interrompe con il redirect
+    after(() => deliverPush({
       title: title,
       body: excerpt || "Leggi la notizia sul sito della parrocchia.",
       url: `/news/${current.slug}`,
-    }).catch(() => {});
+    }));
   }
 
   // Aggiunge nuove immagini galleria

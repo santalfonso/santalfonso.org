@@ -7,6 +7,23 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+// archiviazione bloccata (dati dei siti disattivati): il banner funziona lo stesso, senza ricordarsi
+function wasDismissed(): boolean {
+  try {
+    return Boolean(localStorage.getItem("pwa-install-dismissed"));
+  } catch {
+    return false;
+  }
+}
+
+function rememberDismissed() {
+  try {
+    localStorage.setItem("pwa-install-dismissed", "1");
+  } catch {
+    /* niente da ricordare */
+  }
+}
+
 export default function InstallBanner() {
   const [show, setShow] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -14,7 +31,7 @@ export default function InstallBanner() {
   const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    if (localStorage.getItem("pwa-install-dismissed")) return;
+    if (wasDismissed()) return;
 
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
@@ -39,7 +56,7 @@ export default function InstallBanner() {
   }, []);
 
   function dismiss() {
-    localStorage.setItem("pwa-install-dismissed", "1");
+    rememberDismissed();
     setShow(false);
   }
 
@@ -49,7 +66,7 @@ export default function InstallBanner() {
     promptRef.current = null;
     await p.prompt();
     const { outcome } = await p.userChoice;
-    if (outcome === "accepted") localStorage.setItem("pwa-install-dismissed", "1");
+    if (outcome === "accepted") rememberDismissed();
     setShow(false);
   }
 

@@ -158,6 +158,8 @@ export default function SongViewer({
   const [settingsState, setSettingsState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const settingsTimer = useRef<number | undefined>(undefined);
   const firstSettings = useRef(true);
+  // modifica non ancora inviata: se si lascia la pagina prima della pausa, si salva lo stesso
+  const pendingSettings = useRef<{ songId: number; transpose: number; capo: number } | null>(null);
   useEffect(() => {
     if (firstSettings.current) {
       firstSettings.current = false;
@@ -165,7 +167,9 @@ export default function SongViewer({
     }
     if (!loggedIn) return;
     window.clearTimeout(settingsTimer.current);
+    pendingSettings.current = { songId: song.id, transpose, capo };
     settingsTimer.current = window.setTimeout(async () => {
+      pendingSettings.current = null;
       setSettingsState("saving");
       try {
         const res = await saveSongSettings(song.id, transpose, capo);
@@ -176,6 +180,13 @@ export default function SongViewer({
     }, 800);
     return () => window.clearTimeout(settingsTimer.current);
   }, [transpose, capo, loggedIn, song.id]);
+  useEffect(
+    () => () => {
+      const p = pendingSettings.current;
+      if (p) saveSongSettings(p.songId, p.transpose, p.capo).catch(() => {});
+    },
+    []
+  );
 
   // ── Autoscorrimento ──
   const [playing, setPlaying] = useState(false);
@@ -276,10 +287,15 @@ export default function SongViewer({
     setFav(next);
     setFavError(null);
     startFav(async () => {
-      const res = await setFavorite(song.id, next);
-      if ("error" in res) {
+      try {
+        const res = await setFavorite(song.id, next);
+        if ("error" in res) {
+          setFav(!next);
+          setFavError(res.error);
+        }
+      } catch {
         setFav(!next);
-        setFavError(res.error);
+        setFavError("Non riuscito: controlla la connessione e riprova.");
       }
     });
   };
@@ -298,10 +314,14 @@ export default function SongViewer({
     return m;
   }, [annotations]);
 
+  // annotazioni non ancora inviate: se si lascia la pagina prima della pausa, si salvano lo stesso
+  const pendingAnnotations = useRef<{ songId: number; list: Annotation[] } | null>(null);
   const scheduleSave = (list: Annotation[]) => {
     setSaveState("saving");
     window.clearTimeout(saveTimer.current);
+    pendingAnnotations.current = { songId: song.id, list };
     saveTimer.current = window.setTimeout(async () => {
+      pendingAnnotations.current = null;
       try {
         const res = await saveAnnotations(song.id, list);
         setSaveState("error" in res ? "error" : "saved");
@@ -310,7 +330,14 @@ export default function SongViewer({
       }
     }, 700);
   };
-  useEffect(() => () => window.clearTimeout(saveTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(saveTimer.current);
+      const p = pendingAnnotations.current;
+      if (p) saveAnnotations(p.songId, p.list).catch(() => {});
+    },
+    []
+  );
 
   const closePanel = useCallback(() => {
     const key = selected ? annotationKey(selected.line, selected.col) : null;

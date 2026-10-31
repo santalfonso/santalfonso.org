@@ -4,7 +4,8 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { announcements } from "@/db/schema";
-import { sendPushToAll } from "@/actions/push";
+import { after } from "next/server";
+import { deliverPush } from "@/lib/push-send";
 import { requireStaff } from "@/auth";
 
 export type AnnouncementState = { error?: string } | undefined;
@@ -32,7 +33,8 @@ export async function createAnnouncement(
     .values({ title: t, text: tx })
     .returning({ id: announcements.id });
 
-  sendPushToAll({ title: t, body: tx, url: `/?avviso=${inserted.id}` }).catch(() => {});
+  // dopo la risposta: su Vercel l'invio non si interrompe
+  after(() => deliverPush({ title: t, body: tx, url: `/?avviso=${inserted.id}` }));
 
   revalidatePath("/admin");
   revalidatePath("/");

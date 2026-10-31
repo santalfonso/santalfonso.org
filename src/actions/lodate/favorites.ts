@@ -1,7 +1,6 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { isOwner, requireMember } from "@/auth";
 import { db } from "@/db";
@@ -32,7 +31,7 @@ export async function setFavorite(songId: number, favorite: boolean): Promise<Fa
     where: eq(songs.id, parsed.data.songId),
     columns: { id: true, published: true },
   });
-  // le bozze esistono solo per lo staff
+  // le bozze esistono solo per l'owner
   if (!song || (!song.published && !staff)) return { error: "Canto non trovato" };
 
   if (parsed.data.favorite) {
@@ -42,6 +41,7 @@ export async function setFavorite(songId: number, favorite: boolean): Promise<Fa
       .delete(favoriteSongs)
       .where(and(eq(favoriteSongs.userId, userId), eq(favoriteSongs.songId, song.id)));
   }
-  revalidatePath("/lodate/area");
+  // niente revalidatePath: rifarebbe tutta la pagina corrente (es. l'intero catalogo) a ogni tocco;
+  // la pagina dei preferiti è dinamica e si ricalcola comunque quando la si apre
   return { favorite: parsed.data.favorite };
 }

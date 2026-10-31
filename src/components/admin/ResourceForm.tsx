@@ -1,12 +1,17 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import type { ActionState } from "@/actions/articles";
+import { useActionState, useState, startTransition } from "react";
 import { createResource } from "@/actions/resources";
 import { uploadToCloudinary } from "@/lib/cloudinary-upload";
 
 export default function ResourceForm() {
   const [state, formAction, pending] = useActionState(createResource, undefined);
+  // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+    startTransition(() => formAction(data));
+  };
 
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileSize, setFileSize] = useState<number | null>(null);
@@ -37,7 +42,7 @@ export default function ResourceForm() {
   const busy = pending || uploading;
 
   return (
-    <form action={formAction} className="admin-form">
+    <form onSubmit={submit} className="admin-form">
       <div className="admin-form-row">
         <label htmlFor="title" className="admin-label">Titolo *</label>
         <input

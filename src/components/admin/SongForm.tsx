@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useDeferredValue, useMemo, useState } from "react";
+import { useActionState, useDeferredValue, useMemo, useState, startTransition } from "react";
 import type { Song } from "@/db/schema";
 import type { SongActionState } from "@/actions/lodate/songs";
 import { detectKey, hasChords, italianKeyName, parseChordPro } from "@/lib/lodate/chordpro";
@@ -29,6 +29,12 @@ export default function SongForm({
   seasons?: string[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+    startTransition(() => formAction(data));
+  };
   const [title, setTitle] = useState(song?.title ?? "");
   const [slug, setSlug] = useState(song?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(!!song);
@@ -51,7 +57,7 @@ export default function SongForm({
   const effectiveSlug = slugTouched ? slug : slugify(title);
 
   return (
-    <form action={formAction} className="admin-form lodate-admin-song" style={{ maxWidth: "none" }}>
+    <form onSubmit={submit} className="admin-form lodate-admin-song" style={{ maxWidth: "none" }}>
       <div className="admin-grid-2" style={{ maxWidth: 900 }}>
         <div className="admin-form-row">
           <label htmlFor="title" className="admin-label">Titolo *</label>

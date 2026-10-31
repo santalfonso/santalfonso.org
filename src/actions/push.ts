@@ -1,39 +1,77 @@
 "use server";
 
-import webpush from "web-push";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
-
-function initWebPush() {
-  const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-  const priv = process.env.VAPID_PRIVATE_KEY;
-  if (!pub || !priv) return false;
-  webpush.setVapidDetails("mailto:gabrielemichelenapoli@gmail.com", pub, priv);
-  return true;
-}
+import { deliverPush, type PushPayload } from "@/lib/push-send";
+import { isLimited, recordFailure } from "@/lib/rate-limit";
 
 export interface PushSubscriptionData {
   endpoint: string;
   keys: { p256dh: string; auth: string };
 }
 
-// Endpoint dei servizi push dei browser: solo https, niente indirizzi arbitrari
+/** Servizi push dei browser (Chrome/Edge/Android/Opera, Firefox, Safari, Windows). */
+function isPushServiceHost(host: string): boolean {
+  return (
+    host === "fcm.googleapis.com" ||
+    host === "android.googleapis.com" ||
+    host === "updates.push.services.mozilla.com" ||
+    host === "push.services.mozilla.com" ||
+    host === "web.push.apple.com" ||
+    host.endsWith(".push.apple.com") ||
+    host.endsWith(".notify.windows.com")
+  );
+}
+
+// Endpoint dei servizi push dei browser: solo https verso i servizi noti, niente indirizzi arbitrari
 const subscriptionSchema = z.object({
-  endpoint: z.string().max(1000).url().refine((u) => u.startsWith("https://"), "Endpoint non valido"),
+  endpoint: z
+    .string()
+    .max(1000)
+    .url()
+    .refine((u) => {
+      const url = new URL(u);
+      return url.protocol === "https:" && isPushServiceHost(url.hostname);
+    }, "Endpoint non valido"),
   keys: z.object({ p256dh: z.string().min(1).max(200), auth: z.string().min(1).max(100) }),
 });
 
+const NEW_SUBS_WINDOW_MS = 60 * 60 * 1000;
+const MAX_NEW_SUBS_PER_IP = 20;
+
+/** Iscrizione (pubblica, anche senza account) o aggiornamento delle chiavi di un'iscrizione esistente. */
 export async function subscribeUser(input: PushSubscriptionData) {
   const parsed = subscriptionSchema.safeParse(input);
   if (!parsed.success) return { success: false };
   const sub = parsed.data;
+
+  const known = await db.query.pushSubscriptions.findFirst({
+    where: eq(pushSubscriptions.endpoint, sub.endpoint),
+    columns: { id: true },
+  });
+  if (known) {
+    await db
+      .update(pushSubscriptions)
+      .set({ p256dh: sub.keys.p256dh, auth: sub.keys.auth })
+      .where(eq(pushSubscriptions.id, known.id));
+    return { success: true };
+  }
+
+  // poche iscrizioni nuove per indirizzo IP: blocca chi le inserisce in massa
+  const h = await headers();
+  const ip = (h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? "unknown").trim().slice(0, 64);
+  const key = `push:ip:${ip}`;
+  if (isLimited(key, MAX_NEW_SUBS_PER_IP)) return { success: false };
+  recordFailure(key, NEW_SUBS_WINDOW_MS);
+
   await db
     .insert(pushSubscriptions)
     .values({ endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({ target: pushSubscriptions.endpoint, set: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } });
   return { success: true };
 }
 
@@ -43,30 +81,8 @@ export async function unsubscribeUser(endpoint: string) {
   return { success: true };
 }
 
-export async function sendPushToAll(payload: { title: string; body: string; url: string }) {
+export async function sendPushToAll(payload: PushPayload) {
   // Esportata da un file "use server" = chiamabile da chiunque: solo staff.
   await requireStaff();
-  if (!initWebPush()) return;
-  const subs = await db.query.pushSubscriptions.findMany();
-  if (subs.length === 0) return;
-
-  const dead: number[] = [];
-
-  await Promise.allSettled(
-    subs.map(async (sub) => {
-      try {
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify(payload)
-        );
-      } catch (err: unknown) {
-        const status = (err as { statusCode?: number }).statusCode;
-        if (status === 410 || status === 404) dead.push(sub.id);
-      }
-    })
-  );
-
-  if (dead.length > 0) {
-    await db.delete(pushSubscriptions).where(inArray(pushSubscriptions.id, dead));
-  }
+  await deliverPush(payload);
 }

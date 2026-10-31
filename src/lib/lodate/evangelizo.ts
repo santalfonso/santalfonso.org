@@ -80,7 +80,9 @@ export async function getDailyReadings(iso: string): Promise<DailyReadings | nul
   let readingNo = 0;
   const readings: Reading[] = [];
   data.readings.forEach((r, i) => {
-    const text = cleanText(r.text ?? "");
+    // risposta inattesa del servizio: si salta la voce invece di far cadere la pagina
+    if (!r || typeof r !== "object") return;
+    const text = cleanText(typeof r.text === "string" ? r.text : "");
     if (!text) return;
     let label: string;
     if (r.type === "psalm") label = "Salmo responsoriale";

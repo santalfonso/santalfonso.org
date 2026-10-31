@@ -12,12 +12,18 @@ export default function Footer() {
               <img
                 src="/logo-light.avif"
                 alt="Sant'Alfonso"
+                width={661}
+                height={132}
+                loading="lazy"
                 className="brand__logo footer-logo--light"
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo-dark.avif"
                 alt="Sant'Alfonso"
+                width={661}
+                height={132}
+                loading="lazy"
                 className="brand__logo footer-logo--dark"
               />
             </Link>

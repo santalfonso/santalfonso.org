@@ -19,11 +19,16 @@ export async function proofreadText(text: string): Promise<AIResult> {
   if (!text.trim())
     return { error: "Inserisci del testo prima di eseguire la correzione." };
 
+  const isHtml = /<[a-z][\s\S]*>/i.test(text);
   return callGroq(
     "Sei un correttore di bozze per testi parrocchiali italiani. " +
       "Correggi errori grammaticali e ortografici, migliora la leggibilità " +
       "mantenendo tono, contenuto e lunghezza originali. " +
-      "Restituisci solo il testo corretto, senza commenti o spiegazioni.",
+      (isHtml
+        ? "Il testo è in HTML: correggi solo le parole visibili e lascia identici tutti i tag e gli attributi " +
+          "(paragrafi, titoli, elenchi, link, grassetti, allineamenti), senza aggiungerne di nuovi. " +
+          "Restituisci solo l'HTML corretto, senza ``` né commenti o spiegazioni."
+        : "Restituisci solo il testo corretto, senza commenti o spiegazioni."),
     text,
   );
 }
@@ -53,7 +58,8 @@ export async function proofreadAnnouncement(
     "Sei un correttore di bozze per avvisi parrocchiali italiani. " +
       "Correggi TUTTI gli errori ortografici, grammaticali, punteggiatura e uso delle maiuscole. " +
       "Presta particolare attenzione alle lettere duplicate o triplicate per errore (es. 'Parrrocchiale' → 'Parrocchiale', 'messa' scritto 'messsa'). " +
-      "Normalizza tutti gli orari nel formato HH:mm a due cifre (es. '9' → '09:00', '9.30' → '09:30', '18' → '18:00'). " +
+      "Scrivi gli orari nel formato HH:mm a due cifre solo quando il numero è chiaramente un orario (es. 'alle 9' → 'alle 09:00', 'ore 9.30' → 'ore 09:30'); " +
+      "non toccare date, giorni del mese e altri numeri (es. 'domenica 9 novembre' resta così). " +
       "Rimani fedele all'originale: non aggiungere, rimuovere o riformulare informazioni. " +
       'Rispondi SOLO con un oggetto JSON valido nel formato: {"title": "...", "text": "..."}',
     `Titolo: ${title}\nTesto: ${text}`,

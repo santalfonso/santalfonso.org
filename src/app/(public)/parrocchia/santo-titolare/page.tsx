@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
+import { sizedImage } from "@/lib/image-url";
 
 export const metadata: Metadata = { title: "Santo titolare" };
 
-const RITRATTO =
-  "https://res.cloudinary.com/dksk2bjyd/image/upload/v1781359764/santalfonso/santalfonso-ritratto.avif";
+const RITRATTO = sizedImage(
+  "https://res.cloudinary.com/dksk2bjyd/image/upload/v1781359764/santalfonso/santalfonso-ritratto.avif",
+  700
+);
 
 type Libro = {
   coverUrl: string;
@@ -232,7 +235,9 @@ export default function SantoTitolarePage() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={libro.coverUrl}
+                    src={sizedImage(libro.coverUrl, 320)}
+                    loading="lazy"
+                    decoding="async"
                     alt={libro.titolo}
                     style={{
                       width: "100%",

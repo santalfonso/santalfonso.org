@@ -230,7 +230,7 @@ function SetlistRows({ rows }: { rows: Row[] }) {
         <li key={r.publicId}>
           <div className="ls-list-main">
             <Link className="ls-list-title" href={`/lodate/s/${r.publicId}`}>
-              {r.title}
+              {r.title || r.feast || "Scaletta"}
             </Link>
             <span className="ls-song-sub">
               {[formatLongDate(r.celebrationDate) || "Senza data", r.feast, `${r.songs} ${r.songs === 1 ? "canto" : "canti"}`]
@@ -240,10 +240,10 @@ function SetlistRows({ rows }: { rows: Row[] }) {
           </div>
           <div className="ls-row">
             <Link className="ls-btn ls-btn--small" href={`/lodate/scaletta?id=${r.publicId}`}>
-              Modifica<span className="ls-sr"> {r.title}</span>
+              Modifica<span className="ls-sr"> {r.title || r.feast || "Scaletta"}</span>
             </Link>
             <Link className="ls-btn ls-btn--small" href={`/lodate/area?duplica=${r.publicId}`}>
-              Duplica<span className="ls-sr"> {r.title}</span>
+              Duplica<span className="ls-sr"> {r.title || r.feast || "Scaletta"}</span>
             </Link>
           </div>
         </li>

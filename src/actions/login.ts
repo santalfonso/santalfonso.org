@@ -18,8 +18,12 @@ export async function loginAction(
     if (error instanceof CredentialsSignin && error.code === "too_many_attempts") {
       return { error: "Troppi tentativi falliti: riprova tra qualche minuto." };
     }
-    if (error instanceof AuthError) {
+    // credenziali sbagliate; ogni altro errore (es. database irraggiungibile) non è colpa di chi accede
+    if (error instanceof CredentialsSignin) {
       return { error: "Email o password non corretti" };
+    }
+    if (error instanceof AuthError) {
+      return { error: "Accesso non riuscito per un problema momentaneo: riprova tra poco." };
     }
     throw error;
   }

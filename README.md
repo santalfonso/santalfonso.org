@@ -36,7 +36,9 @@ npm run dev
 
 Crea un file `.env.local` con almeno `AUTH_SECRET` (genera con `openssl rand -base64 32`). Vedi `.env.example` per tutte le variabili. Senza credenziali Cloudinary/Blob il sito funziona, ma i caricamenti di immagini e file falliranno con un messaggio di errore nel form.
 
-Utente iniziale creato dal seed: `gabrielemichelenapoli@gmail.com` / `cambiami123` — **cambia la password subito** (al momento: crea un nuovo utente admin con password sicura dall'area Utenti, poi elimina quello vecchio).
+Utente iniziale creato dal seed: l'owner con l'email indicata in `scripts/seed.ts` e la password presa dalla variabile `SEED_ADMIN_PASSWORD` (almeno 12 caratteri), es. `SEED_ADMIN_PASSWORD='...' npm run db:seed`. La password non va mai scritta nel codice o in questo file: il repository è pubblico.
+
+Per cambiare la password di un utente (anche l'owner) direttamente nel database: `npx tsx --env-file=.env.local scripts/set-password.ts` (la password si digita nascosta). Gli utenti possono cambiarla anche dalla propria area personale.
 
 ## Messa in produzione
 

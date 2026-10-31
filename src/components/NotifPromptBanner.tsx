@@ -14,6 +14,14 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+function readSeen(): boolean {
+  try {
+    return Boolean(sessionStorage.getItem("notif-banner-seen"));
+  } catch {
+    return false;
+  }
+}
+
 export default function NotifPromptBanner() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,7 +31,7 @@ export default function NotifPromptBanner() {
     // Se l'utente ha bloccato esplicitamente le notifiche non possiamo fare nulla
     if (Notification.permission === "denied") return;
     // Nella stessa sessione l'utente ha già chiuso il banner, non riaprirlo
-    if (sessionStorage.getItem("notif-banner-seen")) return;
+    if (readSeen()) return;
 
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
@@ -38,7 +46,11 @@ export default function NotifPromptBanner() {
   }, []);
 
   function dismiss() {
-    sessionStorage.setItem("notif-banner-seen", "1");
+    try {
+      sessionStorage.setItem("notif-banner-seen", "1");
+    } catch {
+      // archiviazione bloccata dal browser: il banner si chiude comunque
+    }
     setShow(false);
   }
 
@@ -55,7 +67,8 @@ export default function NotifPromptBanner() {
           process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
         ),
       });
-      await subscribeUser(JSON.parse(JSON.stringify(sub)));
+      const saved = await subscribeUser(JSON.parse(JSON.stringify(sub)));
+      if (!saved.success) await sub.unsubscribe().catch(() => {});
       setShow(false);
     } catch {
       dismiss();

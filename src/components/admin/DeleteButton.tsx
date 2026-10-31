@@ -19,7 +19,13 @@ export default function DeleteButton({
       disabled={pending}
       onClick={() => {
         if (window.confirm(confirmMessage)) {
-          startTransition(() => action());
+          startTransition(async () => {
+            try {
+              await action();
+            } catch {
+              window.alert("Eliminazione non riuscita: riprova.");
+            }
+          });
         }
       }}
       className="admin-btn-danger-link"

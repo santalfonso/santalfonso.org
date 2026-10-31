@@ -62,7 +62,8 @@ const slides = [
     id: "giubileo",
     reverse: true,
     photo: {
-      src: `${CDN}/v1781359289/santalfonso/storia/storia-prima-pietra.avif`,
+      // copia ridotta: la foto è mostrata al massimo in un riquadro di circa 500 px
+      src: `${CDN}/c_limit,w_1000/v1781359289/santalfonso/storia/storia-prima-pietra.avif`,
       position: "center",
     },
     content: (
@@ -164,6 +165,7 @@ export default function HeroSlideshow() {
               <img
                 src={slide.photo.src}
                 alt=""
+                fetchPriority={current === 0 ? "high" : "auto"}
                 style={{
                   width: "100%",
                   aspectRatio: "1",

@@ -74,7 +74,11 @@ export default function Header() {
     } else {
       document.documentElement.removeAttribute("data-theme");
     }
-    localStorage.setItem("sa-theme", next);
+    try {
+      localStorage.setItem("sa-theme", next);
+    } catch {
+      /* archiviazione bloccata: il tema vale solo per questa visita */
+    }
   };
 
   const inParrocchia = pathname.startsWith("/parrocchia");
@@ -100,9 +104,12 @@ export default function Header() {
       <div className="container">
         <div className="site-header__bar">
           <Link href="/" className="brand">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={theme === "dark" ? "/logo-dark.avif" : "/logo-light.avif"}
               alt="Sant'Alfonso"
+              width={661}
+              height={132}
               className="brand__logo"
             />
           </Link>
