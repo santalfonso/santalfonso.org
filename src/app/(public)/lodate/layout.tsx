@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import { auth } from "@/auth";
 import PageTitle from "@/components/PageTitle";
 import LodateSidebar from "@/components/lodate/LodateSidebar";
+import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import "@/app/lodate.css";
+import "@/app/parrocchia.css";
 
 export const metadata: Metadata = {
   title: {
@@ -22,14 +24,25 @@ export default async function LodateLayout({ children }: { children: React.React
     <div className="lodate">
       <PageTitle
         kicker="Canti per la liturgia"
-        lead="Il repertorio dei canti della parrocchia per le Celebrazioni Eucaristiche: testi, accordi e scalette raccolti in un unico luogo."
         title={
           <>
             Lodate, lodate{" "}
             <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Iddio</span>
           </>
         }
-      />
+      >
+        <div className="lodate-epigraph">
+          <ParishEpigraph reference="cfr. Salmo 150">
+            Lodatelo sui cembali sonori,
+            <br />
+            lodatelo sui cembali squillanti:
+            <br />
+            Ogni vivente celebri il Signore,
+            <br />
+            lodate, lodate Iddio.
+          </ParishEpigraph>
+        </div>
+      </PageTitle>
       <div className="container lodate-shell">
         <Suspense fallback={<aside className="lodate-side" aria-label="Menù dei canti" />}>
           <LodateSidebar loggedIn={loggedIn} />

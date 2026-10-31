@@ -26,7 +26,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
   const tabs = [
     {
       href: "/lodate",
-      label: "Repertorio",
+      label: "Repertorio canti",
       active: onCatalog || pathname.startsWith("/lodate/canti/"),
       icon: <path strokeLinecap="round" strokeLinejoin="round" d="M9 18V5l11-2v13M9 18a3 3 0 11-6 0 3 3 0 016 0zm11-2a3 3 0 11-6 0 3 3 0 016 0z" />,
     },
@@ -91,7 +91,7 @@ export default function LodateSidebar({ loggedIn }: { loggedIn: boolean }) {
       <nav className="lodate-side__menu" aria-label="Menù dei canti">
         <p className="lodate-side__group">Canti</p>
         <ul>
-          {item("/lodate", "Repertorio", onCatalog && !params.get("momento") && !tempo)}
+          {item("/lodate", "Repertorio canti", onCatalog && !params.get("momento") && !tempo)}
           {item("/lodate/scaletta", "Prepara una scaletta", pathname.startsWith("/lodate/scaletta"))}
           {loggedIn && item("/lodate/area", "Le mie scalette e preferiti", pathname.startsWith("/lodate/area"))}
           {item("/lodate/letture", "Letture del giorno", pathname.startsWith("/lodate/letture"))}

@@ -1058,3 +1058,7 @@ a.lodate-badge { min-height: 32px; }
 .lodate-heart:active { transform: scale(0.92); }
 .lodate-heart:focus-visible { outline: 3px solid var(--lodate-accent-strong); outline-offset: 2px; }
 .lodate-heart:disabled { cursor: progress; }
+
+/* Citazione del Salmo 150 sotto il titolo */
+.lodate-epigraph { margin-top: 32px; }
+.lodate-epigraph .par-epigraph { margin-bottom: 0; }
