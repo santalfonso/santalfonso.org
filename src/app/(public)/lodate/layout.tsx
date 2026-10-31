@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { auth } from "@/auth";
-import PageTitle from "@/components/PageTitle";
 import LodateSidebar from "@/components/lodate/LodateSidebar";
 import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import "@/app/lodate.css";
@@ -22,16 +21,16 @@ export default async function LodateLayout({ children }: { children: React.React
 
   return (
     <div className="lodate">
-      <PageTitle
-        kicker="Canti per la liturgia"
-        title={
-          <>
-            Lodate, lodate{" "}
-            <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Iddio</span>
-          </>
-        }
-      >
-        <div className="lodate-epigraph">
+      {/* Titolo a sinistra e citazione del Salmo a destra, allineati alla pagina larga */}
+      <section className="lodate-head">
+        <div className="container lodate-head__inner">
+          <div>
+            <span className="kicker">Canti per la liturgia</span>
+            <h1 style={{ marginTop: 20 }}>
+              Lodate, lodate{" "}
+              <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Iddio</span>
+            </h1>
+          </div>
           <ParishEpigraph reference="cfr. Salmo 150">
             Lodatelo sui cembali sonori,
             <br />
@@ -42,7 +41,7 @@ export default async function LodateLayout({ children }: { children: React.React
             lodate, lodate Iddio.
           </ParishEpigraph>
         </div>
-      </PageTitle>
+      </section>
       <div className="container lodate-shell">
         <Suspense fallback={<aside className="lodate-side" aria-label="Menù dei canti" />}>
           <LodateSidebar loggedIn={loggedIn} />

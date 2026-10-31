@@ -3,14 +3,11 @@ export default function PageTitle({
   title,
   lead,
   accent,
-  children,
 }: {
   kicker: string;
   title: React.ReactNode;
   lead?: string;
   accent?: never;
-  /** Contenuto sotto il titolo, al posto o dopo il sottotitolo (es. una citazione). */
-  children?: React.ReactNode;
 }) {
   void accent;
   return (
@@ -23,7 +20,6 @@ export default function PageTitle({
             {lead}
           </p>
         )}
-        {children}
       </div>
     </section>
   );
