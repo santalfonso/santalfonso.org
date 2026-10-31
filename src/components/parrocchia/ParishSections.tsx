@@ -1,26 +1,10 @@
-/** Sezioni di Gruppi e Servizi parrocchiali: indice in alto, poi foto e testo alternati. */
+/** Sezioni di Gruppi e Servizi parrocchiali: foto e testo alternati. */
 export type ParishSection = {
   id: string;
-  /** Voce breve nell'indice; il titolo completo va in `title`. */
-  label: string;
   title: string;
   image: { src: string; alt: string; width: number; height: number };
   body: React.ReactNode;
 };
-
-export function ParishIndex({ sections }: { sections: ParishSection[] }) {
-  return (
-    <nav aria-label="Sezioni della pagina">
-      <ul className="par-index">
-        {sections.map((s) => (
-          <li key={s.id}>
-            <a href={`#${s.id}`}>{s.label}</a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
 
 export default function ParishSections({ sections }: { sections: ParishSection[] }) {
   return (

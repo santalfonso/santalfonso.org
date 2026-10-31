@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
-import ParishSections, { ParishIndex, type ParishSection } from "@/components/parrocchia/ParishSections";
+import ParishSections, { type ParishSection } from "@/components/parrocchia/ParishSections";
 import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import { foto } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
@@ -10,7 +10,6 @@ export const metadata: Metadata = { title: "Servizi parrocchiali" };
 const SEZIONI: ParishSection[] = [
   {
     id: "pastorale",
-    label: "Consiglio pastorale",
     title: "Consiglio pastorale parrocchiale",
     image: { src: foto("servizi/servizi-consiglio-pastorale", 1100), alt: "La chiesa parrocchiale vista dall'esterno", width: 1908, height: 1248 },
     body: (
@@ -34,7 +33,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "economico",
-    label: "Consiglio per gli affari economici",
     title: "Consiglio parrocchiale per gli affari economici",
     image: { src: foto("servizi/servizi-affari-economici", 900), alt: "La chiesa parrocchiale durante la costruzione, in bianco e nero", width: 1390, height: 2065 },
     body: (
@@ -68,7 +66,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "giovanile",
-    label: "Pastorale giovanile",
     title: "Pastorale giovanile parrocchiale",
     image: { src: foto("servizi/servizi-pastorale-giovanile", 1100), alt: "Ragazzi che giocano al tiro alla fune", width: 1800, height: 1200 },
     body: (
@@ -92,7 +89,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "liturgie",
-    label: "Liturgie e sacramenti",
     title: "Servizi per le liturgie e i sacramenti",
     image: { src: foto("servizi/servizi-liturgie", 1100), alt: "Altare allestito per l'adorazione eucaristica", width: 1688, height: 1200 },
     body: (
@@ -129,7 +125,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "spazi",
-    label: "Cura degli ambienti",
     title: "Servizi per la cura degli ambienti",
     image: { src: foto("servizi/servizi-ambienti", 1100), alt: "Il gruppo dei volontari per la cura degli ambienti in chiesa", width: 2000, height: 1500 },
     body: (
@@ -161,7 +156,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "poveri",
-    label: "Servizi ai bisognosi",
     title: "Servizi per i più bisognosi",
     image: { src: foto("servizi/servizi-bisognosi", 1100), alt: "Le volontarie dei servizi ai bisognosi nel cortile della parrocchia", width: 2000, height: 1500 },
     body: (
@@ -189,7 +183,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "ufficio",
-    label: "Ufficio parrocchiale",
     title: "Ufficio parrocchiale",
     image: { src: foto("servizi/servizi-ufficio", 1100), alt: "I volontari dell'ufficio parrocchiale", width: 2000, height: 1333 },
     body: (
@@ -211,7 +204,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "festa",
-    label: "Festa parrocchiale",
     title: "Organizzazione della festa parrocchiale",
     image: { src: foto("servizi/servizi-festa", 1024), alt: "Processione della Madonna del Rosario durante la festa parrocchiale", width: 1024, height: 681 },
     body: (
@@ -231,7 +223,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "presepe",
-    label: "Allestimento presepe",
     title: "Allestimento del presepe",
     image: { src: foto("servizi/servizi-presepe", 1100), alt: "Il presepe allestito in chiesa", width: 1200, height: 1200 },
     body: (
@@ -247,7 +238,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "cornelia",
-    label: "Cappella Santa Elisabetta",
     title: "Servizi svolti alla cappella Santa Elisabetta",
     image: { src: foto("servizi/servizi-santa-elisabetta", 1100), alt: "L'interno della cappella di Santa Elisabetta", width: 1984, height: 1488 },
     body: (
@@ -307,7 +297,6 @@ export default function ServiziPage() {
             frutto concreto, la consapevolezza che le doti di cui il Signore ha arricchito ciascuno (spirituali e non)
             sono anche per il bene di tutti.
           </p>
-          <ParishIndex sections={SEZIONI} />
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
-import ParishSections, { ParishIndex, type ParishSection } from "@/components/parrocchia/ParishSections";
+import ParishSections, { type ParishSection } from "@/components/parrocchia/ParishSections";
 import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import { foto } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
@@ -22,7 +22,6 @@ const PELLEGRINAGGI = [
 const SEZIONI: ParishSection[] = [
   {
     id: "sacramenti",
-    label: "Vicinanza costante ai sacramenti",
     title: "Vicinanza costante ai sacramenti",
     image: { src: foto("gruppi/gruppi-sacramenti", 1100), alt: "Santa Messa nella chiesa parrocchiale", width: 1503, height: 1200 },
     body: (
@@ -58,7 +57,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "cammino",
-    label: "Comunità neocatecumenali",
     title: "Comunità neocatecumenali",
     image: { src: foto("gruppi/gruppi-neocatecumenali", 1100), alt: "Le comunità neocatecumenali della parrocchia", width: 2000, height: 1333 },
     body: (
@@ -80,7 +78,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "padrepio",
-    label: "Gruppo di preghiera di Padre Pio",
     title: "Gruppo di preghiera di Padre Pio",
     image: { src: foto("gruppi/gruppi-padre-pio", 1100), alt: "Il gruppo di preghiera di Padre Pio nella cappellina feriale", width: 1600, height: 1200 },
     body: (
@@ -103,7 +100,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "fidanzati",
-    label: "Corso di preparazione al matrimonio",
     title: "Corso di preparazione al matrimonio",
     image: { src: foto("gruppi/gruppi-corso-matrimonio", 1100), alt: "Celebrazione di un matrimonio nella chiesa parrocchiale", width: 1024, height: 714 },
     body: (
@@ -125,7 +121,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "vizicapitali",
-    label: "Catechesi sulle Virtù",
     title: "Catechesi sulle Virtù opposte ai vizi capitali",
     image: { src: foto("gruppi/gruppi-catechesi-virtu", 1100), alt: "Particolare di un mosaico con figure di santi", width: 1726, height: 1200 },
     body: (
@@ -144,7 +139,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "rosario",
-    label: "Gruppo del rosario nelle case",
     title: "Gruppo del Rosario nelle case",
     image: { src: foto("gruppi/gruppi-rosario", 1100), alt: "Una corona del Rosario", width: 1800, height: 1200 },
     body: (
@@ -165,7 +159,6 @@ const SEZIONI: ParishSection[] = [
   },
   {
     id: "pellegrinaggi",
-    label: "Pellegrinaggi",
     title: "Pellegrinaggi",
     image: { src: foto("gruppi/gruppi-pellegrinaggi", 1100), alt: "Foto di gruppo dei parrocchiani durante un pellegrinaggio", width: 1800, height: 1200 },
     body: (
@@ -228,7 +221,6 @@ export default function GruppiPage() {
             comunità (o gruppi) è un po&apos; differente dalle altre, come le voci e gli strumenti. Però tutte ed ognuna,
             per essere autenticamente Chiesa, devono essere molto attente di rimanere in comunione&rdquo;.
           </p>
-          <ParishIndex sections={SEZIONI} />
         </div>
       </section>
 

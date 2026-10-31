@@ -57,31 +57,6 @@
   background: var(--gold);
 }
 
-/* Indice delle sezioni */
-.par-index {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 8px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.par-index a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 6px 14px;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  background: var(--bg);
-  color: var(--ink-soft);
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
-}
-.par-index a:hover { border-color: var(--azure); color: var(--azure-deep); }
-
 /* Sezioni con foto e testo, alternate a destra e a sinistra */
 .par-sections { display: grid; gap: clamp(48px, 7vw, 96px); }
 .par-section {
