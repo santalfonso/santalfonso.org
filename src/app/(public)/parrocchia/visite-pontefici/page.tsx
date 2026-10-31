@@ -11,13 +11,13 @@ const VISITE = [
     href: "/parrocchia/visite-pontefici/san-giovanni-paolo-ii",
     name: "San Giovanni Paolo II",
     date: "4 Febbraio 2001",
-    image: { src: foto("pontefici/gpii-intestazione", 900), alt: "San Giovanni Paolo II benedice i bambini della parrocchia" },
+    image: { src: foto("pontefici/gpii-intestazione", 1200), alt: "San Giovanni Paolo II benedice i bambini della parrocchia" },
   },
   {
     href: "/parrocchia/visite-pontefici/papa-francesco",
     name: "Papa Francesco",
     date: "6 Gennaio 2014",
-    image: { src: foto("pontefici/francesco-intestazione", 900), alt: "Papa Francesco saluta i fedeli nel presepe vivente della parrocchia" },
+    image: { src: foto("pontefici/francesco-intestazione", 1200), alt: "Papa Francesco saluta i fedeli nel presepe vivente della parrocchia" },
   },
 ];
 
@@ -57,17 +57,20 @@ export default function VisitePonteficiPage() {
       </section>
 
       <section style={{ paddingTop: 0 }}>
-        <div className="container-narrow">
+        <div className="container">
           <div className="par-popes">
             {VISITE.map((v) => (
               <Link key={v.href} href={v.href} className="par-pope">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={v.image.src} alt={v.image.alt} width={900} height={600} loading="lazy" />
+                <img src={v.image.src} alt={v.image.alt} width={1200} height={900} loading="lazy" />
                 <div className="par-pope__body">
                   <span className="par-pope__date">{v.date}</span>
                   <h2 className="par-pope__name">{v.name}</h2>
                   <span className="par-pope__more">
-                    Leggi tutto <span aria-hidden="true">→</span>
+                    Leggi tutto
+                    <span className="par-pope__arrow" aria-hidden="true">
+                      →
+                    </span>
                   </span>
                 </div>
               </Link>
