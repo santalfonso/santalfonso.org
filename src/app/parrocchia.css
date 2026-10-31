@@ -1,0 +1,195 @@
+/* Pagine della parrocchia con foto: Gruppi, Servizi, Visite dei pontefici */
+
+/* Foto grande sotto il titolo */
+.par-hero { margin: 0; }
+.par-hero img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+}
+@media (max-width: 768px) {
+  .par-hero img { aspect-ratio: 4 / 3; }
+}
+
+/* Citazione biblica in apertura */
+.par-epigraph {
+  margin: 0 0 32px;
+  padding: 0 0 0 20px;
+  border-left: 3px solid var(--gold);
+}
+.site .par-epigraph p {
+  margin: 0;
+  font-size: clamp(18px, 2.2vw, 21px);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.par-epigraph cite {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-deep);
+}
+
+/* Indice delle sezioni */
+.par-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.par-index a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.par-index a:hover { border-color: var(--azure); color: var(--azure-deep); }
+
+/* Sezioni con foto e testo, alternate a destra e a sinistra */
+.par-sections { display: grid; gap: clamp(48px, 7vw, 96px); }
+.par-section {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: start;
+  scroll-margin-top: calc(var(--site-sticky-top) + 24px);
+}
+.par-section:nth-child(even),
+.par-section--flip { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.par-section:nth-child(even) .par-section__media,
+.par-section--flip .par-section__media { order: 2; }
+.par-section__media {
+  position: sticky;
+  top: calc(var(--site-sticky-top) + 24px);
+  margin: 0;
+}
+.par-section__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+.par-section .prose-parish h2 { margin-top: 0; }
+@media (max-width: 860px) {
+  .par-section,
+  .par-section:nth-child(even),
+  .par-section--flip { grid-template-columns: 1fr; }
+  .par-section:nth-child(even) .par-section__media,
+  .par-section--flip .par-section__media { order: 0; }
+  .par-section__media { position: static; }
+  .par-section__media img { max-height: 420px; }
+}
+
+/* Pellegrinaggi: anni e santuari */
+.par-years {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.par-years li {
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--bg-soft);
+}
+.par-years strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--azure-deep);
+}
+.par-years span { display: block; font-size: 14px; line-height: 1.5; color: var(--ink-soft); }
+
+/* Visite dei pontefici: card */
+.par-popes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .par-popes { grid-template-columns: 1fr; }
+}
+.par-pope {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+.par-pope:hover {
+  border-color: color-mix(in oklab, var(--azure) 45%, var(--rule));
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.10);
+  transform: translateY(-2px);
+}
+.par-pope img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.par-pope__body { display: flex; flex-direction: column; gap: 6px; padding: 20px 22px 22px; }
+.par-pope__date {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+.par-pope__name { margin: 0; font-size: 24px; line-height: 1.2; color: var(--ink); }
+.par-pope__more { margin-top: 8px; font-size: 15px; font-weight: 600; color: var(--azure-deep); }
+
+/* Pagine dei singoli Papi */
+.par-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--azure-deep);
+  text-decoration: none;
+}
+.par-back:hover { text-decoration: underline; }
+.par-band { margin: 0; }
+.par-band img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 21 / 8;
+  object-fit: cover;
+  border-radius: var(--r-md);
+}
+@media (max-width: 768px) {
+  .par-band img { aspect-ratio: 3 / 2; }
+}
+.par-video {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+  background: #000;
+}
+.par-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

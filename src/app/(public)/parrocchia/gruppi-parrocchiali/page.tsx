@@ -1,7 +1,194 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
+import ParishSections, { ParishIndex, type ParishSection } from "@/components/parrocchia/ParishSections";
+import { foto } from "@/lib/parrocchia-foto";
+import "@/app/parrocchia.css";
 
 export const metadata: Metadata = { title: "Gruppi parrocchiali" };
+
+const PELLEGRINAGGI = [
+  { anno: "2013", luoghi: ["Santuario della Madonna della Neve di Pietralba (Dolomiti)"] },
+  { anno: "2014", luoghi: ["Santuario di Nostra Signora di Lourdes"] },
+  { anno: "2015", luoghi: ["Santuario della Madonna delle Lacrime (Siracusa)"] },
+  { anno: "2016", luoghi: ["Santuario della Madonna di Oropa (Biella)"] },
+  { anno: "2017", luoghi: ["Santuario di Czestochowa (Polonia)"] },
+  {
+    anno: "2018",
+    luoghi: ["Santuario di Santiago de Compostela (Spagna)", "Santuario di Nostra Signora di Fatima (Portogallo)"],
+  },
+];
+
+const SEZIONI: ParishSection[] = [
+  {
+    id: "sacramenti",
+    label: "Vicinanza costante ai sacramenti",
+    title: "Vicinanza costante ai sacramenti",
+    image: { src: foto("gruppi/gruppi-sacramenti", 1100), alt: "Santa Messa nella chiesa parrocchiale", width: 1503, height: 1200 },
+    body: (
+      <>
+        <p>
+          Ogni giorno Cristo si fa vicino a noi nella nostra vita; i sacramenti e le celebrazioni liturgiche sono il
+          principale nutrimento spirituale:
+        </p>
+        <p>
+          La <strong>S. Messa</strong> viene celebrata quotidianamente alle 8:00 e alle 18:30. Nelle domeniche e nelle
+          Solennità della Chiesa ci sono almeno quattro celebrazioni: in particolare la S. Messa domenicale delle 10:30
+          è dedicata alle famiglie e ai bambini e ragazzi del catechismo.
+        </p>
+        <p>
+          La <strong>Confessione</strong> è un sacramento, istituito da Gesù Cristo per rinnovare l&apos;anima e aprirti
+          alla grazia di Dio attraverso il dialogo con il sacerdote e l&apos;assoluzione finale. È possibile confessarsi
+          durante la S. Messa domenicale, immediatamente prima o dopo la S. Messa feriale oppure accordandosi con i
+          sacerdoti per fissare un appuntamento in altri orari.
+        </p>
+        <p>
+          Il <strong>Rosario</strong> fu pensato per guidare la meditazione e la recita delle preghiere. Ogni giorno,
+          alle ore 17:45 nella cappellina feriale, si possono meditare i &quot;misteri&quot;, cioè eventi, momenti o
+          episodi significativi della vita di Cristo e di Maria.
+        </p>
+        <p>
+          L&apos;<strong>Adorazione Eucaristica</strong> è attiva ogni martedì dalle 8:30 alle 18:30 nella cappellina
+          feriale; il Santissimo, cioè la presenza reale e divina di Gesù Cristo, viene esposto nell&apos;Eucaristia. Un
+          gruppo di fedeli garantisce l&apos;adorazione continua a cui è possibile aggiungersi per un momento di dialogo
+          personale con Dio.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "cammino",
+    label: "Comunità neocatecumenali",
+    title: "Comunità neocatecumenali",
+    image: { src: foto("gruppi/gruppi-neocatecumenali", 1100), alt: "Le comunità neocatecumenali della parrocchia", width: 2000, height: 1333 },
+    body: (
+      <>
+        <p>
+          Il Cammino Neocatecumenale è uno strumento al servizio della Chiesa per la riscoperta dell&apos;iniziazione
+          cristiana da parte degli adulti battezzati. Molti di essi, infatti, si sono allontanati dalla Chiesa o, pur
+          rimanendo in essa, non hanno potuto coltivare il seme del battesimo ricevuto da piccoli. Questo si è andato
+          mano mano inaridendo, non essendo sostenuto da un&apos;adesione personale, che solo può nascere dall&apos;avere
+          sperimentato l&apos;amore di Dio nella propria vita.
+        </p>
+        <p>
+          Attraverso l&apos;aiuto del Cammino il neocatecumeno arriva a conoscere chi egli è veramente e, parallelamente,
+          sperimenta l&apos;amore e la misericordia di Dio sulla sua vita e sui suoi limiti.
+        </p>
+        <p>Nella nostra parrocchia sono presenti due comunità.</p>
+      </>
+    ),
+  },
+  {
+    id: "padrepio",
+    label: "Gruppo di preghiera di Padre Pio",
+    title: "Gruppo di preghiera di Padre Pio",
+    image: { src: foto("gruppi/gruppi-padre-pio", 1100), alt: "Il gruppo di preghiera di Padre Pio nella cappellina feriale", width: 1600, height: 1200 },
+    body: (
+      <>
+        <p>
+          Il Gruppo di Preghiera di Padre Pio è frutto del Ministero sacerdotale del santo stesso. Padre Pio raccomandava
+          sempre a tutti di pregare. Così accadeva che, a poco a poco, le anime da lui formate sentissero il bisogno di
+          riunirsi per pregare in comune.
+        </p>
+        <p>
+          Si partecipa alla Santa Messa, si prega, si medita, si ascolta la Parola di Dio. Le attività e i temi che si
+          svolgono durante gli incontri sono coordinati dal parroco che presiede gli appuntamenti.
+        </p>
+        <p>
+          Nella nostra parrocchia è dunque attivo un Gruppo di Preghiera che si riunisce ogni 4° lunedì del mese alle ore
+          16:45 presso la cappellina feriale.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "fidanzati",
+    label: "Corso di preparazione al matrimonio",
+    title: "Corso di preparazione al matrimonio",
+    image: { src: foto("gruppi/gruppi-corso-matrimonio", 1100), alt: "Celebrazione di un matrimonio nella chiesa parrocchiale", width: 1024, height: 714 },
+    body: (
+      <>
+        <p>
+          La scelta di sposarsi è senza dubbio una scelta delicata dal momento che implica un cambiamento radicale della
+          propria vita e l&apos;assunzione di un impegno serio e inderogabile nei confronti di colei o colui al quale si
+          decide di legarsi per l&apos;eternità. Se la scelta, poi, è quella di sposarsi in Chiesa accettando che il
+          proprio amore diventi sacramento dell&apos;amore di Cristo per la sua Chiesa, la responsabilità è ancora
+          maggiore. Motivo questo per cui la scelta non può essere frutto dell&apos;improvvisazione.
+        </p>
+        <p>
+          Il corso di preparazione al matrimonio è aperto a chiunque voglia sapere cosa dice la Chiesa sul matrimonio. È
+          aperto a coppie che hanno scelto di sposarsi, a coppie che ancora non hanno deciso, a coppie già sposate e a
+          single.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "vizicapitali",
+    label: "Catechesi sulle Virtù",
+    title: "Catechesi sulle Virtù opposte ai vizi capitali",
+    image: { src: foto("gruppi/gruppi-catechesi-virtu", 1100), alt: "Particolare di un mosaico con figure di santi", width: 1726, height: 1200 },
+    body: (
+      <>
+        <p>
+          Negli ultimi anni è stato approfondito a cura del parroco il tema delle Virtù della Chiesa opposte ai Vizi
+          Capitali: un percorso di incontri settimanali, tendenzialmente da ottobre a gennaio, che si basa sul catechismo
+          della Chiesa cattolica e sulle parole dei Padri della Chiesa, in particolare il monaco Evagrio Pontico.
+        </p>
+        <p>
+          Tanti hanno trovato giovamento da queste catechesi sia nel cammino di fede personale sia nella conoscenza di
+          alcune verità della tradizione della Chiesa cattolica.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "rosario",
+    label: "Gruppo del rosario nelle case",
+    title: "Gruppo del Rosario nelle case",
+    image: { src: foto("gruppi/gruppi-rosario", 1100), alt: "Una corona del Rosario", width: 1800, height: 1200 },
+    body: (
+      <>
+        <p>
+          Il Rosario è una &ldquo;preghiera contemplativa e cristocentrica, inseparabile dalla meditazione della Sacra
+          Scrittura, è la preghiera del cristiano che avanza nel pellegrinaggio della fede, alla sequela di Gesù,
+          preceduto da Maria&rdquo; (Papa Benedetto XVI, &quot;Angelus&quot; del 01/10/2006).
+        </p>
+        <p>
+          Un gruppo di fedeli apre le porte della propria casa e organizza nelle case delle persone che lo richiedono la
+          recita del Santo Rosario animato con canti e dedicato a particolari necessità della comunità parrocchiale oltre
+          che alle intenzioni del Papa e della Chiesa. Tutti indistintamente ne possono far parte; anche chi già fa parte
+          di altri gruppi o già svolge servizi e mansioni in parrocchia si può sentire coinvolto.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "pellegrinaggi",
+    label: "Pellegrinaggi",
+    title: "Pellegrinaggi",
+    image: { src: foto("gruppi/gruppi-pellegrinaggi", 1100), alt: "Foto di gruppo dei parrocchiani durante un pellegrinaggio", width: 1800, height: 1200 },
+    body: (
+      <>
+        <p>
+          La parrocchia ogni anno in estate organizza un pellegrinaggio di più giorni ricco di preghiera e anche di
+          spunti culturali. Famiglie, anziani, neonati, giovani, bambini camminano fianco a fianco facendosi prossimi gli
+          uni degli altri: tanta comunione, risate, preghiera profonda e condivisa sono un ristoro per l&apos;anima. Sia
+          in Italia che in Europa sono state affidate in santuari importanti le necessità di tanti parrocchiani:
+        </p>
+        <ul className="par-years">
+          {PELLEGRINAGGI.map((p) => (
+            <li key={p.anno}>
+              <strong>{p.anno}</strong>
+              {p.luoghi.map((l) => (
+                <span key={l}>{l}</span>
+              ))}
+            </li>
+          ))}
+        </ul>
+      </>
+    ),
+  },
+];
 
 export default function GruppiPage() {
   return (
@@ -14,70 +201,44 @@ export default function GruppiPage() {
             <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>spirituale</span>.
           </>
         }
-        lead="I gruppi che animano la vita ecclesiale della comunità, ciascuno con il proprio carisma."
+        lead="I gruppi parrocchiali: ciascuno con il proprio carisma, tutti in comunione nella vita della comunità."
       />
-      <article className="prose-parish container-narrow" style={{ paddingBottom: 64 }}>
-        <p>
-          La parrocchia organizza diversi gruppi che caratterizzano gli aspetti
-          della vita ecclesiale. Come suggeriva Paolo VI, ogni comunità è come
-          «un concerto vocale e strumentale» dove «tutte ed ognuna, per essere
-          autenticamente Chiesa, devono essere molto attente di rimanere in
-          comunione».
-        </p>
 
-        <h2>Vicinanza costante ai sacramenti</h2>
-        <p>
-          La Santa Messa si celebra quotidianamente alle 8:00 e alle 18:30. La
-          domenica e nelle solennità si svolgono almeno quattro celebrazioni,
-          con quella delle 10:30 dedicata alle famiglie e ai bambini del
-          catechismo.
-        </p>
-        <p>
-          La confessione è disponibile durante la messa domenicale o
-          accordandosi con i sacerdoti. Il rosario si recita ogni giorno alle
-          17:45 nella cappellina feriale. L&apos;adorazione eucaristica è attiva
-          ogni martedì dalle 8:30 alle 18:30.
-        </p>
+      <section style={{ padding: 0 }}>
+        <div className="container">
+          <figure className="par-hero">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={foto("gruppi/gruppi-intestazione", 2000)} alt="Santa Messa all'aperto con i parrocchiani" width={2000} height={1254} />
+          </figure>
+        </div>
+      </section>
 
-        <h2>Comunità Neocatecumenali</h2>
-        <p>
-          Questo cammino aiuta gli adulti battezzati a riscoprire
-          l&apos;iniziazione cristiana. Nella parrocchia sono presenti due
-          comunità.
-        </p>
+      <section style={{ paddingBottom: 48 }}>
+        <div className="container-narrow">
+          <blockquote className="par-epigraph">
+            <p>
+              &ldquo;Non ero profeta né figlio di profeta; ero un mandriano e coltivavo piante di sicomòro. Il Signore mi
+              prese, mi chiamò mentre seguivo il gregge. Il Signore mi disse: Va&apos;, profetizza al mio popolo
+              Israele.&rdquo;
+            </p>
+            <cite>Amos 7,14-15</cite>
+          </blockquote>
+          <p style={{ fontSize: 17, lineHeight: 1.7 }}>
+            Tenendo presente che nella parrocchia i vari gruppi diversificano gli aspetti di vita ecclesiale, San Paolo VI
+            suggeriva questa bella immagine: &ldquo;Questa evoluzione della parrocchia che si esprime in piccole comunità
+            e gruppi ci fa pensare ad una comparazione: quella del concerto vocale e strumentale. Ognuna delle piccole
+            comunità (o gruppi) è un po&apos; differente dalle altre, come le voci e gli strumenti. Però tutte ed ognuna,
+            per essere autenticamente Chiesa, devono essere molto attente di rimanere in comunione&rdquo;.
+          </p>
+          <ParishIndex sections={SEZIONI} />
+        </div>
+      </section>
 
-        <h2>Gruppo di preghiera di Padre Pio</h2>
-        <p>
-          Riunito ogni quarto lunedì del mese alle 16:45 presso la cappellina
-          feriale, il gruppo organizza incontri di preghiera, meditazione e
-          ascolto della Parola di Dio.
-        </p>
-
-        <h2>Corso di preparazione al matrimonio</h2>
-        <p>
-          Aperto a coppie fidanzate, già sposate e single, il corso affronta il
-          tema del matrimonio secondo l&apos;insegnamento della Chiesa.
-        </p>
-
-        <h2>Catechesi sulle virtù opposte ai vizi capitali</h2>
-        <p>
-          Percorso settimanale di incontri da ottobre a gennaio basato sul
-          catechismo cattolico e sui Padri della Chiesa.
-        </p>
-
-        <h2>Gruppo del Rosario nelle case</h2>
-        <p>
-          Fedeli organizzano la recita del rosario animato nelle abitazioni per
-          necessità della comunità parrocchiale.
-        </p>
-
-        <h2>Pellegrinaggi</h2>
-        <p>
-          Annualmente in estate la parrocchia organizza pellegrinaggi
-          plurigiornalieri verso importanti santuari mariani in Italia e in
-          Europa.
-        </p>
-      </article>
+      <section style={{ paddingTop: 16 }}>
+        <div className="container">
+          <ParishSections sections={SEZIONI} />
+        </div>
+      </section>
     </>
   );
 }
