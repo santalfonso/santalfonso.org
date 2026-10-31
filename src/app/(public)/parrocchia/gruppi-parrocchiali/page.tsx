@@ -7,18 +7,6 @@ import "@/app/parrocchia.css";
 
 export const metadata: Metadata = { title: "Gruppi parrocchiali" };
 
-const PELLEGRINAGGI = [
-  { anno: "2013", luoghi: ["Santuario della Madonna della Neve di Pietralba (Dolomiti)"] },
-  { anno: "2014", luoghi: ["Santuario di Nostra Signora di Lourdes"] },
-  { anno: "2015", luoghi: ["Santuario della Madonna delle Lacrime (Siracusa)"] },
-  { anno: "2016", luoghi: ["Santuario della Madonna di Oropa (Biella)"] },
-  { anno: "2017", luoghi: ["Santuario di Czestochowa (Polonia)"] },
-  {
-    anno: "2018",
-    luoghi: ["Santuario di Santiago de Compostela (Spagna)", "Santuario di Nostra Signora di Fatima (Portogallo)"],
-  },
-];
-
 const SEZIONI: ParishSection[] = [
   {
     id: "sacramenti",
@@ -120,24 +108,6 @@ const SEZIONI: ParishSection[] = [
     ),
   },
   {
-    id: "vizicapitali",
-    title: "Catechesi sulle Virtù opposte ai vizi capitali",
-    image: { src: foto("gruppi/gruppi-catechesi-virtu", 1100), alt: "Particolare di un mosaico con figure di santi", width: 1726, height: 1200 },
-    body: (
-      <>
-        <p>
-          Negli ultimi anni è stato approfondito a cura del parroco il tema delle Virtù della Chiesa opposte ai Vizi
-          Capitali: un percorso di incontri settimanali, tendenzialmente da ottobre a gennaio, che si basa sul catechismo
-          della Chiesa cattolica e sulle parole dei Padri della Chiesa, in particolare il monaco Evagrio Pontico.
-        </p>
-        <p>
-          Tanti hanno trovato giovamento da queste catechesi sia nel cammino di fede personale sia nella conoscenza di
-          alcune verità della tradizione della Chiesa cattolica.
-        </p>
-      </>
-    ),
-  },
-  {
     id: "rosario",
     title: "Gruppo del Rosario nelle case",
     image: { src: foto("gruppi/gruppi-rosario", 1100), alt: "Una corona del Rosario", width: 1800, height: 1200 },
@@ -154,31 +124,6 @@ const SEZIONI: ParishSection[] = [
           che alle intenzioni del Papa e della Chiesa. Tutti indistintamente ne possono far parte; anche chi già fa parte
           di altri gruppi o già svolge servizi e mansioni in parrocchia si può sentire coinvolto.
         </p>
-      </>
-    ),
-  },
-  {
-    id: "pellegrinaggi",
-    title: "Pellegrinaggi",
-    image: { src: foto("gruppi/gruppi-pellegrinaggi", 1100), alt: "Foto di gruppo dei parrocchiani durante un pellegrinaggio", width: 1800, height: 1200 },
-    body: (
-      <>
-        <p>
-          La parrocchia ogni anno in estate organizza un pellegrinaggio di più giorni ricco di preghiera e anche di
-          spunti culturali. Famiglie, anziani, neonati, giovani, bambini camminano fianco a fianco facendosi prossimi gli
-          uni degli altri: tanta comunione, risate, preghiera profonda e condivisa sono un ristoro per l&apos;anima. Sia
-          in Italia che in Europa sono state affidate in santuari importanti le necessità di tanti parrocchiani:
-        </p>
-        <ul className="par-years">
-          {PELLEGRINAGGI.map((p) => (
-            <li key={p.anno}>
-              <strong>{p.anno}</strong>
-              {p.luoghi.map((l) => (
-                <span key={l}>{l}</span>
-              ))}
-            </li>
-          ))}
-        </ul>
       </>
     ),
   },
