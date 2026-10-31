@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import ParishSections, { ParishIndex, type ParishSection } from "@/components/parrocchia/ParishSections";
+import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import { foto } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
 
@@ -215,14 +216,11 @@ export default function GruppiPage() {
 
       <section style={{ paddingBottom: 48 }}>
         <div className="container-narrow">
-          <blockquote className="par-epigraph">
-            <p>
-              &ldquo;Non ero profeta né figlio di profeta; ero un mandriano e coltivavo piante di sicomòro. Il Signore mi
+          <ParishEpigraph reference="Amos 7,14-15">
+              Non ero profeta né figlio di profeta; ero un mandriano e coltivavo piante di sicomòro. Il Signore mi
               prese, mi chiamò mentre seguivo il gregge. Il Signore mi disse: Va&apos;, profetizza al mio popolo
-              Israele.&rdquo;
-            </p>
-            <cite>Amos 7,14-15</cite>
-          </blockquote>
+              Israele.
+          </ParishEpigraph>
           <p style={{ fontSize: 17, lineHeight: 1.7 }}>
             Tenendo presente che nella parrocchia i vari gruppi diversificano gli aspetti di vita ecclesiale, San Paolo VI
             suggeriva questa bella immagine: &ldquo;Questa evoluzione della parrocchia che si esprime in piccole comunità

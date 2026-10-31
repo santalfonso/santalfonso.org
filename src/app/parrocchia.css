@@ -16,25 +16,54 @@
 
 /* Citazione biblica in apertura */
 .par-epigraph {
-  margin: 0 0 32px;
-  padding: 0 0 0 20px;
-  border-left: 3px solid var(--gold);
+  position: relative;
+  margin: 0 0 40px;
+  padding: clamp(40px, 6vw, 64px) clamp(24px, 6vw, 64px) clamp(32px, 5vw, 48px);
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid color-mix(in oklab, var(--gold) 45%, transparent);
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in oklab, var(--azure) 16%, transparent), transparent 60%),
+    radial-gradient(120% 90% at 100% 100%, color-mix(in oklab, var(--gold) 22%, transparent), transparent 60%),
+    linear-gradient(135deg, var(--azure-soft), var(--gold-soft));
+  box-shadow: 0 12px 40px color-mix(in oklab, var(--gold) 14%, transparent);
 }
-.site .par-epigraph p {
-  margin: 0;
-  font-size: clamp(18px, 2.2vw, 21px);
-  font-style: italic;
-  line-height: 1.6;
-  color: var(--ink);
-}
-.par-epigraph cite {
+.par-epigraph__mark {
   display: block;
-  margin-top: 10px;
+  height: 0.55em;
+  margin-bottom: 8px;
+  font-size: clamp(88px, 12vw, 120px);
+  line-height: 1;
+  color: var(--gold);
+}
+.par-epigraph blockquote { margin: 0; }
+.site .par-epigraph blockquote p {
+  margin: 0 auto;
+  max-width: 34em;
+  font-size: clamp(21px, 2.6vw, 27px);
+  line-height: 1.45;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.par-epigraph figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 24px;
   font-size: 13px;
-  font-style: normal;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--gold-deep);
+}
+.par-epigraph figcaption::before,
+.par-epigraph figcaption::after {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
 }
 
 /* Indice delle sezioni */

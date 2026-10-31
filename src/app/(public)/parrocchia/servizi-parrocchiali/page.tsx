@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import ParishSections, { ParishIndex, type ParishSection } from "@/components/parrocchia/ParishSections";
+import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
 import { foto } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
 
@@ -291,17 +292,14 @@ export default function ServiziPage() {
 
       <section style={{ paddingBottom: 48 }}>
         <div className="container-narrow">
-          <blockquote className="par-epigraph">
-            <p>
-              &ldquo;Come in un solo corpo abbiamo molte membra e tutte le membra non hanno una medesima funzione, così
+          <ParishEpigraph reference="Rm 12,3-8">
+              Come in un solo corpo abbiamo molte membra e tutte le membra non hanno una medesima funzione, così
               noi, che siamo molti, siamo un solo corpo in Cristo, e, individualmente, siamo membra l&apos;uno
               dell&apos;altro. Avendo pertanto doni differenti secondo la grazia che ci è stata concessa, se abbiamo dono
               di profezia, profetizziamo conformemente alla fede; se di ministero, attendiamo al ministero; se
               d&apos;insegnamento, all&apos;insegnare; se di esortazione, all&apos;esortare; chi dà, dia con semplicità;
-              chi presiede, lo faccia con diligenza; chi fa opere di misericordia, le faccia con gioia.&rdquo;
-            </p>
-            <cite>Rm 12,3-8</cite>
-          </blockquote>
+              chi presiede, lo faccia con diligenza; chi fa opere di misericordia, le faccia con gioia.
+          </ParishEpigraph>
           <p style={{ fontSize: 17, lineHeight: 1.7 }}>
             Ognuno di noi è chiamato nella quotidianità. E ognuno per il proprio carisma può dare il dono di sé
             all&apos;interno dei servizi parrocchiali che promuovono il lavoro laicale per la comunità. In essi è molto
