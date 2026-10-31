@@ -86,6 +86,20 @@
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 .par-section .prose-parish h2 { margin-top: 0; }
+/* Gruppi e Servizi: la foto non scorre, è alta quanto il testo accanto */
+.par-section--fill { align-items: stretch; }
+.par-section--fill .prose-parish > :last-child { margin-bottom: 0; }
+.par-section--fill .par-section__media {
+  position: relative;
+  top: auto;
+  min-height: 320px;
+}
+.par-section--fill .par-section__media img {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  max-height: none;
+}
 @media (max-width: 860px) {
   .par-section,
   .par-section:nth-child(even),
@@ -94,6 +108,8 @@
   .par-section--flip .par-section__media { order: 0; }
   .par-section__media { position: static; }
   .par-section__media img { max-height: 420px; }
+  .par-section--fill .par-section__media { min-height: 0; }
+  .par-section--fill .par-section__media img { position: static; height: auto; aspect-ratio: 4 / 3; }
 }
 
 /* Visite dei pontefici: card con la foto a tutta superficie */
