@@ -48,8 +48,8 @@ export default function NewsList({
 
   return (
     <>
-      {/* Toolbar: layout toggle */}
-      <section style={{ padding: "0 0 8px" }}>
+      {/* Toolbar: layout toggle (solo da computer: sul telefono resta la griglia) */}
+      <section className="news-layout-toggle" style={{ padding: "0 0 8px" }}>
         <div className="container" style={{ display: "flex", justifyContent: "flex-end" }}>
           <div
             style={{

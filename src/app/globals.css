@@ -1291,3 +1291,8 @@ select.lodate-capo__select { padding-left: 18px; }
 [data-theme="dark"] select.lodate-capo__select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23E5E7EB' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
+
+/* News: la scelta Griglia/Lista c'è solo da computer */
+@media (max-width: 768px) {
+  .news-layout-toggle { display: none; }
+}

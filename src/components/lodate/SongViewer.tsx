@@ -137,14 +137,42 @@ export default function SongViewer({
   }, []);
   const showChords = withChords && prefs.chords;
 
-  // ── Trasposizione e Barrè ──
-  // Gli accordi sono scritti per il Barrè del canto (song.capo). `transpose` sposta il
-  // suono di tutto il canto; cambiando il Barrè le posizioni degli accordi si adeguano
-  // in modo che il canto suoni nella stessa tonalità.
+  // ── Tonalità e Barrè ──
+  // Si scelgono separatamente: `transpose` cambia la tonalità (gli accordi mostrati),
+  // il Barrè indica solo il tasto su cui suonare e non cambia gli accordi.
   const songCapo = song.capo ?? 0;
   const [transpose, setTranspose] = useState(initialSettings?.transpose ?? 0);
   const [capo, setCapo] = useState(initialSettings?.capo ?? songCapo);
-  const shapeShift = normalizeSemitones(transpose + songCapo - capo);
+  const shapeShift = normalizeSemitones(transpose);
+
+  // ── Stampa ──
+  // Nell'app installata sulla schermata Home di iPhone window.print() non fa nulla (limite di iOS):
+  // si apre il canto in Safari con le stesse impostazioni e lì parte subito la stampa.
+  const print = () => {
+    const nav = navigator as Navigator & { standalone?: boolean };
+    if (nav.standalone === true) {
+      const url = new URL(`/lodate/canti/${song.slug}`, window.location.origin);
+      url.searchParams.set("stampa", "1");
+      url.searchParams.set("t", String(transpose));
+      url.searchParams.set("b", String(capo));
+      url.searchParams.set("acc", showChords ? "1" : "0");
+      if (window.open(url.toString(), "_blank")) return;
+    }
+    window.print();
+  };
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get("stampa") !== "1") return;
+    const t = Number(p.get("t"));
+    const b = Number(p.get("b"));
+    /* eslint-disable react-hooks/set-state-in-effect -- impostazioni arrivate dall'app, una volta sola */
+    if (Number.isInteger(t) && Math.abs(t) <= 11) setTranspose(t);
+    if (Number.isInteger(b) && b >= 0 && b < CAPO_LABELS.length) setCapo(b);
+    if (p.get("acc") === "0") setPrefs((prev) => ({ ...prev, chords: false }));
+    /* eslint-enable react-hooks/set-state-in-effect */
+    const timer = window.setTimeout(() => window.print(), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
   const shown = useMemo(
     () => transposeSong(parsed, shapeShift, song.musicalKey),
     [parsed, shapeShift, song.musicalKey]
@@ -445,7 +473,7 @@ export default function SongViewer({
             <PenIcon /> {annotating ? "Fine annotazioni" : "Annota"}
           </button>
         )}
-        <button type="button" className="lodate-btn" onClick={() => window.print()}>
+        <button type="button" className="lodate-btn" onClick={print}>
           <PrintIcon /> Stampa
         </button>
         <ShareMenu title={song.title} path={`/lodate/canti/${song.slug}`} />

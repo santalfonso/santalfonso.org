@@ -15,7 +15,7 @@ const tabs = [
     ),
   },
   {
-    href: "/parrocchia/storia",
+    href: "/parrocchia",
     label: "Parrocchia",
     matchPrefix: "/parrocchia",
     icon: (
