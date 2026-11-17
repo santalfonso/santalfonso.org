@@ -1,9 +1,18 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
+import ContactForm from "@/components/ContactForm";
+import { getRecaptchaSiteKey } from "@/lib/contact-config";
+import { foto } from "@/lib/parrocchia-foto";
+import "@/app/contatti.css";
 
 export const metadata: Metadata = { title: "Contatti" };
 
-export default function ContattiPage() {
+// la chiave reCAPTCHA arriva da Configurazioni: la pagina si rigenera al salvataggio
+export const revalidate = 3600;
+
+export default async function ContattiPage() {
+  const siteKey = await getRecaptchaSiteKey();
+
   return (
     <>
       <PageTitle
@@ -19,6 +28,15 @@ export default function ContattiPage() {
 
       <section style={{ paddingTop: 0 }}>
         <div className="container">
+          <figure className="contact-photo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={foto("contatti/contatti-ufficio", 2000)}
+              alt="Il corridoio con la porta dell'Ufficio parrocchiale e l'icona dell'Annunciazione"
+              width={2200}
+              height={1238}
+            />
+          </figure>
           <div className="info-grid">
             <div className="card">
               <span className="kicker">Recapiti</span>
@@ -112,6 +130,8 @@ export default function ContattiPage() {
               ))}
             </div>
           </div>
+
+          <ContactForm siteKey={siteKey} />
         </div>
       </section>
     </>

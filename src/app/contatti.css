@@ -1,0 +1,61 @@
+/* === Pagina Contatti: foto dell'ufficio e form === */
+.contact-photo { margin: 0 0 24px; }
+.contact-photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+}
+@media (max-width: 768px) {
+  .contact-photo img { aspect-ratio: 4 / 3; }
+}
+
+.contact-form { margin-top: 24px; padding: 32px; display: flex; flex-direction: column; gap: 18px; }
+.contact-form:hover { box-shadow: none; border-color: var(--rule); }
+.contact-form h3 { margin-bottom: 0; }
+.contact-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 768px) {
+  .contact-form { padding: 24px; }
+  .contact-form__row { grid-template-columns: 1fr; }
+}
+.contact-form__field { display: flex; flex-direction: column; gap: 6px; }
+.contact-form__field label { font-weight: 600; font-size: 14px; color: var(--ink); }
+.contact-form__field input,
+.contact-form__field textarea {
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  width: 100%;
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.contact-form__field textarea { resize: vertical; min-height: 140px; }
+.contact-form__field input:focus,
+.contact-form__field textarea:focus {
+  outline: none;
+  border-color: var(--azure);
+  box-shadow: 0 0 0 3px var(--azure-soft);
+}
+.contact-form__muted { color: var(--ink-mute); font-weight: 400; }
+.contact-form__check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+.contact-form__check input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--azure-deep); flex: none; }
+.contact-form__error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: #FDECEC;
+  color: #A32020;
+  font-size: 14px;
+}
+[data-theme="dark"] .contact-form__error { background: #3A1616; color: #FFB4B4; }
+.contact-form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.contact-form__actions .btn[disabled] { opacity: 0.6; cursor: progress; transform: none; }
+.contact-form__legal { margin: 0; font-size: 12px; line-height: 1.5; flex: 1 1 260px; }
+.contact-form__legal a { color: inherit; text-decoration: underline; }
+/* trappola per robot fuori dallo schermo */
+.contact-form__trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
