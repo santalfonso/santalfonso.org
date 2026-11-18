@@ -65,6 +65,7 @@ const CONTACT_FROM = { name: "Sito santalfonso.org", address: "info@santalfonso.
 export type ContactMail = {
   subject: string;
   text: string;
+  html?: string;
   replyTo?: { name: string; address: string };
 };
 
@@ -87,6 +88,7 @@ export async function sendContactMail(c: ContactConfig, mail: ContactMail): Prom
         to: [CONTACT_TO],
         subject: mail.subject,
         text: mail.text,
+        ...(mail.html && { html: mail.html }),
         ...(mail.replyTo && { reply_to: `${mail.replyTo.name.replace(/[<>"\r\n]/g, "")} <${mail.replyTo.address}>` }),
       }),
       signal: AbortSignal.timeout(10000),
@@ -111,5 +113,6 @@ export async function sendContactMail(c: ContactConfig, mail: ContactMail): Prom
     replyTo: mail.replyTo,
     subject: mail.subject,
     text: mail.text,
+    html: mail.html,
   });
 }

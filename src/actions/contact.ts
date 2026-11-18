@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { canSendContactMail, getContactConfig, sendContactMail } from "@/lib/contact-config";
+import { contactEmailHtml } from "@/lib/contact-email";
 import { isLimited, recordFailure } from "@/lib/rate-limit";
 
 export type ContactState =
@@ -90,6 +91,7 @@ export async function sendContactAction(_prev: ContactState, formData: FormData)
       replyTo: { name: values.name, address: values.email },
       subject: `[Contatti] ${subject}`,
       text: `Nome: ${values.name}\nEmail: ${values.email}\n\n${values.message}\n\n— Inviato dal form contatti di santalfonso.org`,
+      html: contactEmailHtml(values),
     });
   } catch (error) {
     console.error("Form contatti: invio non riuscito", error);

@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { requireOwner } from "@/auth";
 import { CONTACT_KEYS, CONTACT_TO, canSendContactMail, getContactConfig, sendContactMail } from "@/lib/contact-config";
+import { testEmailHtml } from "@/lib/contact-email";
 import { sealSecret } from "@/lib/secret-box";
 
 export type ContactSettingsState = { error?: string; success?: string } | undefined;
@@ -80,6 +81,7 @@ export async function sendContactTestEmail(): Promise<ContactSettingsState> {
     await sendContactMail(config, {
       subject: "[Contatti] Email di prova",
       text: `Email di prova inviata da Admin → Configurazioni${email ? ` da ${email}` : ""}.\nServizio: ${config.resendApiKey ? "Resend" : "SMTP"}.\nSe la ricevi, il form contatti del sito è pronto.`,
+      html: testEmailHtml(config.resendApiKey ? "Resend" : "SMTP", email),
     });
   } catch (error) {
     console.error("Email di prova non riuscita", error);
