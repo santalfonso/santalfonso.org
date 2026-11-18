@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaffPage } from "@/auth";
-import { createResource, deleteCategory, deleteResource, updateCategory, updateResource } from "@/actions/resources";
+import {
+  createResource,
+  deleteCategory,
+  deleteResource,
+  setCategoryActive,
+  updateCategory,
+  updateResource,
+} from "@/actions/resources";
+import CategoryActiveToggle from "@/components/admin/CategoryActiveToggle";
 import CategoryForm from "@/components/admin/CategoryForm";
 import DeleteButton from "@/components/admin/DeleteButton";
 import ResourceForm from "@/components/admin/ResourceForm";
@@ -74,6 +82,13 @@ export default async function CategoriaPage({ params }: { params: Promise<{ id: 
         <aside className="admin-card" aria-labelledby="res-cat-data">
           <div className="admin-card-body">
             <h2 id="res-cat-data" className="res-h2">Categoria</h2>
+            <div className="res-visibility">
+              <CategoryActiveToggle
+                active={category.active}
+                name={category.name}
+                action={setCategoryActive.bind(null, category.id)}
+              />
+            </div>
             <CategoryForm action={updateCategory.bind(null, category.id)} category={category} />
             <div className="res-danger">
               <DeleteButton

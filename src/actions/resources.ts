@@ -85,6 +85,13 @@ export async function deleteCategory(id: number) {
   revalidateResources();
 }
 
+/** Mostra o nasconde una categoria nella pagina Risorse (nascosta: anche i suoi file non si scaricano). */
+export async function setCategoryActive(id: number, active: boolean) {
+  await requireStaff();
+  await db.update(resourceCategories).set({ active: Boolean(active) }).where(eq(resourceCategories.id, id));
+  revalidateResources(id);
+}
+
 /** Sposta una categoria di un posto in su (-1) o in giù (+1) nella pagina Risorse. */
 export async function moveCategory(id: number, direction: -1 | 1) {
   await requireStaff();

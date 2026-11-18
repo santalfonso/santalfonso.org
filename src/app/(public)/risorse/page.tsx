@@ -47,7 +47,7 @@ function FileList({ files }: { files: Resource[] }) {
 
 export default async function RisorsePage() {
   const { categories, uncategorized } = await getCategoriesWithFiles();
-  const visible = categories.filter((c) => c.files.length > 0);
+  const visible = categories.filter((c) => c.active && c.files.length > 0);
 
   return (
     <>

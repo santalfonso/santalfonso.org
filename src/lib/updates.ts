@@ -203,7 +203,13 @@ export async function checkUpdates(previous?: UpdatesReport | null): Promise<Upd
     const cur = parseVersion(r.value.version);
     const lat = parseVersion(r.value.latest);
     if (!cur || !lat || compare(lat, cur) <= 0) continue;
-    const kind = lat.nums[0] !== cur.nums[0] ? "major" : lat.nums[1] !== cur.nums[1] ? "minor" : "patch";
+    // per i pacchetti 0.x anche un cambio di minor può richiedere modifiche al codice
+    const kind =
+      lat.nums[0] !== cur.nums[0] || (cur.nums[0] === 0 && lat.nums[1] !== cur.nums[1])
+        ? "major"
+        : lat.nums[1] !== cur.nums[1]
+          ? "minor"
+          : "patch";
     outdated.push({
       pkg: r.value.name,
       installed: r.value.version,

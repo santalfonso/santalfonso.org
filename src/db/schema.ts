@@ -61,6 +61,8 @@ export const resourceCategories = sqliteTable("resource_categories", {
   imageFocus: text("image_focus"),
   /** Ordine nella pagina Risorse (più basso = più in alto). */
   position: integer("position").notNull().default(0),
+  /** Se false la categoria non compare nel sito e i suoi file non si scaricano. */
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),
@@ -74,7 +76,9 @@ export const resources = sqliteTable(
     description: text("description"),
     /** Nome della categoria al momento del caricamento (le risorse nuove usano categoryId). */
     category: text("category").notNull().default("Documenti"),
-    categoryId: integer("category_id").references(() => resourceCategories.id),
+    /** Categoria (resource_categories.id). Senza vincolo nel database: il legame lo gestisce il sito
+        (eliminando una categoria si eliminano prima i suoi file). */
+    categoryId: integer("category_id"),
     fileUrl: text("file_url").notNull(),
     fileName: text("file_name").notNull(),
     fileSize: integer("file_size"),

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireStaffPage } from "@/auth";
-import { deleteResource, moveCategory } from "@/actions/resources";
+import { deleteResource, moveCategory, setCategoryActive } from "@/actions/resources";
+import CategoryActiveToggle from "@/components/admin/CategoryActiveToggle";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { getCategoriesWithFiles } from "@/lib/resources-data";
 import { sizedImage } from "@/lib/image-url";
@@ -22,7 +23,8 @@ export default async function AdminRisorsePage() {
       </div>
       <p className="res-intro">
         Ogni categoria ha una foto e contiene i file da scaricare. Apri una categoria per caricare i file; con le frecce
-        scegli l&apos;ordine in cui compaiono nella pagina Risorse.
+        scegli l&apos;ordine in cui compaiono nella pagina Risorse. Una categoria nascosta non compare nel sito e i suoi
+        file non si possono scaricare.
       </p>
 
       {categories.length === 0 ? (
@@ -32,7 +34,7 @@ export default async function AdminRisorsePage() {
       ) : (
         <ul className="res-cats">
           {categories.map((c, i) => (
-            <li key={c.id} className="res-cat">
+            <li key={c.id} className={`res-cat${c.active ? "" : " is-hidden"}`}>
               <Link href={`/admin/risorse/categorie/${c.id}`} className="res-cat__media" tabIndex={-1} aria-hidden="true">
                 {c.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -47,6 +49,7 @@ export default async function AdminRisorsePage() {
                 <p className="res-cat__count">
                   {c.files.length} file
                 </p>
+                <CategoryActiveToggle active={c.active} name={c.name} action={setCategoryActive.bind(null, c.id)} />
               </div>
               <div className="res-cat__actions">
                 <Link href={`/admin/risorse/categorie/${c.id}`} className="admin-btn admin-btn-ghost">

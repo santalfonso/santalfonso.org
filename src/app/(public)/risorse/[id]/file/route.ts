@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { resources } from "@/db/schema";
+import { resourceCategories, resources } from "@/db/schema";
 import { contentDisposition, fileDelivery, isOwnCloudinaryUrl, serverDownloadUrl } from "@/lib/resource-file";
 
 export async function GET(
@@ -18,6 +18,14 @@ export async function GET(
   // solo file caricati sul Cloudinary della parrocchia
   if (!resource || !isOwnCloudinaryUrl(resource.fileUrl)) {
     return new Response("Not found", { status: 404 });
+  }
+  // i file di una categoria nascosta non si scaricano
+  if (resource.categoryId !== null) {
+    const category = await db.query.resourceCategories.findFirst({
+      where: eq(resourceCategories.id, resource.categoryId),
+      columns: { active: true },
+    });
+    if (category && !category.active) return new Response("Not found", { status: 404 });
   }
 
   const source = await serverDownloadUrl(resource.fileUrl);

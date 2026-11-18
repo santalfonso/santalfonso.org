@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { getSetting } from "@/lib/settings";
 import { parseReport, UPDATES_SETTING_KEY, type Severity, type Vulnerability } from "@/lib/updates";
 import { formatDate, formatDateTime } from "@/lib/utils";
+import Link from "next/link";
 import UpdatesCheckButton from "@/components/admin/UpdatesCheckButton";
+import ApplyUpdatesButton from "@/components/admin/ApplyUpdatesButton";
+import AutoRefresh from "@/components/admin/AutoRefresh";
+import { getGithubToken, GithubError, listUpdateRuns, type UpdateRun } from "@/lib/github-updates";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Aggiornamenti" };
@@ -38,9 +42,30 @@ const PURPOSE: Record<string, string> = {
   marked: "Formattazione dei testi",
   bcryptjs: "Protezione delle password",
   zod: "Controllo dei dati dei moduli",
-  "@vercel/blob": "Archivio file Vercel",
   qrcode: "Codici QR delle scalette",
 };
+
+function runStatus(r: UpdateRun): { label: string; tone: "run" | "ok" | "idle" | "bad" } {
+  if (r.status === "queued" || r.status === "waiting" || r.status === "pending") return { label: "In attesa di partire", tone: "run" };
+  if (r.status !== "completed") return { label: "In corso: aggiornamento e verifica…", tone: "run" };
+  if (r.conclusion === "success") {
+    if (r.published === true) return { label: "Aggiornamenti pubblicati: il sito si aggiorna in 1–2 minuti", tone: "ok" };
+    if (r.published === false) return { label: "Nessun aggiornamento compatibile da applicare", tone: "idle" };
+    return { label: "Completato", tone: "ok" };
+  }
+  if (r.conclusion === "cancelled") return { label: "Annullato", tone: "idle" };
+  return { label: "Verifica non superata: non è stato pubblicato nulla", tone: "bad" };
+}
+
+async function loadRuns(): Promise<{ hasToken: boolean; runs: UpdateRun[]; error: string | null }> {
+  const token = await getGithubToken();
+  if (!token) return { hasToken: false, runs: [], error: null };
+  try {
+    return { hasToken: true, runs: await listUpdateRuns(token), error: null };
+  } catch (e) {
+    return { hasToken: true, runs: [], error: e instanceof GithubError ? e.message : "GitHub non risponde: riprova più tardi." };
+  }
+}
 
 type VulnGroup = { pkg: string; installed: string; dev: boolean; direct: boolean; worst: Severity; firstSeen: string; items: Vulnerability[] };
 
@@ -123,6 +148,9 @@ export default async function AggiornamentiPage() {
   const siteOutdated = report?.outdated.filter((o) => !o.dev) ?? [];
   const devOutdated = report?.outdated.filter((o) => o.dev) ?? [];
   const urgent = siteVulns.filter((g) => g.worst === "critical" || g.worst === "high").length;
+  const compatible = report?.outdated.filter((o) => o.kind !== "major").length ?? 0;
+  const { hasToken, runs, error: runsError } = await loadRuns();
+  const running = runs.some((r) => r.status !== "completed");
 
   return (
     <div className="upd">
@@ -148,6 +176,63 @@ export default async function AggiornamentiPage() {
           </div>
           <UpdatesCheckButton />
         </div>
+      </div>
+
+      <div className="admin-card">
+        <div className="admin-card-body upd-head">
+          <div>
+            <h2 className="upd-title">Applica gli aggiornamenti compatibili</h2>
+            <p className="upd-lead">
+              Applica in automatico le <strong>nuove funzioni</strong> e le <strong>correzioni</strong> dei componenti e le
+              correzioni di sicurezza compatibili; le versioni principali, che possono richiedere modifiche al codice,
+              restano escluse. Prima di pubblicare, il sito viene costruito e verificato: se qualcosa non va non cambia
+              nulla.
+            </p>
+            <p className="upd-meta">
+              {report ? (
+                <>
+                  Dall&apos;ultima verifica: <strong>{compatible}</strong>{" "}
+                  {compatible === 1 ? "aggiornamento compatibile" : "aggiornamenti compatibili"}.{" "}
+                </>
+              ) : null}
+              Si usano solo versioni pubblicate da almeno 3 giorni.
+            </p>
+          </div>
+          {hasToken ? (
+            <ApplyUpdatesButton disabled={running} />
+          ) : (
+            <p className="upd-meta" style={{ maxWidth: 260 }}>
+              Per attivare il pulsante inserisci il token GitHub in{" "}
+              <Link href="/admin/impostazioni/configurazioni" className="admin-link">
+                Configurazioni
+              </Link>
+              .
+            </p>
+          )}
+        </div>
+        {(runs.length > 0 || runsError) && (
+          <div className="upd-runs">
+            <AutoRefresh active={running} />
+            {runsError && <div className="admin-error">{runsError}</div>}
+            {runs.length > 0 && (
+              <ul>
+                {runs.map((r) => {
+                  const st = runStatus(r);
+                  return (
+                    <li key={r.id} className={`upd-run upd-run--${st.tone}`}>
+                      <span className="upd-run__dot" aria-hidden="true" />
+                      <span className="upd-run__label">{st.label}</span>
+                      <span className="upd-run__date">{formatDateTime(r.createdAt)}</span>
+                      <a href={r.url} target="_blank" rel="noopener noreferrer" className="admin-link">
+                        Dettagli ↗
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
 
       {report && (
@@ -252,8 +337,8 @@ export default async function AggiornamentiPage() {
           )}
 
           <p className="upd-note">
-            Gli aggiornamenti non si installano da qui: vanno applicati al codice del sito, verificati e poi pubblicati.
-            Dopo la pubblicazione, una nuova verifica toglie dall&apos;elenco le voci risolte.
+            Le versioni principali non si applicano dal pulsante: richiedono di adattare il codice del sito. Dopo ogni
+            pubblicazione, una nuova verifica toglie dall&apos;elenco le voci risolte.
           </p>
         </>
       )}
