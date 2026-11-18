@@ -1,29 +1,53 @@
 import type { Metadata } from "next";
-import { desc } from "drizzle-orm";
-import { db } from "@/db";
-import { resources } from "@/db/schema";
-import { formatDate, formatFileSize } from "@/lib/utils";
+import BookGrid from "@/components/BookGrid";
+import { sizedImage } from "@/lib/image-url";
+import { LIBRI } from "@/lib/libri";
+import { getCategoriesWithFiles } from "@/lib/resources-data";
+import { formatFileSize } from "@/lib/utils";
+import type { Resource } from "@/db/schema";
+import "@/app/risorse.css";
 
-export const metadata: Metadata = { title: "Risorse" };
+export const metadata: Metadata = {
+  title: "Risorse",
+  description: "Libretti dei festeggiamenti della Madonna del Rosario, documenti della parrocchia e libri consigliati.",
+};
 export const dynamic = "force-dynamic";
 
 function fileType(fileName: string): string {
   const ext = fileName.split(".").pop()?.toUpperCase();
-  return ext && ext.length <= 4 ? ext : "File";
+  return ext && ext !== fileName.toUpperCase() && ext.length <= 4 ? ext : "File";
+}
+
+function FileList({ files }: { files: Resource[] }) {
+  return (
+    <ul className="ris-files">
+      {files.map((f) => (
+        <li key={f.id}>
+          <a href={`/risorse/${f.id}/file`} target="_blank" rel="noopener noreferrer" className="ris-file">
+            <span className="ris-file__type">{fileType(f.fileName)}</span>
+            <span className="ris-file__text">
+              <span className="ris-file__title">{f.title}</span>
+              {(f.description || f.fileSize) && (
+                <span className="ris-file__meta">
+                  {[f.description, formatFileSize(f.fileSize)].filter(Boolean).join(" · ")}
+                </span>
+              )}
+            </span>
+            <span className="ris-file__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 4v12M6 11l6 6 6-6M5 20h14" />
+              </svg>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export default async function RisorsePage() {
-  const list = await db.query.resources.findMany({
-    orderBy: [desc(resources.createdAt)],
-  });
-
-  const byCategory = new Map<string, typeof list>();
-  for (const resource of list) {
-    const group = byCategory.get(resource.category) ?? [];
-    group.push(resource);
-    byCategory.set(resource.category, group);
-  }
-  const categories = [...byCategory.entries()];
+  const { categories, uncategorized } = await getCategoriesWithFiles();
+  const visible = categories.filter((c) => c.files.length > 0);
 
   return (
     <>
@@ -35,111 +59,60 @@ export default async function RisorsePage() {
             <span style={{ background: "linear-gradient(90deg, var(--azure-deep), var(--azure))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>cammino</span>.
           </h1>
           <p className="lead" style={{ marginTop: 20 }}>
-            Una raccolta in continuo aggiornamento: i libretti dei
-            festeggiamenti della Madonna del Rosario, documenti e materiali
-            della parrocchia da scaricare.
+            Materiali utili e testi consigliati: l&apos;archivio dei libretti dei festeggiamenti della Madonna del
+            Rosario, i documenti della parrocchia da scaricare e le letture proposte durante le catechesi.
           </p>
         </div>
       </section>
 
-      {categories.length > 1 && (
+      {(visible.length > 0 || uncategorized.length > 0) && (
         <section style={{ paddingTop: 0 }}>
-          <div className="container">
-            <div className="cats">
-              {categories.map(([category, items], i) => (
-                <a key={category} href={`#cat-${i}`} className="card">
-                  <div
-                    style={{
-                      display: "inline-block",
-                      padding: "4px 10px",
-                      background: i % 2 === 0 ? "var(--azure-soft)" : "var(--gold-soft)",
-                      color: i % 2 === 0 ? "var(--azure-deep)" : "var(--gold-deep)",
-                      borderRadius: "var(--r-pill)",
-                      fontSize: 12,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {items.length} {items.length === 1 ? "elemento" : "elementi"}
-                  </div>
-                  <h3 style={{ marginTop: 14, fontSize: 19 }}>{category}</h3>
-                  <span
-                    className="btn--link"
-                    style={{ marginTop: 14, display: "inline-flex" }}
-                  >
-                    Esplora →
+          <div className="container ris-cats">
+            {visible.map((c) => (
+              <article key={c.id} id={`categoria-${c.id}`} className="ris-cat" aria-labelledby={`categoria-${c.id}-titolo`}>
+                {c.imageUrl && (
+                  <figure className="ris-cat__media">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={sizedImage(c.imageUrl, 1000)}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      style={{ objectPosition: c.imageFocus ?? undefined }}
+                    />
+                  </figure>
+                )}
+                <div className="ris-cat__body">
+                  <span className="kicker">
+                    {c.files.length} file da scaricare
                   </span>
-                </a>
-              ))}
-            </div>
+                  <h2 id={`categoria-${c.id}-titolo`} className="ris-cat__title">{c.name}</h2>
+                  {c.description && <p className="ris-cat__desc">{c.description}</p>}
+                  <FileList files={c.files} />
+                </div>
+              </article>
+            ))}
+
+            {uncategorized.length > 0 && (
+              <article className="ris-cat ris-cat--plain" aria-labelledby="altri-documenti">
+                <div className="ris-cat__body">
+                  <h2 id="altri-documenti" className="ris-cat__title">Altri documenti</h2>
+                  <FileList files={uncategorized} />
+                </div>
+              </article>
+            )}
           </div>
         </section>
       )}
 
-      <section style={{ paddingTop: categories.length > 1 ? undefined : 0 }}>
+      {/* Libri consigliati: stessa grafica della pagina del Santo titolare */}
+      <section id="libri" style={{ background: "var(--bg-soft)", paddingTop: 64, paddingBottom: 64 }}>
         <div className="container">
-          {list.length === 0 ? (
-            <p className="muted">Nessuna risorsa disponibile al momento.</p>
-          ) : (
-            categories.map(([category, items], i) => (
-              <div key={category} id={`cat-${i}`} style={{ marginBottom: i < categories.length - 1 ? 56 : 0 }}>
-                <div className="section-header" style={{ marginBottom: 28 }}>
-                  <div>
-                    <span className="kicker">{category}</span>
-                    <h2 style={{ marginTop: 14, fontSize: "clamp(22px, 2.6vw, 30px)" }}>
-                      {category}
-                    </h2>
-                  </div>
-                </div>
-                <div className="card" style={{ padding: 0 }}>
-                  {items.map((resource, j, arr) => (
-                    <a
-                      key={resource.id}
-                      href={`/risorse/${resource.id}/file`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="resource-row"
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "70px 1fr auto",
-                        gap: 20,
-                        padding: "18px 24px",
-                        borderBottom: j < arr.length - 1 ? "1px solid var(--rule)" : "0",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: "var(--azure-deep)",
-                          background: "var(--azure-soft)",
-                          padding: "5px 0",
-                          textAlign: "center",
-                          borderRadius: "var(--r-pill)",
-                        }}
-                      >
-                        {fileType(resource.fileName)}
-                      </span>
-                      <div>
-                        <h4 style={{ fontSize: 16, marginBottom: 4 }}>
-                          {resource.title}
-                        </h4>
-                        <span style={{ fontSize: 13, color: "var(--ink-mute)" }}>
-                          {resource.description
-                            ? `${resource.description} · `
-                            : ""}
-                          {formatFileSize(resource.fileSize) || resource.fileName}
-                          {" · "}
-                          {formatDate(resource.createdAt)}
-                        </span>
-                      </div>
-                      <span style={{ fontSize: 18, color: "var(--ink-mute)" }}>↓</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
+          <div style={{ marginBottom: 40 }}>
+            <span className="kicker">Letture proposte durante le catechesi</span>
+            <h2 style={{ marginTop: 14 }}>Libri consigliati</h2>
+          </div>
+          <BookGrid libri={LIBRI} showAuthor />
         </div>
       </section>
     </>

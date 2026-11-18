@@ -31,6 +31,6 @@ export async function saveSetting(
       set: { value, updatedAt: new Date().toISOString() },
     });
 
-  revalidatePath("/admin/configurazioni");
+  revalidatePath("/admin/impostazioni/configurazioni");
   return { success: true };
 }

@@ -1,79 +1,89 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
-import { db } from "@/db";
-import { resources } from "@/db/schema";
-import { deleteResource } from "@/actions/resources";
-import DeleteButton from "@/components/admin/DeleteButton";
-import { formatDate, formatFileSize } from "@/lib/utils";
 import { requireStaffPage } from "@/auth";
+import { deleteResource, moveCategory } from "@/actions/resources";
+import DeleteButton from "@/components/admin/DeleteButton";
+import { getCategoriesWithFiles } from "@/lib/resources-data";
+import { sizedImage } from "@/lib/image-url";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminRisorsePage() {
   await requireStaffPage();
-  const list = await db.query.resources.findMany({
-    orderBy: [desc(resources.createdAt)],
-  });
+  const { categories, uncategorized } = await getCategoriesWithFiles();
 
   return (
     <>
       <div className="admin-page-head">
         <h1>Risorse</h1>
-        <Link href="/admin/risorse/nuovo" className="admin-btn admin-btn-primary">
-          + Carica risorsa
+        <Link href="/admin/risorse/categorie/nuova" className="admin-btn admin-btn-primary">
+          + Nuova categoria
         </Link>
       </div>
+      <p className="res-intro">
+        Ogni categoria ha una foto e contiene i file da scaricare. Apri una categoria per caricare i file; con le frecce
+        scegli l&apos;ordine in cui compaiono nella pagina Risorse.
+      </p>
 
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Titolo</th>
-              <th>Categoria</th>
-              <th>File</th>
-              <th>Caricata il</th>
-              <th className="right">Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.length === 0 && (
-              <tr>
-                <td colSpan={5} className="admin-table-empty">
-                  Nessuna risorsa. Caricane una con &ldquo;Carica risorsa&rdquo;.
-                </td>
-              </tr>
-            )}
-            {list.map((resource) => (
-              <tr key={resource.id}>
-                <td style={{ fontWeight: 600 }}>{resource.title}</td>
-                <td className="mute">{resource.category}</td>
-                <td>
-                  <a
-                    href={resource.fileUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="admin-link"
-                  >
-                    {resource.fileName}
-                  </a>
-                  {resource.fileSize ? (
-                    <span className="mute" style={{ marginLeft: 4, fontSize: 12 }}>
-                      ({formatFileSize(resource.fileSize)})
-                    </span>
-                  ) : null}
-                </td>
-                <td className="mute">{formatDate(resource.createdAt)}</td>
-                <td className="right">
-                  <DeleteButton
-                    action={deleteResource.bind(null, resource.id)}
-                    confirmMessage={`Eliminare la risorsa "${resource.title}"? Il link di download smetterà di funzionare.`}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {categories.length === 0 ? (
+        <div className="admin-card">
+          <p className="admin-table-empty">Nessuna categoria. Creane una con &ldquo;Nuova categoria&rdquo;.</p>
+        </div>
+      ) : (
+        <ul className="res-cats">
+          {categories.map((c, i) => (
+            <li key={c.id} className="res-cat">
+              <Link href={`/admin/risorse/categorie/${c.id}`} className="res-cat__media" tabIndex={-1} aria-hidden="true">
+                {c.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={sizedImage(c.imageUrl, 600)} alt="" style={{ objectPosition: c.imageFocus ?? undefined }} loading="lazy" />
+                )}
+              </Link>
+              <div className="res-cat__body">
+                <Link href={`/admin/risorse/categorie/${c.id}`} className="res-cat__name">
+                  {c.name}
+                </Link>
+                {c.description && <p className="res-cat__desc">{c.description}</p>}
+                <p className="res-cat__count">
+                  {c.files.length} file
+                </p>
+              </div>
+              <div className="res-cat__actions">
+                <Link href={`/admin/risorse/categorie/${c.id}`} className="admin-btn admin-btn-ghost">
+                  Apri
+                </Link>
+                <form action={moveCategory.bind(null, c.id, -1)}>
+                  <button className="res-move" disabled={i === 0} aria-label={`Sposta "${c.name}" più in alto`}>↑</button>
+                </form>
+                <form action={moveCategory.bind(null, c.id, 1)}>
+                  <button className="res-move" disabled={i === categories.length - 1} aria-label={`Sposta "${c.name}" più in basso`}>↓</button>
+                </form>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {uncategorized.length > 0 && (
+        <section style={{ marginTop: 40 }}>
+          <h2 className="res-h2">File senza categoria</h2>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <tbody>
+                {uncategorized.map((r) => (
+                  <tr key={r.id}>
+                    <td style={{ fontWeight: 600 }}>{r.title}</td>
+                    <td className="mute">{formatDate(r.createdAt)}</td>
+                    <td className="right">
+                      <DeleteButton action={deleteResource.bind(null, r.id)} confirmMessage={`Eliminare "${r.title}"?`} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </>
   );
 }

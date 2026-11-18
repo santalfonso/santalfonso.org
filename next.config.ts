@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "5mb",
     },
   },
+  async redirects() {
+    return [
+      { source: "/admin/configurazioni", destination: "/admin/impostazioni/configurazioni", permanent: false },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

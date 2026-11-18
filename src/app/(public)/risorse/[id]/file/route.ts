@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { resources } from "@/db/schema";
-import { contentDisposition, fileDelivery, isOwnCloudinaryUrl } from "@/lib/resource-file";
+import { contentDisposition, fileDelivery, isOwnCloudinaryUrl, serverDownloadUrl } from "@/lib/resource-file";
 
 export async function GET(
   _request: Request,
@@ -20,9 +20,14 @@ export async function GET(
     return new Response("Not found", { status: 404 });
   }
 
+  const source = await serverDownloadUrl(resource.fileUrl);
+  if (!source) {
+    return new Response("Not found", { status: 404 });
+  }
+
   let upstream: Response;
   try {
-    upstream = await fetch(resource.fileUrl, { redirect: "error", signal: AbortSignal.timeout(20_000) });
+    upstream = await fetch(source, { redirect: "error", cache: "no-store", signal: AbortSignal.timeout(30_000) });
   } catch {
     return new Response("File non disponibile", { status: 502 });
   }
@@ -37,6 +42,7 @@ export async function GET(
       "Content-Type": contentType,
       "Content-Disposition": contentDisposition(resource.fileName, inline),
       "X-Content-Type-Options": "nosniff",
+      ...(upstream.headers.get("content-length") ? { "Content-Length": upstream.headers.get("content-length")! } : {}),
       "Cache-Control": "public, max-age=86400",
     },
   });

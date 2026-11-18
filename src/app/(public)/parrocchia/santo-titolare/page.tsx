@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import { sizedImage } from "@/lib/image-url";
+import BookGrid from "@/components/BookGrid";
+import { LIBRI_SANT_ALFONSO as libri } from "@/lib/libri";
 
 export const metadata: Metadata = { title: "Santo titolare" };
 
@@ -8,90 +10,6 @@ const RITRATTO = sizedImage(
   "https://res.cloudinary.com/dksk2bjyd/image/upload/v1781359764/santalfonso/santalfonso-ritratto.avif",
   700
 );
-
-type Libro = {
-  coverUrl: string;
-  titolo: string;
-  didascalia: string;
-  amazonUrl: string;
-};
-
-const CDN = "https://res.cloudinary.com/dksk2bjyd/image/upload/v1781360745/santalfonso/libri";
-
-const libri: Libro[] = [
-  {
-    coverUrl: `${CDN}/pratica-amare-gesu.avif`,
-    titolo: "Pratica di amare Gesù Cristo",
-    didascalia:
-      `Uno dei meriti di sant’Alfonso è quello di aver avuto la “pretesa” pastorale di portare tutti, laici e non, alla perfezione della vita. Probabilmente questo è il più bel libro di sant’Alfonso: tutto incentrato sull’arte di amare Gesù Cristo.`,
-    amazonUrl:
-      "https://www.amazon.it/Pratica-Cristo-Alfonso-Maria-Liguori/dp/8884043239/ref=sr_1_1?ie=UTF8&qid=1550316295&sr=8-1&keywords=9788884043238",
-  },
-  {
-    coverUrl: `${CDN}/visite-santissimo.avif`,
-    titolo: "Visite al Santissimo Sacramento e a Maria Santissima",
-    didascalia:
-      "Un manuale di preghiera agile e accessibile a tutti, dallo stile scorrevole e piacevole, di contenuto ricco. Aprilo in qualunque chiesa dove sia presente il Santissimo Sacramento, o durante l'adorazione eucaristica.",
-    amazonUrl:
-      "https://www.amazon.it/Visite-santissimo-sacramento-Maria-Santissima/dp/8884041880/ref=sr_1_1?ie=UTF8&qid=1550317032&sr=8-1&keywords=9788884041883",
-  },
-  {
-    coverUrl: `${CDN}/massime-eterne.avif`,
-    titolo: "Massime Eterne",
-    didascalia:
-      "Il libro che aiuta il credente a parlare con Dio, a intensificare il rapporto personale con lui, specialmente nei momenti di dolore e nelle prove della vita. Un sussidio efficace per conseguire la salvezza eterna.",
-    amazonUrl:
-      "https://www.amazon.it/Massime-eterne-Ediz-caratteri-grandi/dp/8884041929/ref=sr_1_1?ie=UTF8&qid=1550315882&sr=8-1&keywords=9788884041920",
-  },
-  {
-    coverUrl: `${CDN}/glorie-di-maria.avif`,
-    titolo: "Le Glorie di Maria",
-    didascalia:
-      "Il più grande capolavoro mariano di sant'Alfonso: meditazioni sulla Salve Regina, le sette principali feste di Maria, i sette dolori, le sue virtù e quasi 100 esempi dell'azione di Maria Santissima.",
-    amazonUrl:
-      "https://www.amazon.it/glorie-Maria-Alfonso-Liguori/dp/888404216X/ref=sr_1_1?ie=UTF8&qid=1550320559&sr=8-1&keywords=9788884042163",
-  },
-  {
-    coverUrl: `${CDN}/apparecchio-alla-morte.avif`,
-    titolo: "Apparecchio alla Morte",
-    didascalia:
-      "Nato dalla predicazione trentennale di sant'Alfonso nei paesi più depressi del Regno di Napoli. Al centro il tema dei Novissimi, per risvegliare nei fedeli il senso del peccato e la speranza della vita eterna.",
-    amazonUrl:
-      "https://www.amazon.it/Apparecchio-considerazioni-meditare-sacerdoti-predicare/dp/882156035X/ref=sr_1_1?ie=UTF8&qid=1550321812&sr=8-1&keywords=9788821560354",
-  },
-  {
-    coverUrl: `${CDN}/conversare-con-dio.avif`,
-    titolo: "Conversare con Dio",
-    didascalia:
-      `"Vedo da una parte l'assoluta necessità della preghiera, e all'incontro vedo che i cristiani praticano poco questo gran mezzo della loro salvezza." Un'osservazione del Santo quanto mai attuale.`,
-    amazonUrl:
-      "https://www.amazon.it/Conversare-Dio-mezzo-della-preghiera/dp/8884042623/ref=sr_1_4?s=books&ie=UTF8&qid=1550322248&sr=1-4&keywords=del+gran+mezzo+della+preghiera",
-  },
-  {
-    coverUrl: `${CDN}/uniformita-volonta-dio.avif`,
-    titolo: "Uniformità alla Volontà di Dio",
-    didascalia:
-      `Accogliere in tutto e per tutto la volontà di Dio è possibile. Sant'Alfonso spiega: "Uniformità significa fare della volontà di Dio e della nostra una sola volontà".`,
-    amazonUrl:
-      "https://www.amazon.it/Uniformit%C3%A0-volont%C3%A0-Lamore-opuscoli-affini/dp/888404345X/",
-  },
-  {
-    coverUrl: `${CDN}/solitudine-aridita.avif`,
-    titolo: "Solitudine e Aridità Spirituale",
-    didascalia:
-      "Sant'Alfonso tratta argomenti delicatissimi con garbo e profondità. Quando tutto sembra oscurità, riaccende la luce della fede, della speranza, dell'ottimismo.",
-    amazonUrl:
-      "https://www.amazon.it/Solitudine-aridit%C3%A0-spirituale-Alfonso-Liguori/dp/8884042879/",
-  },
-  {
-    coverUrl: `${CDN}/meditazioni-passione.avif`,
-    titolo: "Meditazioni sulla Passione di Gesù Cristo",
-    didascalia:
-      "Da chi mai i santi hanno preso fortezza per sopportare i tormenti, se non dalle pene di Gesù crocifisso? Non c'è esercizio più adatto al perfetto amore che meditare spesso sulla sua Passione.",
-    amazonUrl:
-      "https://www.amazon.it/Meditazioni-sulla-passione-Ges%C3%B9-Cristo/dp/8864093141/",
-  },
-];
 
 export default function SantoTitolarePage() {
   return (
@@ -223,52 +141,7 @@ export default function SantoTitolarePage() {
               <span className="kicker">Scritti</span>
               <h2 style={{ marginTop: 14 }}>Opere principali</h2>
             </div>
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-              gap: 24,
-            }}>
-              {libri.map((libro) => (
-                <div
-                  key={libro.amazonUrl}
-                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={sizedImage(libro.coverUrl, 320)}
-                    loading="lazy"
-                    decoding="async"
-                    alt={libro.titolo}
-                    style={{
-                      width: "100%",
-                      aspectRatio: "2/3",
-                      objectFit: "cover",
-                      borderRadius: "var(--r-sm)",
-                      border: "1px solid var(--rule)",
-                      display: "block",
-                      boxShadow: "0 2px 12px rgba(0,0,0,0.10)",
-                    }}
-                  />
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: 14, lineHeight: 1.3 }}>
-                      {libro.titolo}
-                    </div>
-                    <div style={{ fontSize: 13, color: "var(--ink-mute)", lineHeight: 1.5 }}>
-                      {libro.didascalia}
-                    </div>
-                    <a
-                      href={libro.amazonUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn--primary"
-                      style={{ marginTop: "auto", fontSize: 13, textAlign: "center", textDecoration: "none" }}
-                    >
-                      Acquista su Amazon
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <BookGrid libri={libri} />
           </div>
         </section>
       )}

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { requireOwnerPage } from "@/auth";
 import { getSetting } from "@/lib/settings";
 import { getContactConfig } from "@/lib/contact-config";
@@ -5,6 +6,7 @@ import ConfigurazioniForm from "@/components/admin/ConfigurazioniForm";
 import ContactSettingsForm from "@/components/admin/ContactSettingsForm";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Configurazioni" };
 
 export default async function ConfigurazioniPage() {
   await requireOwnerPage();
@@ -14,9 +16,6 @@ export default async function ConfigurazioniPage() {
 
   return (
     <>
-      <div className="admin-page-head">
-        <h1>Configurazioni</h1>
-      </div>
       <ConfigurazioniForm hasGroqKey={!!groqKey} />
       <ContactSettingsForm
         smtpHost={contact.smtpHost ?? "smtps.aruba.it"}

@@ -20,7 +20,16 @@ export async function uploadToCloudinary(
     { method: "POST", body: fd },
   );
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message ?? "Upload non riuscito");
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message: string = data.error?.message ?? "";
+    // es. "File size too large. Got 10612345. Maximum is 10485760."
+    const max = /Maximum is (\d+)/i.exec(message);
+    if (/too large/i.test(message)) {
+      const mb = max ? Math.floor(Number(max[1]) / 1048576) : 10;
+      throw new Error(`il file è troppo grande (massimo ${mb} MB). Riducilo, ad esempio comprimendo il PDF, e riprova.`);
+    }
+    throw new Error(message || "caricamento non riuscito");
+  }
   return data.secure_url as string;
 }

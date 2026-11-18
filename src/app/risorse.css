@@ -1,0 +1,77 @@
+/* Pagina Risorse: categorie con foto e file da scaricare */
+
+.ris-cats { display: grid; gap: clamp(40px, 6vw, 72px); }
+.ris-cat {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+  scroll-margin-top: calc(var(--site-sticky-top) + 24px);
+}
+.ris-cat:nth-child(even) .ris-cat__media { order: 2; }
+.ris-cat:nth-child(even) { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+.ris-cat--plain { grid-template-columns: 1fr; }
+.ris-cat__media {
+  position: sticky;
+  top: calc(var(--site-sticky-top) + 24px);
+  margin: 0;
+}
+.ris-cat__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+.site .ris-cat__title { margin-top: 14px; font-size: clamp(24px, 2.8vw, 32px); }
+.site .ris-cat__desc { margin: 10px 0 0; font-size: 17px; line-height: 1.55; color: var(--ink-soft); }
+
+.ris-files {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-md);
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+.ris-files li + li { border-top: 1px solid var(--rule); }
+.ris-file {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 18px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background var(--t);
+}
+.ris-file:hover { background: var(--bg-soft); }
+.ris-file__type {
+  padding: 4px 0;
+  border-radius: var(--r-pill);
+  background: var(--azure-soft);
+  color: var(--azure-deep);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+[data-theme="dark"] .ris-file__type { color: var(--azure); }
+.ris-file__text { display: grid; gap: 2px; }
+.ris-file__title { font-size: 15.5px; font-weight: 600; line-height: 1.35; }
+.ris-file__meta { font-size: 13px; color: var(--ink-soft); }
+.ris-file__icon { display: grid; place-items: center; color: var(--ink-mute); transition: color var(--t), transform var(--t); }
+.ris-file:hover .ris-file__icon { color: var(--azure-deep); transform: translateY(2px); }
+
+@media (max-width: 860px) {
+  .ris-cat,
+  .ris-cat:nth-child(even) { grid-template-columns: 1fr; }
+  .ris-cat:nth-child(even) .ris-cat__media { order: 0; }
+  .ris-cat__media { position: static; }
+  .ris-cat__media img { aspect-ratio: 16 / 9; }
+}
+@media (max-width: 480px) {
+  .ris-file { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; }
+}

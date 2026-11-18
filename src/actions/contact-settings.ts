@@ -60,7 +60,7 @@ export async function saveContactSettings(
   if (secretKey) await put(CONTACT_KEYS.recaptchaSecretKey, sealSecret(secretKey));
   if (resendKey) await put(CONTACT_KEYS.resendApiKey, sealSecret(resendKey));
 
-  revalidatePath("/admin/configurazioni");
+  revalidatePath("/admin/impostazioni/configurazioni");
   revalidatePath("/contatti");
   return { success: "Impostazioni salvate." };
 }

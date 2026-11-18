@@ -51,18 +51,39 @@ export const events = sqliteTable("events", {
     .default(sql`(datetime('now'))`),
 });
 
-export const resources = sqliteTable("resources", {
+/** Categorie della pagina Risorse: ognuna con una foto e i suoi file da scaricare. */
+export const resourceCategories = sqliteTable("resource_categories", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  title: text("title").notNull(),
+  name: text("name").notNull(),
   description: text("description"),
-  category: text("category").notNull().default("Documenti"),
-  fileUrl: text("file_url").notNull(),
-  fileName: text("file_name").notNull(),
-  fileSize: integer("file_size"),
+  imageUrl: text("image_url"),
+  /** Punto della foto da tenere al centro quando viene ritagliata, es. "50% 30%". */
+  imageFocus: text("image_focus"),
+  /** Ordine nella pagina Risorse (più basso = più in alto). */
+  position: integer("position").notNull().default(0),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),
 });
+
+export const resources = sqliteTable(
+  "resources",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    title: text("title").notNull(),
+    description: text("description"),
+    /** Nome della categoria al momento del caricamento (le risorse nuove usano categoryId). */
+    category: text("category").notNull().default("Documenti"),
+    categoryId: integer("category_id").references(() => resourceCategories.id),
+    fileUrl: text("file_url").notNull(),
+    fileName: text("file_name").notNull(),
+    fileSize: integer("file_size"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => [index("resources_category_idx").on(t.categoryId)]
+);
 
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
@@ -253,6 +274,7 @@ export type User = typeof users.$inferSelect;
 export type Article = typeof articles.$inferSelect;
 export type Event = typeof events.$inferSelect;
 export type Resource = typeof resources.$inferSelect;
+export type ResourceCategory = typeof resourceCategories.$inferSelect;
 export type Setting = typeof settings.$inferSelect;
 export type Announcement = typeof announcements.$inferSelect;
 export type ArticleImage = typeof articleImages.$inferSelect;

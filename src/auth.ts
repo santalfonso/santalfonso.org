@@ -162,7 +162,7 @@ export function isStaff(role: Role | undefined) {
   return role === "owner" || role === "editor";
 }
 
-/** Solo l'owner gestisce canti, utenti e configurazioni. */
+/** Solo l'owner gestisce canti, utenti e impostazioni. */
 export function isOwner(role: Role | undefined) {
   return role === "owner";
 }

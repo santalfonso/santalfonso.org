@@ -271,14 +271,14 @@ export default async function HomePage({
               <span className="kicker" style={{ color: "var(--gold)" }}>
                 Vieni a trovarci
               </span>
-              <h2 style={{ color: "var(--bg)", marginTop: 14 }}>
+              <h2 style={{ color: "var(--band-ink)", marginTop: 14 }}>
                 Orari{" "}
                 <span style={{ color: "var(--gold)" }}>Ufficio Parrocchiale</span>
               </h2>
               <p
                 className="lead"
                 style={{
-                  color: "color-mix(in oklab, var(--bg) 75%, transparent)",
+                  color: "color-mix(in oklab, var(--band-ink) 75%, transparent)",
                   marginTop: 16,
                   maxWidth: "50ch",
                 }}
@@ -304,8 +304,8 @@ export default async function HomePage({
                   className="btn btn--ghost"
                   style={{
                     background: "transparent",
-                    color: "var(--bg)",
-                    borderColor: "color-mix(in oklab, var(--bg) 25%, transparent)",
+                    color: "var(--band-ink)",
+                    borderColor: "color-mix(in oklab, var(--band-ink) 25%, transparent)",
                   }}
                 >
                   Dove siamo
