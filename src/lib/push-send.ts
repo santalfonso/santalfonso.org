@@ -1,4 +1,5 @@
-import webpush from "web-push";
+// web-push 4 è un modulo ESM senza esportazione predefinita
+import * as webpush from "web-push";
 import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
