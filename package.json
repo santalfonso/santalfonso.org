@@ -24,9 +24,9 @@
     "cloudinary": "^2.10.0",
     "drizzle-orm": "^0.45.2",
     "marked": "^18.0.5",
-    "next": "16.4.3",
+    "next": "16.4.6",
     "next-auth": "^5.0.0-beta.31",
-    "nodemailer": "^8.0.11",
+    "nodemailer": "^10.6.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -47,9 +47,12 @@
     "@types/web-push": "^3.6.4",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "nodemailer": "$nodemailer"
   }
 }
