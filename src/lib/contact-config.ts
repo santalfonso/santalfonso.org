@@ -16,6 +16,7 @@ export const CONTACT_KEYS = {
   smtpPassword: "smtp_password",
   recaptchaSiteKey: "recaptcha_site_key",
   recaptchaSecretKey: "recaptcha_secret_key",
+  resendApiKey: "resend_api_key",
 } as const;
 
 export type ContactConfig = {
@@ -25,6 +26,7 @@ export type ContactConfig = {
   smtpPassword: string | null;
   recaptchaSiteKey: string | null;
   recaptchaSecretKey: string | null;
+  resendApiKey: string | null;
 };
 
 async function readRows(): Promise<Map<string, string>> {
@@ -45,6 +47,7 @@ export async function getContactConfig(): Promise<ContactConfig> {
     smtpPassword: openSecret(m.get(CONTACT_KEYS.smtpPassword) ?? null) || env.SMTP_PASSWORD || null,
     recaptchaSiteKey: m.get(CONTACT_KEYS.recaptchaSiteKey) || env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || null,
     recaptchaSecretKey: openSecret(m.get(CONTACT_KEYS.recaptchaSecretKey) ?? null) || env.RECAPTCHA_SECRET_KEY || null,
+    resendApiKey: openSecret(m.get(CONTACT_KEYS.resendApiKey) ?? null) || env.RESEND_API_KEY || null,
   };
 }
 
@@ -56,13 +59,57 @@ export async function getRecaptchaSiteKey(): Promise<string | null> {
 /** Indirizzo che riceve i messaggi del form. */
 export const CONTACT_TO = "info@santalfonso.org";
 
-/** Trasporto SMTP dalla configurazione, o null se mancano host, utente o password. */
-export function contactTransport(c: ContactConfig) {
-  if (!c.smtpHost || !c.smtpUser || !c.smtpPassword) return null;
-  return nodemailer.createTransport({
+/** Mittente dei messaggi del form (con Resend il dominio santalfonso.org deve essere verificato). */
+const CONTACT_FROM = { name: "Sito santalfonso.org", address: "info@santalfonso.org" };
+
+export type ContactMail = {
+  subject: string;
+  text: string;
+  replyTo?: { name: string; address: string };
+};
+
+/** true se c'è un modo per spedire: Resend oppure casella SMTP completa. */
+export function canSendContactMail(c: ContactConfig): boolean {
+  return !!c.resendApiKey || !!(c.smtpHost && c.smtpUser && c.smtpPassword);
+}
+
+/**
+ * Spedisce a info@santalfonso.org. Con la chiave Resend usa la sua API su HTTPS
+ * (Aruba rifiuta le connessioni SMTP dai server cloud come Vercel); altrimenti la casella SMTP.
+ */
+export async function sendContactMail(c: ContactConfig, mail: ContactMail): Promise<void> {
+  if (c.resendApiKey) {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${c.resendApiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: `${CONTACT_FROM.name} <${CONTACT_FROM.address}>`,
+        to: [CONTACT_TO],
+        subject: mail.subject,
+        text: mail.text,
+        ...(mail.replyTo && { reply_to: `${mail.replyTo.name.replace(/[<>"\r\n]/g, "")} <${mail.replyTo.address}>` }),
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => null)) as { message?: string } | null;
+      throw new Error(`Resend ${res.status}: ${data?.message ?? res.statusText}`);
+    }
+    return;
+  }
+
+  if (!c.smtpHost || !c.smtpUser || !c.smtpPassword) throw new Error("Configurazione di invio mancante");
+  const transporter = nodemailer.createTransport({
     host: c.smtpHost,
     port: c.smtpPort,
     secure: c.smtpPort === 465,
     auth: { user: c.smtpUser, pass: c.smtpPassword },
+  });
+  await transporter.sendMail({
+    from: { name: CONTACT_FROM.name, address: c.smtpUser },
+    to: CONTACT_TO,
+    replyTo: mail.replyTo,
+    subject: mail.subject,
+    text: mail.text,
   });
 }

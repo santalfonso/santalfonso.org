@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { CONTACT_TO, contactTransport, getContactConfig } from "@/lib/contact-config";
+import { canSendContactMail, getContactConfig, sendContactMail } from "@/lib/contact-config";
 import { isLimited, recordFailure } from "@/lib/rate-limit";
 
 export type ContactState =
@@ -42,7 +42,7 @@ async function verifyRecaptcha(secret: string | null, token: string, ip: string)
 }
 
 /**
- * Invio del form contatti a info@santalfonso.org tramite la casella SMTP impostata in Configurazioni.
+ * Invio del form contatti a info@santalfonso.org con Resend o la casella SMTP impostati in Configurazioni.
  * Il mittente è sempre la casella del sito; chi scrive finisce nel "Rispondi a".
  */
 export async function sendContactAction(_prev: ContactState, formData: FormData): Promise<ContactState> {
@@ -78,18 +78,15 @@ export async function sendContactAction(_prev: ContactState, formData: FormData)
     return { error: "Non siamo riusciti a verificare l'invio: ricarica la pagina e riprova.", values };
   }
 
-  const transporter = contactTransport(config);
-  if (!transporter || !config.smtpUser) {
-    console.error("Form contatti: configurazione SMTP mancante");
+  if (!canSendContactMail(config)) {
+    console.error("Form contatti: configurazione di invio mancante");
     return { error: "Invio momentaneamente non disponibile: scrivi a info@santalfonso.org o chiama l'ufficio.", values };
   }
 
   // a capo e tabulazioni fuori dall'oggetto, per non alterare le intestazioni
   const subject = (values.subject || "Messaggio dal sito").replace(/[\r\n\t]+/g, " ");
   try {
-    await transporter.sendMail({
-      from: { name: "Sito santalfonso.org", address: config.smtpUser },
-      to: CONTACT_TO,
+    await sendContactMail(config, {
       replyTo: { name: values.name, address: values.email },
       subject: `[Contatti] ${subject}`,
       text: `Nome: ${values.name}\nEmail: ${values.email}\n\n${values.message}\n\n— Inviato dal form contatti di santalfonso.org`,

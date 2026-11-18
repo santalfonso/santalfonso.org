@@ -25,6 +25,7 @@ export default async function ConfigurazioniPage() {
         hasSmtpPassword={!!contact.smtpPassword}
         recaptchaSiteKey={contact.recaptchaSiteKey ?? ""}
         hasRecaptchaSecret={!!contact.recaptchaSecretKey}
+        hasResendKey={!!contact.resendApiKey}
       />
     </>
   );

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { requireOwner } from "@/auth";
-import { CONTACT_KEYS, CONTACT_TO, contactTransport, getContactConfig } from "@/lib/contact-config";
+import { CONTACT_KEYS, CONTACT_TO, canSendContactMail, getContactConfig, sendContactMail } from "@/lib/contact-config";
 import { sealSecret } from "@/lib/secret-box";
 
 export type ContactSettingsState = { error?: string; success?: string } | undefined;
@@ -42,12 +42,14 @@ export async function saveContactSettings(
   const password = text(formData, "smtp_password", 500);
   const siteKey = text(formData, "recaptcha_site_key");
   const secretKey = text(formData, "recaptcha_secret_key");
+  const resendKey = text(formData, "resend_api_key");
 
   if (!host || !user) return { error: "Inserisci server SMTP e utente." };
   if (!/^[a-z0-9.-]+$/i.test(host)) return { error: "Il server SMTP non sembra corretto." };
   const portNum = Number(port || "465");
   if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) return { error: "Porta SMTP non valida." };
   if (siteKey && !/^[\w-]{20,100}$/.test(siteKey)) return { error: "La chiave del sito reCAPTCHA non sembra corretta." };
+  if (resendKey && !/^re_[\w-]{10,200}$/.test(resendKey)) return { error: "La chiave API Resend deve iniziare con \"re_\"." };
 
   await put(CONTACT_KEYS.smtpHost, host);
   await put(CONTACT_KEYS.smtpPort, String(portNum));
@@ -55,6 +57,7 @@ export async function saveContactSettings(
   if (password) await put(CONTACT_KEYS.smtpPassword, sealSecret(password));
   if (siteKey) await put(CONTACT_KEYS.recaptchaSiteKey, siteKey);
   if (secretKey) await put(CONTACT_KEYS.recaptchaSecretKey, sealSecret(secretKey));
+  if (resendKey) await put(CONTACT_KEYS.resendApiKey, sealSecret(resendKey));
 
   revalidatePath("/admin/configurazioni");
   revalidatePath("/contatti");
@@ -71,20 +74,17 @@ export async function sendContactTestEmail(): Promise<ContactSettingsState> {
   }
 
   const config = await getContactConfig();
-  const transporter = contactTransport(config);
-  if (!transporter || !config.smtpUser) return { error: "Configurazione SMTP incompleta: salva server, utente e password." };
+  if (!canSendContactMail(config)) return { error: "Configurazione incompleta: salva la chiave Resend oppure la casella SMTP." };
 
   try {
-    await transporter.sendMail({
-      from: { name: "Sito santalfonso.org", address: config.smtpUser },
-      to: CONTACT_TO,
+    await sendContactMail(config, {
       subject: "[Contatti] Email di prova",
-      text: `Email di prova inviata da Admin → Configurazioni${email ? ` da ${email}` : ""}.\nSe la ricevi, il form contatti del sito è pronto.`,
+      text: `Email di prova inviata da Admin → Configurazioni${email ? ` da ${email}` : ""}.\nServizio: ${config.resendApiKey ? "Resend" : "SMTP"}.\nSe la ricevi, il form contatti del sito è pronto.`,
     });
   } catch (error) {
     console.error("Email di prova non riuscita", error);
     const msg = error instanceof Error ? error.message : String(error);
     return { error: `Invio non riuscito: ${msg.slice(0, 200)}` };
   }
-  return { success: `Email di prova inviata a ${CONTACT_TO}.` };
+  return { success: `Email di prova inviata a ${CONTACT_TO} tramite ${config.resendApiKey ? "Resend" : "SMTP"}.` };
 }

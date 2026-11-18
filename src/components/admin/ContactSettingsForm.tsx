@@ -14,6 +14,7 @@ type Props = {
   hasSmtpPassword: boolean;
   recaptchaSiteKey: string;
   hasRecaptchaSecret: boolean;
+  hasResendKey: boolean;
 };
 
 const headingStyle = {
@@ -26,7 +27,7 @@ const headingStyle = {
 const leadStyle = { fontSize: 13, color: "var(--ink-mute)", margin: "0 0 20px", lineHeight: 1.5 } as const;
 const monoStyle = { fontFamily: "var(--mono)" } as const;
 
-/** Configurazione del form contatti: casella SMTP e chiavi Google reCAPTCHA v3. */
+/** Configurazione del form contatti: invio (Resend o casella SMTP) e chiavi Google reCAPTCHA v3. */
 export default function ContactSettingsForm(props: Props) {
   const [state, formAction, pending] = useActionState<ContactSettingsState, FormData>(
     saveContactSettings,
@@ -43,13 +44,28 @@ export default function ContactSettingsForm(props: Props) {
         <div className="admin-card-body">
           <h2 style={headingStyle}>Form contatti</h2>
           <p style={leadStyle}>
-            I messaggi della pagina Contatti arrivano a <strong>info@santalfonso.org</strong> tramite questa casella
-            SMTP. Password e chiave segreta vengono salvate cifrate; lascia vuoti quei campi per mantenere i valori
-            già salvati.
+            I messaggi della pagina Contatti arrivano a <strong>info@santalfonso.org</strong>. Se c&apos;è la chiave
+            Resend si usa Resend, altrimenti la casella SMTP. Chiavi e password vengono salvate cifrate; lascia vuoti
+            quei campi per mantenere i valori già salvati.
           </p>
 
           <form action={formAction}>
-            <h3 style={{ ...headingStyle, fontSize: 14 }}>Casella SMTP</h3>
+            <h3 style={{ ...headingStyle, fontSize: 14 }}>Resend (consigliato)</h3>
+            <p style={{ ...leadStyle, marginBottom: 14 }}>
+              Aruba rifiuta le connessioni SMTP dai server di Vercel: con Resend l&apos;invio passa da HTTPS. Chiave da{" "}
+              <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" style={{ color: "var(--azure-deep)", textDecoration: "underline" }}>
+                resend.com/api-keys
+              </a>
+              ; il dominio santalfonso.org deve essere verificato su Resend.
+            </p>
+            <div className="admin-form-row">
+              <label htmlFor="resend-key" className="admin-label">
+                {props.hasResendKey ? "Nuova chiave API (✓ già salvata)" : "Chiave API Resend"}
+              </label>
+              <input id="resend-key" name="resend_api_key" type="password" autoComplete="off" placeholder="re_…" className="admin-input" style={monoStyle} />
+            </div>
+
+            <h3 style={{ ...headingStyle, fontSize: 14, marginTop: 8 }}>Casella SMTP (alternativa)</h3>
             <div className="admin-grid-2">
               <div className="admin-form-row">
                 <label htmlFor="smtp-host" className="admin-label">Server SMTP *</label>
@@ -66,9 +82,9 @@ export default function ContactSettingsForm(props: Props) {
             </div>
             <div className="admin-form-row">
               <label htmlFor="smtp-password" className="admin-label">
-                {props.hasSmtpPassword ? "Nuova password (✓ già salvata)" : "Password *"}
+                {props.hasSmtpPassword ? "Nuova password (✓ già salvata)" : "Password"}
               </label>
-              <input id="smtp-password" name="smtp_password" type="password" autoComplete="new-password" required={!props.hasSmtpPassword} className="admin-input" style={monoStyle} />
+              <input id="smtp-password" name="smtp_password" type="password" autoComplete="new-password" className="admin-input" style={monoStyle} />
             </div>
 
             <h3 style={{ ...headingStyle, fontSize: 14, marginTop: 8 }}>Google reCAPTCHA v3</h3>
@@ -100,7 +116,7 @@ export default function ContactSettingsForm(props: Props) {
 
           <form action={testAction} style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid var(--rule)" }}>
             <p style={{ ...leadStyle, marginBottom: 12 }}>
-              Dopo aver salvato, invia un&apos;email di prova a info@santalfonso.org per controllare la casella.
+              Dopo aver salvato, invia un&apos;email di prova a info@santalfonso.org per controllare l&apos;invio.
             </p>
             {testState?.error && <div className="admin-error" style={{ marginBottom: 16 }}>{testState.error}</div>}
             {testState?.success && <div className="admin-success" style={{ marginBottom: 16 }}>{testState.success}</div>}
