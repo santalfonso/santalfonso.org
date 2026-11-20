@@ -203,58 +203,25 @@ export default async function HomePage({
                 Come arrivare
               </Link>
             </div>
-            <div className="card" style={{ padding: 0 }}>
+            <div className="card sched-card">
               {[
                 { day: "Feriali (lun – sab)", times: ["8:00", "18:30"] },
-                {
-                  day: "Domenica e festività",
-                  times: ["8:30", "10:30", "12:00", "18:30"],
-                },
-                {
-                  day: "Confessioni",
-                  times: ["Durante la messa domenicale o su accordo"],
-                },
-                { day: "Rosario", times: ["Ogni giorno 17:45"] },
-                { day: "Adorazione eucaristica", times: ["Martedì 8:30 — 18:30"] },
-                { day: "Ufficio parrocchiale", times: ["Feriali 17:00 — 18:30"] },
-              ].map((row, i, arr) => (
-                <div
-                  key={row.day}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "18px 24px",
-                    borderBottom: i < arr.length - 1 ? "1px solid var(--rule)" : "0",
-                    gap: 24,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>
-                    {row.day}
-                  </span>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 6,
-                      flexWrap: "wrap",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    {row.times.map((time) => (
-                      <span
-                        key={time}
-                        className="tag"
-                        style={{
-                          background: "var(--bg-soft)",
-                          borderColor: "var(--rule)",
-                          color: "var(--ink)",
-                          fontWeight: 500,
-                        }}
-                      >
+                { day: "Domenica e festività", times: ["8:30", "10:30", "12:00", "18:30"] },
+                { day: "Confessioni", note: "Durante la messa domenicale o su accordo" },
+                { day: "Rosario", when: "Ogni giorno", times: ["17:45"] },
+                { day: "Adorazione eucaristica", when: "Martedì", times: ["8:30 – 18:30"] },
+                { day: "Ufficio parrocchiale", when: "Feriali", times: ["17:00 – 18:30"] },
+              ].map((row) => (
+                <div key={row.day} className="sched-row">
+                  <span className="sched-label">{row.day}</span>
+                  <div className="sched-times">
+                    {row.when && <span className="sched-when">{row.when}</span>}
+                    {row.times?.map((time) => (
+                      <span key={time} className="tag sched-tag">
                         {time}
                       </span>
                     ))}
+                    {row.note && <span className="sched-note">{row.note}</span>}
                   </div>
                 </div>
               ))}

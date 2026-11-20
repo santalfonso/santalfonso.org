@@ -569,6 +569,27 @@ img { max-width: 100%; display: block; }
 .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 .sched-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; align-items: start; }
+.sched-card { padding: 0; }
+.sched-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.sched-row:last-child { border-bottom: 0; }
+.sched-label { font-weight: 600; color: var(--ink); }
+.sched-times { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; }
+.sched-tag { background: var(--bg-soft); border-color: var(--rule); color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
+.sched-when { font-size: 14px; color: var(--ink-soft); margin-right: 4px; }
+.sched-note { font-size: 14px; color: var(--ink-soft); text-align: right; }
+/* mobile: etichetta sopra, orari sotto allineati a sinistra */
+@media (max-width: 600px) {
+  .sched-row { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 18px; }
+  .sched-times { justify-content: flex-start; }
+  .sched-note { text-align: left; line-height: 1.5; }
+}
 .cta-banner {
   background: var(--band-bg);
   color: var(--band-ink);
