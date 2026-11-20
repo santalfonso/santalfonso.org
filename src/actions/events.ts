@@ -11,7 +11,7 @@ import { events } from "@/db/schema";
 import { newEventPush } from "@/lib/event-push";
 import { deliverPush } from "@/lib/push-send";
 import { isOwnCloudinaryUrl } from "@/lib/resource-file";
-import { romeLocalToIso } from "@/lib/utils";
+import { capitalizeFirst, romeLocalToIso } from "@/lib/utils";
 import type { ActionState } from "./articles";
 
 const eventSchema = z.object({
@@ -49,7 +49,14 @@ function parseForm(formData: FormData): { data: EventFields } | { error: string 
   if (end && end < start) return { error: "La fine non può essere prima dell'inizio" };
 
   return {
-    data: { title, description: description || null, location: location || null, startsAt: start, endsAt: end },
+    // iniziale maiuscola in ogni campo di testo
+    data: {
+      title: capitalizeFirst(title),
+      description: description ? capitalizeFirst(description) : null,
+      location: location ? capitalizeFirst(location) : null,
+      startsAt: start,
+      endsAt: end,
+    },
   };
 }
 

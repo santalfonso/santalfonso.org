@@ -100,3 +100,31 @@ export async function generateExcerpt(text: string): Promise<AIResult> {
     text,
   );
 }
+
+export type EventTexts = { title: string; location: string; description: string };
+
+/** Correzione dei testi di un evento: titolo, luogo e descrizione insieme. */
+export async function proofreadEvent(texts: EventTexts): Promise<{ data: EventTexts } | { error: string }> {
+  if (!texts.title.trim() && !texts.description.trim())
+    return { error: "Scrivi almeno il titolo o la descrizione prima della correzione." };
+
+  const result = await callGroq(
+    "Sei un correttore di bozze per gli eventi di una parrocchia cattolica italiana. " +
+      "Correggi errori ortografici, grammaticali, di punteggiatura e di maiuscole in titolo, luogo e descrizione. " +
+      "Ogni campo inizia con la lettera maiuscola; i nomi propri di luoghi, santi e persone hanno le iniziali maiuscole " +
+      "(es. 'salone don bosco' → 'Salone Don Bosco', 'concerto di natale' → 'Concerto di Natale'). " +
+      "Non aggiungere, togliere o riformulare informazioni e non inventare dettagli. Un campo vuoto resta vuoto. " +
+      'Rispondi SOLO con un oggetto JSON valido nel formato: {"title": "...", "location": "...", "description": "..."}',
+    JSON.stringify(texts),
+  );
+  if ("error" in result) return result;
+
+  try {
+    const parsed = JSON.parse(result.data.match(/\{[\s\S]*\}/)?.[0] ?? "");
+    const pick = (key: keyof EventTexts) =>
+      typeof parsed[key] === "string" && texts[key].trim() ? parsed[key].trim() : texts[key];
+    return { data: { title: pick("title"), location: pick("location"), description: pick("description") } };
+  } catch {
+    return { error: "Risposta dell'AI non valida: riprova." };
+  }
+}

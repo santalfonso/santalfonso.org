@@ -7,6 +7,13 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Prima lettera maiuscola, il resto invariato ("salone don bosco" → "Salone don bosco"). */
+export function capitalizeFirst(text: string): string {
+  const i = text.search(/\S/);
+  if (i < 0) return text;
+  return text.slice(0, i) + text.charAt(i).toLocaleUpperCase("it-IT") + text.slice(i + 1);
+}
+
 /** Fuso della parrocchia: il server (Vercel) gira in UTC, i visitatori a Roma. */
 export const TIME_ZONE = "Europe/Rome";
 

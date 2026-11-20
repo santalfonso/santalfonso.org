@@ -1504,6 +1504,11 @@ button.ev-modal__poster { cursor: zoom-in; }
   border-color: #7F1D1D;
   color: #FCA5A5;
 }
+.admin-ai-feedback:not(.error) {
+  background: var(--azure-soft);
+  border: 1px solid transparent;
+  color: var(--azure-deep);
+}
 
 /* Back link */
 .admin-back {
