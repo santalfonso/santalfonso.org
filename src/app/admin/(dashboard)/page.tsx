@@ -89,7 +89,7 @@ export default async function AdminDashboard() {
 
         {avvisi.length > 0 && (
           <div className="admin-table-wrap" style={{ marginTop: 20 }}>
-            <table className="admin-table">
+            <table className="admin-table admin-table--stack">
               <thead>
                 <tr>
                   <th style={{ width: 160 }}>Titolo</th>
@@ -101,10 +101,10 @@ export default async function AdminDashboard() {
               <tbody>
                 {avvisi.map((a) => (
                   <tr key={a.id}>
-                    <td style={{ fontWeight: 600 }}>{a.title || <em style={{ color: "var(--ink-mute)", fontWeight: 400 }}>—</em>}</td>
-                    <td className="mute">{a.text}</td>
-                    <td className="mute">{formatDate(a.createdAt)}</td>
-                    <td className="right">
+                    <td className="stack-title" style={{ fontWeight: 600 }}>{a.title || <em style={{ color: "var(--ink-mute)", fontWeight: 400 }}>—</em>}</td>
+                    <td className="mute stack-text">{a.text}</td>
+                    <td className="mute stack-meta" data-label="Aggiunto il">{formatDate(a.createdAt)}</td>
+                    <td className="right stack-action">
                       <DeleteButton
                         action={deleteAnnouncement.bind(null, a.id)}
                         label="Rimuovi"

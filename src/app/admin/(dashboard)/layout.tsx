@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth, isOwner, isStaff, ROLE_LABEL } from "@/auth";
 import { logoutAction } from "@/actions/login";
 import AdminNav from "@/components/admin/AdminNav";
+import AdminMobileMenu from "@/components/admin/AdminMobileMenu";
 
 export default async function AdminLayout({
   children,
@@ -33,6 +34,17 @@ export default async function AdminLayout({
               <button className="admin-logout-btn">Esci</button>
             </form>
           </div>
+          <AdminMobileMenu
+            isOwner={isOwner(session.user.role)}
+            userLabel={`${session.user.name ?? ""}${session.user.role ? ` · ${ROLE_LABEL[session.user.role]}` : ""}`}
+          >
+            <Link href="/" className="admin-drawer__link">
+              Vai al sito ↗
+            </Link>
+            <form action={logoutAction}>
+              <button className="admin-logout-btn admin-drawer__logout">Esci</button>
+            </form>
+          </AdminMobileMenu>
         </div>
       </header>
       <main className="admin-main">{children}</main>

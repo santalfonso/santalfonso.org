@@ -5,14 +5,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SETTINGS_ITEMS } from "@/lib/admin-settings-nav";
 
-const navItems = [
+export const navItems = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/articoli", label: "Articoli" },
   { href: "/admin/eventi", label: "Eventi" },
   { href: "/admin/risorse", label: "Risorse" },
 ];
 
-const ownerOnlyItems = [
+export const ownerOnlyItems = [
   { href: "/admin/canti", label: "Canti" },
   { href: "/admin/utenti", label: "Utenti" },
 ];

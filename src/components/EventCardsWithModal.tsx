@@ -123,17 +123,10 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "var(--bg)",
-          borderRadius: "var(--r-lg, 16px)",
-          overflow: "hidden",
-          width: "100%",
-          maxWidth: 520,
-          maxHeight: "90vh",
-          overflowY: "auto",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.25)",
-          position: "relative",
-        }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={event.title}
+        className={`ev-modal${event.posterUrl ? " ev-modal--poster" : ""}`}
       >
         {/* X chiudi */}
         <button
@@ -161,13 +154,13 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
           ×
         </button>
 
-        {/* Poster */}
-        <div style={{ width: "100%", aspectRatio: event.posterUrl ? POSTER_RATIO : "16/9", overflow: "hidden", background: "var(--bg-soft)" }}>
+        {/* Poster: a sinistra su desktop, sopra e più piccola su mobile */}
+        <div className="ev-modal__poster">
           <EventPoster event={event} width={1200} />
         </div>
 
         {/* Contenuto */}
-        <div style={{ padding: "28px 28px 32px" }}>
+        <div className="ev-modal__body">
           {/* Data badge */}
           <div
             style={{
@@ -218,7 +211,7 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
           </div>
 
           {event.description && (
-            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-soft)", margin: 0 }}>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-soft)", margin: 0, whiteSpace: "pre-line" }}>
               {event.description}
             </p>
           )}
@@ -239,7 +232,8 @@ export default function EventCardsWithModal({ events }: { events: EventItem[] })
           <button
             key={event.id}
             onClick={() => setSelected(event)}
-            className="card"
+            className="card ev-card"
+            aria-label={`${event.title}: apri i dettagli`}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -255,7 +249,7 @@ export default function EventCardsWithModal({ events }: { events: EventItem[] })
           >
             {/* Poster — solo se esiste */}
             {event.posterUrl && (
-              <div style={{ width: "100%", aspectRatio: POSTER_RATIO, overflow: "hidden", flexShrink: 0, background: "var(--bg-soft)" }}>
+              <div className="ev-card__poster" style={{ width: "100%", aspectRatio: POSTER_RATIO, overflow: "hidden", flexShrink: 0, background: "var(--bg-soft)" }}>
                 <EventPoster event={event} />
               </div>
             )}
@@ -293,6 +287,9 @@ export default function EventCardsWithModal({ events }: { events: EventItem[] })
                 {formatTime(event.startsAt)}
                 {event.location ? ` · ${event.location}` : ""}
               </div>
+              <span className="ev-card__more" aria-hidden="true">
+                Vedi dettagli <span className="ev-card__arrow">→</span>
+              </span>
             </div>
           </button>
         ))}

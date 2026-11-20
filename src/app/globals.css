@@ -602,6 +602,60 @@ img { max-width: 100%; display: block; }
   .events-grid { grid-template-columns: 1fr; }
 }
 
+/* === Eventi: card cliccabile e scheda di dettaglio === */
+.ev-card__more {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--azure-deep);
+}
+.ev-card__arrow { transition: transform var(--t); }
+.ev-card:hover .ev-card__arrow { transform: translateX(3px); }
+.ev-card__poster { position: relative; }
+
+.ev-modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg);
+  border-radius: var(--r-lg, 16px);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+}
+.ev-modal__poster { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg-soft); }
+.ev-modal--poster .ev-modal__poster { aspect-ratio: auto; height: 46vh; max-height: 420px; }
+.ev-modal__body { padding: 28px 28px 32px; }
+
+/* desktop: locandina intera a sinistra, dati a destra */
+@media (min-width: 769px) {
+  .ev-modal--poster {
+    display: grid;
+    grid-template-columns: auto minmax(300px, 1fr);
+    max-width: 1000px;
+    overflow: hidden;
+  }
+  .ev-modal--poster .ev-modal__poster {
+    height: min(86vh, 760px);
+    max-height: none;
+    aspect-ratio: 210 / 297;
+    width: auto;
+  }
+  .ev-modal--poster .ev-modal__body {
+    overflow-y: auto;
+    max-height: min(86vh, 760px);
+    padding: 40px 36px;
+  }
+}
+
+/* mobile: indicazione che la card si apre */
+@media (max-width: 768px), (hover: none) {
+  .ev-card__more { display: inline-flex; }
+}
+
 .resource-row { transition: background var(--t); }
 .resource-row:hover { background: var(--bg-soft); }
 
@@ -916,6 +970,26 @@ img { max-width: 100%; display: block; }
 .admin-table td.mute { color: var(--ink-soft); }
 .admin-table td.right { text-align: right; }
 .admin-table-actions { display: flex; justify-content: flex-end; gap: 16px; align-items: center; }
+/* tabella che su mobile diventa una scheda per riga (es. avvisi in Dashboard) */
+@media (max-width: 640px) {
+  .admin-table--stack thead { display: none; }
+  .admin-table--stack,
+  .admin-table--stack tbody,
+  .admin-table--stack tr,
+  .admin-table--stack td { display: block; width: 100%; }
+  .admin-table--stack tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    padding: 16px;
+  }
+  .admin-table--stack td { padding: 0; border: none; }
+  .admin-table--stack td.stack-title { grid-column: 1 / -1; font-size: 15px; }
+  .admin-table--stack td.stack-text { grid-column: 1 / -1; line-height: 1.5; white-space: pre-line; }
+  .admin-table--stack td.stack-meta { align-self: center; font-size: 12.5px; color: var(--ink-mute); }
+  .admin-table--stack td.stack-meta::before { content: attr(data-label) " "; }
+  .admin-table--stack td.stack-action { width: auto; align-self: center; }
+}
 .admin-table-empty {
   padding: 48px 16px;
   text-align: center;
@@ -1439,25 +1513,109 @@ select.lodate-capo__select { padding-left: 18px; }
   .upd-check { justify-items: start; }
 }
 
-/* Testata del backend su schermi stretti: logo e uscita sopra, voci del menù a capo sotto */
+/* Testata del backend su schermi stretti: logo a sinistra, menù a panino a destra */
+.admin-burger,
+.admin-drawer,
+.admin-drawer-backdrop { display: none; }
+
 @media (max-width: 900px) {
-  .admin-header-inner {
-    height: auto;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    flex-wrap: wrap;
-    gap: 10px 16px;
-  }
-  .admin-header-right { margin-left: auto; gap: 12px; }
-  .admin-user-badge { display: none; }
-  .admin-nav {
-    order: 3;
-    flex: 1 1 100%;
-    flex-wrap: wrap;
-    margin-left: -12px;
-    gap: 2px 0;
-  }
+  .admin-header-inner { height: 60px; }
+  .admin-nav,
+  .admin-header-right { display: none; }
   .admin-main { padding-top: 28px; }
+
+  .admin-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    margin-right: -8px;
+    border: none;
+    border-radius: var(--r-pill);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    cursor: pointer;
+  }
+  .admin-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--t);
+  }
+  .admin-drawer-backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .admin-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 201;
+    width: min(300px, 85vw);
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    background: var(--band-bg);
+    color: #fff;
+    box-shadow: -12px 0 32px rgba(0,0,0,0.35);
+    transform: translateX(100%);
+    transition: transform var(--t);
+    overflow-y: auto;
+  }
+  .admin-drawer.is-open { transform: translateX(0); }
+  .admin-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 4px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .admin-drawer__user { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .admin-drawer__close {
+    width: 36px;
+    height: 36px;
+    flex: none;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .admin-drawer__nav { display: flex; flex-direction: column; gap: 2px; padding: 14px 0; flex: 1; }
+  .admin-drawer__link {
+    display: block;
+    padding: 12px 14px;
+    border-radius: var(--r-sm);
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+  }
+  .admin-drawer__link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .admin-drawer__link.active { background: rgba(255,255,255,0.12); color: #fff; }
+  .admin-drawer__link--sub { padding-left: 26px; font-size: 15px; }
+  .admin-drawer__group {
+    margin: 14px 14px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .admin-drawer__foot {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .admin-drawer__logout { width: 100%; padding: 12px 14px; font-size: 15px; }
 }
 
 /* === Backend: Risorse (categorie e file) === */
