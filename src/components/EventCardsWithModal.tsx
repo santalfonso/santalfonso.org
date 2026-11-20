@@ -14,6 +14,9 @@ type EventItem = {
   endsAt: string | null;
 };
 
+/** Locandine in formato A4 verticale (210 × 297 mm). */
+const POSTER_RATIO = "210 / 297";
+
 function EventPoster({ event, width = 800 }: { event: EventItem; width?: number }) {
   if (event.posterUrl) {
     return (
@@ -26,7 +29,8 @@ function EventPoster({ event, width = 800 }: { event: EventItem; width?: number 
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "cover",
+          // locandina sempre intera: niente ritagli se non è esattamente A4
+          objectFit: "contain",
           display: "block",
         }}
       />
@@ -158,7 +162,7 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
         </button>
 
         {/* Poster */}
-        <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden" }}>
+        <div style={{ width: "100%", aspectRatio: event.posterUrl ? POSTER_RATIO : "16/9", overflow: "hidden", background: "var(--bg-soft)" }}>
           <EventPoster event={event} width={1200} />
         </div>
 
@@ -251,7 +255,7 @@ export default function EventCardsWithModal({ events }: { events: EventItem[] })
           >
             {/* Poster — solo se esiste */}
             {event.posterUrl && (
-              <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", flexShrink: 0 }}>
+              <div style={{ width: "100%", aspectRatio: POSTER_RATIO, overflow: "hidden", flexShrink: 0, background: "var(--bg-soft)" }}>
                 <EventPoster event={event} />
               </div>
             )}
