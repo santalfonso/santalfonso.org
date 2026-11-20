@@ -25,7 +25,7 @@ export default async function AdminArticoliPage() {
       </div>
 
       <div className="admin-table-wrap">
-        <table className="admin-table">
+        <table className="admin-table admin-table--stack">
           <thead>
             <tr>
               <th>Titolo</th>
@@ -44,16 +44,16 @@ export default async function AdminArticoliPage() {
             )}
             {list.map((article) => (
               <tr key={article.id}>
-                <td style={{ fontWeight: 600 }}>{article.title}</td>
-                <td>
+                <td className="stack-title" style={{ fontWeight: 600 }}>{article.title}</td>
+                <td className="stack-meta">
                   {article.published ? (
                     <span className="admin-badge admin-badge-pub">Pubblicato</span>
                   ) : (
                     <span className="admin-badge admin-badge-draft">Bozza</span>
                   )}
                 </td>
-                <td className="mute">{formatDate(article.publishedAt)}</td>
-                <td className="right">
+                <td className="mute stack-meta">{formatDate(article.publishedAt)}</td>
+                <td className="right stack-action">
                   <div className="admin-table-actions">
                     <Link href={`/admin/articoli/${article.id}`} className="admin-link">
                       Modifica

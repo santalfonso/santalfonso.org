@@ -25,7 +25,7 @@ export default async function AdminEventiPage() {
       </div>
 
       <div className="admin-table-wrap">
-        <table className="admin-table">
+        <table className="admin-table admin-table--stack">
           <thead>
             <tr>
               <th>Evento</th>
@@ -44,10 +44,10 @@ export default async function AdminEventiPage() {
             )}
             {list.map((event) => (
               <tr key={event.id}>
-                <td style={{ fontWeight: 600 }}>{event.title}</td>
-                <td className="mute">{formatDateTime(event.startsAt)}</td>
-                <td className="mute">{event.location ?? "—"}</td>
-                <td className="right">
+                <td className="stack-title" style={{ fontWeight: 600 }}>{event.title}</td>
+                <td className="mute stack-meta">{formatDateTime(event.startsAt)}</td>
+                <td className="mute stack-meta">{event.location ?? "—"}</td>
+                <td className="right stack-action">
                   <div className="admin-table-actions">
                     <Link href={`/admin/eventi/${event.id}`} className="admin-link">
                       Modifica

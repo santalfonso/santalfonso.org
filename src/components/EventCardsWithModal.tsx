@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { formatDayNumber, formatMonthName, formatTime, formatDate } from "@/lib/utils";
 import { sizedImage } from "@/lib/image-url";
 
@@ -107,117 +107,136 @@ function EventPoster({ event, width = 800 }: { event: EventItem; width?: number 
 }
 
 function EventModal({ event, onClose }: { event: EventItem; onClose: () => void }) {
+  // locandina a tutto schermo (su mobile la scheda ne mostra solo una miniatura)
+  const [zoom, setZoom] = useState(false);
+  // sfumatura in fondo finché c'è altro testo da scorrere
+  const [moreBelow, setMoreBelow] = useState(false);
+  const checkScroll = useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    setMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 8);
+  }, []);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // su desktop con locandina scorre solo la colonna dei dati, altrimenti la scheda intera
+    const update = () => {
+      const split = !!event.posterUrl && window.matchMedia("(min-width: 769px)").matches;
+      checkScroll(split ? bodyRef.current : sheetRef.current);
+    };
+    update();
+    window.addEventListener("resize", update);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (zoom) setZoom(false);
+      else onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("resize", update);
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [checkScroll, event.posterUrl, onClose, zoom]);
+
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: "rgba(0,0,0,0.55)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px",
-      }}
-    >
+    <div className="ev-overlay" onClick={onClose}>
       <div
+        ref={sheetRef}
         onClick={(e) => e.stopPropagation()}
+        onScroll={(e) => checkScroll(e.currentTarget)}
         role="dialog"
         aria-modal="true"
         aria-label={event.title}
         className={`ev-modal${event.posterUrl ? " ev-modal--poster" : ""}`}
       >
-        {/* X chiudi */}
-        <button
-          onClick={onClose}
-          aria-label="Chiudi"
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            zIndex: 10,
-            width: 32,
-            height: 32,
-            borderRadius: "50%",
-            border: "none",
-            background: "rgba(0,0,0,0.35)",
-            color: "#fff",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 18,
-            lineHeight: 1,
-          }}
-        >
+        <span className="ev-modal__handle" aria-hidden="true" />
+        <button onClick={onClose} aria-label="Chiudi" className="ev-modal__close">
           ×
         </button>
 
-        {/* Poster: a sinistra su desktop, sopra e più piccola su mobile */}
-        <div className="ev-modal__poster">
-          <EventPoster event={event} width={1200} />
-        </div>
+        {/* Locandina: intera a sinistra su desktop, miniatura ingrandibile su mobile */}
+        {event.posterUrl ? (
+          <button type="button" className="ev-modal__poster" onClick={() => setZoom(true)} aria-label="Ingrandisci la locandina">
+            <EventPoster event={event} width={1200} />
+            <span className="ev-modal__zoom" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            </span>
+          </button>
+        ) : (
+          <div className="ev-modal__poster">
+            <EventPoster event={event} width={1200} />
+          </div>
+        )}
 
         {/* Contenuto */}
-        <div className="ev-modal__body">
-          {/* Data badge */}
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "6px 12px",
-              borderRadius: "var(--r-pill)",
-              background: "var(--azure-soft)",
-              color: "var(--azure-deep)",
-              fontSize: 13,
-              fontWeight: 600,
-              marginBottom: 16,
-            }}
-          >
-            <span style={{ fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
-              {formatDayNumber(event.startsAt)}
-            </span>
-            <span style={{ textTransform: "capitalize" }}>
-              {formatMonthName(event.startsAt)}
-            </span>
-          </div>
-
-          <h2 style={{ marginBottom: 16, lineHeight: 1.2 }}>{event.title}</h2>
-
-          {/* Dettagli */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14 }}>
-              <span style={{ color: "var(--ink-mute)", minWidth: 60 }}>Inizio</span>
-              <span style={{ fontWeight: 500 }}>
-                {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
-              </span>
+        <div className="ev-modal__body" ref={bodyRef} onScroll={(e) => checkScroll(e.currentTarget)}>
+          <div className="ev-modal__head">
+            <div className="ev-modal__date">
+              <span className="ev-modal__day">{formatDayNumber(event.startsAt)}</span>
+              <span style={{ textTransform: "capitalize" }}>{formatMonthName(event.startsAt)}</span>
             </div>
-            {event.endsAt && (
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14 }}>
-                <span style={{ color: "var(--ink-mute)", minWidth: 60 }}>Fine</span>
-                <span style={{ fontWeight: 500 }}>
-                  {formatDate(event.endsAt)} · {formatTime(event.endsAt)}
-                </span>
-              </div>
-            )}
-            {event.location && (
-              <div style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14 }}>
-                <span style={{ color: "var(--ink-mute)", minWidth: 60 }}>Luogo</span>
-                <span style={{ fontWeight: 500 }}>{event.location}</span>
-              </div>
-            )}
+            <h2 className="ev-modal__title">{event.title}</h2>
           </div>
 
-          {event.description && (
-            <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--ink-soft)", margin: 0, whiteSpace: "pre-line" }}>
-              {event.description}
-            </p>
-          )}
+          <div className="ev-modal__details">
+            <dl className="ev-modal__facts">
+              <div>
+                <dt>Inizio</dt>
+                <dd>
+                  {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
+                </dd>
+              </div>
+              {event.endsAt && (
+                <div>
+                  <dt>Fine</dt>
+                  <dd>
+                    {formatDate(event.endsAt)} · {formatTime(event.endsAt)}
+                  </dd>
+                </div>
+              )}
+              {event.location && (
+                <div>
+                  <dt>Luogo</dt>
+                  <dd>{event.location}</dd>
+                </div>
+              )}
+            </dl>
 
+            {event.description && <p className="ev-modal__desc">{event.description}</p>}
+          </div>
+        </div>
+
+        <div className={`ev-modal__fade${moreBelow ? " is-visible" : ""}`} aria-hidden="true">
+          <span>Scorri per leggere</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+          </svg>
         </div>
       </div>
+
+      {zoom && event.posterUrl && (
+        <div
+          className="ev-zoom"
+          onClick={(e) => {
+            e.stopPropagation();
+            setZoom(false);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Locandina: ${event.title}`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={sizedImage(event.posterUrl, 1600)} alt={`Locandina: ${event.title}`} />
+          <button type="button" className="ev-modal__close" aria-label="Chiudi la locandina">
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }
