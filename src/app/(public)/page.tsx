@@ -15,9 +15,9 @@ export const dynamic = "force-dynamic";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ avviso?: string }>;
+  searchParams: Promise<{ avviso?: string; evento?: string }>;
 }) {
-  const { avviso } = await searchParams;
+  const { avviso, evento } = await searchParams;
   const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
     db.query.articles.findMany({
       columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, coverImageFocus: true, publishedAt: true },
@@ -64,7 +64,7 @@ export default async function HomePage({
           {upcomingEvents.length === 0 ? (
             <p className="muted">Nessun evento in programma al momento.</p>
           ) : (
-            <EventCardsWithModal events={upcomingEvents} />
+            <EventCardsWithModal events={upcomingEvents} openId={Number(evento) || undefined} />
           )}
         </div>
       </section>

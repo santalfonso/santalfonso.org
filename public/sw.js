@@ -49,6 +49,8 @@ self.addEventListener("push", function (event) {
           icon: "/icon-192x192.png",
           badge: "/icon-192x192.png",
           vibrate: [100, 50, 100],
+          image: data.image || undefined,
+          tag: data.tag || undefined,
           data: { url: data.url || "/" },
         });
       })

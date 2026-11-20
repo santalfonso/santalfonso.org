@@ -241,8 +241,17 @@ function EventModal({ event, onClose }: { event: EventItem; onClose: () => void 
   );
 }
 
-export default function EventCardsWithModal({ events }: { events: EventItem[] }) {
-  const [selected, setSelected] = useState<EventItem | null>(null);
+export default function EventCardsWithModal({
+  events,
+  openId,
+}: {
+  events: EventItem[];
+  /** evento da aprire subito (link delle notifiche: /?evento=ID) */
+  openId?: number;
+}) {
+  const [selected, setSelected] = useState<EventItem | null>(
+    () => events.find((e) => e.id === openId) ?? null,
+  );
 
   return (
     <>

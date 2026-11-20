@@ -2,11 +2,14 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireStaff } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schema";
+import { newEventPush } from "@/lib/event-push";
+import { deliverPush } from "@/lib/push-send";
 import { isOwnCloudinaryUrl } from "@/lib/resource-file";
 import { romeLocalToIso } from "@/lib/utils";
 import type { ActionState } from "./articles";
@@ -64,7 +67,15 @@ export async function createEvent(
   const parsed = parseForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
-  await db.insert(events).values({ ...parsed.data, posterUrl: posterFromForm(formData) ?? null });
+  const [created] = await db
+    .insert(events)
+    .values({ ...parsed.data, posterUrl: posterFromForm(formData) ?? null })
+    .returning();
+
+  // notifica solo per gli eventi futuri; dopo la risposta, così il redirect non interrompe l'invio
+  if (created.startsAt > new Date().toISOString()) {
+    after(() => deliverPush(newEventPush(created)));
+  }
 
   revalidatePath("/");
   revalidatePath("/calendario");

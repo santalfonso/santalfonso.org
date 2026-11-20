@@ -4,7 +4,15 @@ import { inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
 
-export type PushPayload = { title: string; body: string; url: string };
+export type PushPayload = {
+  title: string;
+  body: string;
+  url: string;
+  /** immagine grande (Android, Chrome desktop); iPhone la ignora */
+  image?: string;
+  /** notifiche con lo stesso tag si sostituiscono invece di accumularsi */
+  tag?: string;
+};
 
 const BATCH = 100;
 

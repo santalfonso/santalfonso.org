@@ -12,3 +12,14 @@ export function sizedImage(url: string | null | undefined, width: number): strin
   if (/^[a-z]{1,3}_[^/]*\//.test(rest)) return url;
   return `${m[1]}c_limit,w_${width}/${rest}`;
 }
+
+/**
+ * Anteprima della locandina per le notifiche push: 2:1 come la mostrano Android e Chrome,
+ * locandina intera al centro su sfondo del suo colore dominante, in JPEG (l'AVIF non sempre è supportato).
+ */
+export function notificationImage(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  const m = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:[a-z]{1,3}_[^/]*\/)*(.*)$/.exec(url);
+  if (!m) return undefined;
+  return `${m[1]}c_pad,w_1024,h_512,b_auto/f_jpg,q_auto/${m[2]}`;
+}
