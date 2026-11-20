@@ -14,6 +14,7 @@ export async function uploadToCloudinary(
   fd.append("timestamp", String(sig.timestamp));
   fd.append("folder", sig.folder);
   if (sig.format) fd.append("format", sig.format);
+  if (sig.transformation) fd.append("transformation", sig.transformation);
 
   const res = await fetch(
     `https://api.cloudinary.com/v1_1/${sig.cloud_name}/${resourceType}/upload`,

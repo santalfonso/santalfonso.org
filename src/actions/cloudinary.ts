@@ -16,7 +16,15 @@ export type UploadSignature = {
   cloud_name: string;
   folder: string;
   format?: string;
+  transformation?: string;
 };
+
+/**
+ * Immagini salvate già in AVIF e larghe al massimo 1600 px, la misura più grande che il sito
+ * chiede a Cloudinary (vedi sizedImage): i file più grandi occuperebbero spazio senza servire.
+ * c_limit riduce soltanto, non ingrandisce mai le immagini più piccole.
+ */
+const IMAGE_UPLOAD = { format: "avif", transformation: "c_limit,w_1600" } as const;
 
 /** Cartelle in cui lo staff carica dal pannello: immagini nella principale, documenti in "risorse". */
 const ALLOWED_FOLDERS: Record<"image" | "raw", readonly string[]> = {
@@ -34,7 +42,7 @@ export async function getUploadSignature(
 
   const timestamp = Math.round(Date.now() / 1000);
   const params: Record<string, string | number> = { folder, timestamp };
-  if (resourceType === "image") params.format = "avif";
+  if (resourceType === "image") Object.assign(params, IMAGE_UPLOAD);
 
   const signature = cloudinary.utils.api_sign_request(
     params,
@@ -47,6 +55,6 @@ export async function getUploadSignature(
     api_key: process.env.CLOUDINARY_API_KEY!,
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
     folder,
-    ...(resourceType === "image" ? { format: "avif" } : {}),
+    ...(resourceType === "image" ? IMAGE_UPLOAD : {}),
   };
 }
