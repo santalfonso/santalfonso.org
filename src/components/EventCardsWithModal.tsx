@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatDayNumber, formatMonthName, formatTime, formatDate } from "@/lib/utils";
 import { sizedImage } from "@/lib/image-url";
@@ -249,9 +250,25 @@ export default function EventCardsWithModal({
   /** evento da aprire subito (link delle notifiche: /?evento=ID) */
   openId?: number;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selected, setSelected] = useState<EventItem | null>(
     () => events.find((e) => e.id === openId) ?? null,
   );
+  // la notifica può arrivare mentre la homepage è già aperta (centro notifiche, clic sulla
+  // notifica): al cambio di ?evento= la scheda si apre anche senza ricaricare la pagina
+  const [lastOpenId, setLastOpenId] = useState(openId);
+  if (openId !== lastOpenId) {
+    setLastOpenId(openId);
+    const target = events.find((e) => e.id === openId);
+    if (target) setSelected(target);
+  }
+
+  function closeModal() {
+    setSelected(null);
+    // come per gli avvisi: si toglie ?evento= dall'indirizzo, così la stessa notifica riapre la scheda
+    if (searchParams.has("evento")) router.replace("/", { scroll: false });
+  }
 
   return (
     <>
@@ -324,7 +341,7 @@ export default function EventCardsWithModal({
       </div>
 
       {selected && (
-        <EventModal event={selected} onClose={() => setSelected(null)} />
+        <EventModal event={selected} onClose={closeModal} />
       )}
     </>
   );
