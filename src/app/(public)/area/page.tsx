@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, isStaff, ROLE_LABEL } from "@/auth";
-import { logoutSiteAction } from "@/actions/account";
-import ChangePasswordForm from "@/components/ChangePasswordForm";
+import AccountActions from "@/components/AccountActions";
 import PageTitle from "@/components/PageTitle";
 import "@/app/lodate.css";
 import "@/app/lodate-scalette.css";
@@ -30,28 +28,12 @@ export default async function AreaPage({ searchParams }: { searchParams: Promise
               Password cambiata. Gli altri dispositivi dovranno accedere di nuovo.
             </p>
           )}
-          <div className="ls-card ls-stack">
+          <AccountActions admin={isStaff(role)} minLength={isStaff(role) ? 12 : 8}>
             <p className="ls-muted">
               {email}
               {role ? ` · ${ROLE_LABEL[role]}` : ""}
             </p>
-            <div className="ls-row">
-              <Link className="ls-btn ls-btn--primary" href="/lodate/area">
-                Le mie scalette e i canti preferiti
-              </Link>
-              {isStaff(role) && (
-                <Link className="ls-btn" href="/admin">
-                  Amministrazione
-                </Link>
-              )}
-              <form action={logoutSiteAction}>
-                <button type="submit" className="ls-btn">
-                  Esci
-                </button>
-              </form>
-            </div>
-          </div>
-          <ChangePasswordForm minLength={isStaff(role) ? 12 : 8} />
+          </AccountActions>
         </div>
       </div>
     </>
