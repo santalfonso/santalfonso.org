@@ -79,7 +79,7 @@ export const LIBRI: Libro[] = [
     autore: ALFONSO,
     titolo: "Pratica di amare Gesù Cristo",
     didascalia:
-      `Uno dei meriti di sant’Alfonso è quello di aver avuto la “pretesa” pastorale di portare tutti, laici e non, alla perfezione della vita. Probabilmente questo è il più bel libro di sant’Alfonso: tutto incentrato sull’arte di amare Gesù Cristo.`,
+      `Uno dei meriti di Sant’Alfonso è quello di aver avuto la “pretesa” pastorale di portare tutti, laici e non, alla perfezione della vita. Probabilmente questo è il più bel libro di Sant’Alfonso: tutto incentrato sull’arte di amare Gesù Cristo.`,
     amazonUrl:
       "https://www.amazon.it/Pratica-Cristo-Alfonso-Maria-Liguori/dp/8884043239/ref=sr_1_1?ie=UTF8&qid=1550316295&sr=8-1&keywords=9788884043238",
   },
@@ -106,7 +106,7 @@ export const LIBRI: Libro[] = [
     autore: ALFONSO,
     titolo: "Le Glorie di Maria",
     didascalia:
-      "Il più grande capolavoro mariano di sant'Alfonso: meditazioni sulla Salve Regina, le sette principali feste di Maria, i sette dolori, le sue virtù e quasi 100 esempi dell'azione di Maria Santissima.",
+      "Il più grande capolavoro mariano di Sant'Alfonso: meditazioni sulla Salve Regina, le sette principali feste di Maria, i sette dolori, le sue virtù e quasi 100 esempi dell'azione di Maria Santissima.",
     amazonUrl:
       "https://www.amazon.it/glorie-Maria-Alfonso-Liguori/dp/888404216X/ref=sr_1_1?ie=UTF8&qid=1550320559&sr=8-1&keywords=9788884042163",
   },
@@ -115,7 +115,7 @@ export const LIBRI: Libro[] = [
     autore: ALFONSO,
     titolo: "Apparecchio alla Morte",
     didascalia:
-      "Nato dalla predicazione trentennale di sant'Alfonso nei paesi più depressi del Regno di Napoli. Al centro il tema dei Novissimi, per risvegliare nei fedeli il senso del peccato e la speranza della vita eterna.",
+      "Nato dalla predicazione trentennale di Sant'Alfonso nei paesi più depressi del Regno di Napoli. Al centro il tema dei Novissimi, per risvegliare nei fedeli il senso del peccato e la speranza della vita eterna.",
     amazonUrl:
       "https://www.amazon.it/Apparecchio-considerazioni-meditare-sacerdoti-predicare/dp/882156035X/ref=sr_1_1?ie=UTF8&qid=1550321812&sr=8-1&keywords=9788821560354",
   },

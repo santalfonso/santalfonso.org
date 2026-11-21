@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export default function PublicLayout({
   children,
@@ -13,6 +14,7 @@ export default function PublicLayout({
       <main className="flex-1">{children}</main>
       <Footer />
       <BottomNav />
+      <ScrollReveal />
     </div>
   );
 }

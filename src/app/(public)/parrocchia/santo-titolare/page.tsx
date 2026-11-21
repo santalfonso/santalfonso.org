@@ -71,7 +71,7 @@ export default function SantoTitolarePage() {
 
               <h2>Opere di evangelizzazione</h2>
               <p>
-                Alfonso sviluppò un&apos;intensa attività pastorale tra i poveri,
+                Sant&apos;Alfonso sviluppò un&apos;intensa attività pastorale tra i poveri,
                 insegnando loro le verità fondamentali della fede e
                 incoraggiandoli a una vita migliore. Le sue iniziative portarono
                 alla creazione delle «cappelle serotine», riunioni serali dove i
@@ -89,7 +89,7 @@ export default function SantoTitolarePage() {
 
               <h2>Insegnamenti sulla preghiera</h2>
               <p>
-                Alfonso riteneva la preghiera essenziale per la salvezza
+                Sant&apos;Alfonso riteneva la preghiera essenziale per la salvezza
                 cristiana, affermando con forza: «Chi prega si salva, chi non
                 prega si danna!». Considerava la preghiera come «il mezzo
                 necessario e sicuro per ottenere la salvezza e tutte le grazie
@@ -103,14 +103,14 @@ export default function SantoTitolarePage() {
 
               <h2>Eredità teologica</h2>
               <p>
-                Proclamato Dottore della Chiesa nel 1871, Alfonso è patrono dei
+                Proclamato Dottore della Chiesa nel 1871, Sant&apos;Alfonso è patrono dei
                 confessori e dei moralisti. La sua principale opera teologica
                 presenta una sintesi equilibrata tra le esigenze della legge
                 morale divina e i dinamismi della coscienza umana.
               </p>
               <p>
                 In un&apos;epoca caratterizzata dal rigorismo giansenista,
-                Alfonso raccomandava ai confessori di manifestare
+                Sant&apos;Alfonso raccomandava ai confessori di manifestare
                 «l&apos;abbraccio gioioso di Dio Padre» nella sua misericordia
                 infinita, insistendo sul ruolo del sacramento della Penitenza
                 come esperienza di perdono e incoraggiamento spirituale.
@@ -118,14 +118,14 @@ export default function SantoTitolarePage() {
 
               <h2>La santità accessibile a tutti</h2>
               <p>
-                Un merito particolare di Alfonso fu la sua convinzione che la
+                Un merito particolare di Sant&apos;Alfonso fu la sua convinzione che la
                 santità è accessibile ad ogni cristiano, indipendentemente dalla
                 condizione sociale o dalla vocazione: ognuno, nel proprio stato
                 di vita, può raggiungere la perfezione spirituale.
               </p>
 
               <p>
-                Canonizzato nel 1839, Alfonso rimane una figura centrale della
+                Canonizzato nel 1839, Sant&apos;Alfonso rimane una figura centrale della
                 spiritualità cattolica moderna.
               </p>
             </article>
