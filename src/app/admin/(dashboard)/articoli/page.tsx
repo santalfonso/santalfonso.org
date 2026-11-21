@@ -5,13 +5,14 @@ import { articles } from "@/db/schema";
 import { deleteArticle } from "@/actions/articles";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate } from "@/lib/utils";
-import { canEditContent, isAdmin, requireStaffPage } from "@/auth";
+import { canEditContent, isSuperAdmin, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminArticoliPage() {
   const me = await requireStaffPage();
-  const admin = isAdmin(me.role);
+  // eliminare spetta solo a superadmin e owner
+  const canDelete = isSuperAdmin(me.role);
   const list = await db.query.articles.findMany({
     orderBy: [desc(articles.createdAt)],
   });
@@ -61,7 +62,7 @@ export default async function AdminArticoliPage() {
                         Modifica
                       </Link>
                     )}
-                    {admin && (
+                    {canDelete && (
                       <DeleteButton
                         action={deleteArticle.bind(null, article.id)}
                         confirmMessage={`Eliminare l'articolo "${article.title}"?`}

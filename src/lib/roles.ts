@@ -2,8 +2,8 @@
  * Ruoli del sito, senza dipendenze dal server: li usano anche i moduli del pannello.
  * Ogni ruolo può tutto ciò che possono i ruoli sotto di lui:
  * - editor: crea articoli ed eventi, modifica solo i propri, non elimina;
- * - admin: avvisi, tutti gli articoli e gli eventi (anche eliminarli);
- * - superadmin: in più risorse, canti e utenti;
+ * - admin: come l'editor, in più gli avvisi;
+ * - superadmin: in più modifica ed elimina tutti gli articoli e gli eventi, risorse, canti e utenti;
  * - owner: in più le impostazioni (configurazioni, aggiornamenti).
  */
 export type Role = "owner" | "superadmin" | "admin" | "editor" | "utente";
@@ -20,8 +20,8 @@ export const ROLE_LABEL: Record<Role, string> = {
 /** Cosa può fare ogni ruolo, per il modulo di creazione utenti. */
 export const ROLE_DESCRIPTION: Record<Role, string> = {
   owner: "tutto, comprese le impostazioni",
-  superadmin: "tutto tranne le impostazioni: anche risorse, canti e utenti",
-  admin: "avvisi, articoli ed eventi (anche modificarli ed eliminarli)",
+  superadmin: "tutto tranne le impostazioni: modifica ed elimina ogni articolo ed evento, risorse, canti e utenti",
+  admin: "avvisi; crea articoli ed eventi e modifica solo i propri, senza eliminarli",
   editor: "crea articoli ed eventi e modifica solo i propri, senza eliminarli",
   utente: "usa le funzioni riservate del sito, senza accesso all'amministrazione",
 };

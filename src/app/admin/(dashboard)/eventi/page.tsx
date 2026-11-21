@@ -5,13 +5,14 @@ import { events } from "@/db/schema";
 import { deleteEvent } from "@/actions/events";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDateTime } from "@/lib/utils";
-import { canEditContent, isAdmin, requireStaffPage } from "@/auth";
+import { canEditContent, isSuperAdmin, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminEventiPage() {
   const me = await requireStaffPage();
-  const admin = isAdmin(me.role);
+  // eliminare spetta solo a superadmin e owner
+  const canDelete = isSuperAdmin(me.role);
   const list = await db.query.events.findMany({
     orderBy: [desc(events.startsAt)],
   });
@@ -55,7 +56,7 @@ export default async function AdminEventiPage() {
                         Modifica
                       </Link>
                     )}
-                    {admin && (
+                    {canDelete && (
                       <DeleteButton
                         action={deleteEvent.bind(null, event.id)}
                         confirmMessage={`Eliminare l'evento "${event.title}"?`}

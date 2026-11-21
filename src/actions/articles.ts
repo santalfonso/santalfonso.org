@@ -4,7 +4,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { canEditContent, requireAdmin, requireStaff } from "@/auth";
+import { canEditContent, requireStaff, requireSuperAdmin } from "@/auth";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
 import { slugify } from "@/lib/utils";
@@ -182,9 +182,9 @@ export async function updateArticle(
   redirect("/admin/articoli");
 }
 
-/** Eliminare spetta ad admin e superiori, anche per gli articoli creati da un editor. */
+/** Eliminare spetta solo a superadmin e owner, anche per i contenuti creati da editor e admin. */
 export async function deleteArticle(id: number) {
-  await requireAdmin();
+  await requireSuperAdmin();
   await db.delete(articleImages).where(eq(articleImages.articleId, id));
   await db.delete(articles).where(eq(articles.id, id));
   revalidatePath("/");

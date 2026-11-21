@@ -24,7 +24,7 @@ export default async function ModificaArticoloPage({
     db.query.articleImages.findMany({ where: eq(articleImages.articleId, articleId) }),
   ]);
   if (!article) notFound();
-  // l'editor modifica solo gli articoli creati da lui
+  // editor e admin modificano solo gli articoli creati da loro
   if (!canEditContent(me, article.createdBy)) redirect("/admin/articoli");
 
   return (

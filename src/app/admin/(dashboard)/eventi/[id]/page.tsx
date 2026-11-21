@@ -23,7 +23,7 @@ export default async function ModificaEventoPage({
     where: eq(events.id, eventId),
   });
   if (!event) notFound();
-  // l'editor modifica solo gli eventi creati da lui
+  // editor e admin modificano solo gli eventi creati da loro
   if (!canEditContent(me, event.createdBy)) redirect("/admin/eventi");
 
   return (

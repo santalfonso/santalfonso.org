@@ -160,21 +160,21 @@ export function isStaff(role: Role | undefined) {
   return roleAtLeast(role, "editor");
 }
 
-/** Avvisi e gestione completa di articoli ed eventi. */
+/** Avvisi (per articoli ed eventi l'admin ha gli stessi limiti dell'editor). */
 export function isAdmin(role: Role | undefined) {
   return roleAtLeast(role, "admin");
 }
 
 /**
- * Modifica di un articolo o di un evento: admin e superiori sempre, l'editor solo se l'ha creato lui
- * (i contenuti di prima dei ruoli, senza autore, restano agli admin).
+ * Modifica di un articolo o di un evento: superadmin e owner sempre; editor e admin solo se
+ * l'hanno creato loro (i contenuti di prima dei ruoli, senza autore, restano a superadmin e owner).
  */
 export function canEditContent(user: { id?: string; role?: Role }, createdBy: number | null): boolean {
-  if (isAdmin(user.role)) return true;
+  if (isSuperAdmin(user.role)) return true;
   return isStaff(user.role) && createdBy !== null && createdBy === Number(user.id);
 }
 
-/** Risorse, canti e utenti. */
+/** Risorse, canti, utenti e gestione completa di articoli ed eventi. */
 export function isSuperAdmin(role: Role | undefined) {
   return roleAtLeast(role, "superadmin");
 }

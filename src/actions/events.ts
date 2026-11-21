@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { canEditContent, requireAdmin, requireStaff } from "@/auth";
+import { canEditContent, requireStaff, requireSuperAdmin } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schema";
 import { newEventPush } from "@/lib/event-push";
@@ -113,9 +113,9 @@ export async function updateEvent(
   redirect("/admin/eventi");
 }
 
-/** Eliminare spetta ad admin e superiori, anche per gli eventi creati da un editor. */
+/** Eliminare spetta solo a superadmin e owner, anche per i contenuti creati da editor e admin. */
 export async function deleteEvent(id: number) {
-  await requireAdmin();
+  await requireSuperAdmin();
   await db.delete(events).where(eq(events.id, id));
   revalidatePath("/");
   revalidatePath("/calendario");
