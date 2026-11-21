@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 
 
 export default async function AreaPage({ searchParams }: { searchParams: Promise<{ esito?: string }> }) {
-  const passwordChanged = (await searchParams).esito === "password-cambiata";
+  const esito = (await searchParams).esito;
+  const passwordChanged = esito === "password-cambiata";
+  const passwordSet = esito === "password-impostata";
   const session = await auth();
   if (!session?.user?.id) redirect("/accedi?next=/area");
   const { name, email, role } = session.user;
@@ -26,6 +28,11 @@ export default async function AreaPage({ searchParams }: { searchParams: Promise
           {passwordChanged && (
             <p className="ls-card" role="status" style={{ margin: 0, fontWeight: 600 }}>
               Password cambiata. Gli altri dispositivi dovranno accedere di nuovo.
+            </p>
+          )}
+          {passwordSet && (
+            <p className="ls-card" role="status" style={{ margin: 0, fontWeight: 600 }}>
+              Password salvata: benvenuto nel sito della parrocchia!
             </p>
           )}
           <AccountActions admin={isStaff(role)} minLength={isStaff(role) ? 12 : 8}>

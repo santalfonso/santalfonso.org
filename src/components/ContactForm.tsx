@@ -3,28 +3,7 @@
 import Script from "next/script";
 import { useActionState, useRef, useState } from "react";
 import { sendContactAction, type ContactState } from "@/actions/contact";
-
-type Grecaptcha = {
-  ready: (cb: () => void) => void;
-  execute: (siteKey: string, opts: { action: string }) => Promise<string>;
-};
-
-declare global {
-  interface Window {
-    grecaptcha?: Grecaptcha;
-  }
-}
-
-/** Chiede a reCAPTCHA v3 un token nuovo (scade dopo 2 minuti, quindi uno per invio). */
-function recaptchaToken(siteKey: string): Promise<string> {
-  const g = window.grecaptcha;
-  if (!g || !siteKey) return Promise.resolve("");
-  return new Promise((resolve) => {
-    g.ready(() => {
-      g.execute(siteKey, { action: "contatti" }).then(resolve, () => resolve(""));
-    });
-  });
-}
+import { recaptchaScriptSrc, recaptchaToken } from "@/lib/recaptcha-client";
 
 /** Form contatti: il messaggio arriva a info@santalfonso.org. */
 export default function ContactForm({ siteKey }: { siteKey: string | null }) {
@@ -47,7 +26,7 @@ export default function ContactForm({ siteKey }: { siteKey: string | null }) {
 
   return (
     <>
-      {siteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`} strategy="afterInteractive" />}
+      {siteKey && <Script src={recaptchaScriptSrc(siteKey)} strategy="afterInteractive" />}
       <form
         className="card contact-form"
         aria-labelledby="contact-form-title"
@@ -58,7 +37,7 @@ export default function ContactForm({ siteKey }: { siteKey: string | null }) {
           e.preventDefault();
           const form = e.currentTarget;
           setPreparing(true);
-          const token = await recaptchaToken(siteKey ?? "");
+          const token = await recaptchaToken(siteKey ?? "", "contatti");
           setPreparing(false);
           if (tokenRef.current) tokenRef.current.value = token;
           readyRef.current = true;

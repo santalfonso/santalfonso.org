@@ -290,3 +290,9 @@
 .ls-ai__song .ls-btn { flex: none; }
 .ls-ai__result > .ls-btn { justify-self: start; }
 .ls .ls-ai p.ls-small { font-size: 14px; line-height: 1.45; }
+
+/* Richiesta di account (pagina Accedi) */
+.ls-account-request { padding: 18px; border: 1px solid var(--ls-rule); border-radius: var(--ls-radius-sm); }
+.ls-account-request__title { margin: 0; font-size: 17px; }
+.ls-account-request__actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.ls-account-request__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

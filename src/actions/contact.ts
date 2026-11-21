@@ -4,14 +4,13 @@ import { headers } from "next/headers";
 import { canSendContactMail, getContactConfig, sendContactMail } from "@/lib/contact-config";
 import { contactEmailHtml } from "@/lib/contact-email";
 import { isLimited, recordFailure } from "@/lib/rate-limit";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export type ContactState =
   | { ok: true }
   | { ok?: false; error: string; values?: { name: string; email: string; subject: string; message: string } }
   | undefined;
 
-/** Punteggio reCAPTCHA v3 minimo (0 = robot, 1 = persona). */
-const MIN_SCORE = 0.5;
 const RECAPTCHA_ACTION = "contatti";
 
 const WINDOW_MS = 60 * 60 * 1000;
@@ -22,37 +21,6 @@ const EMAIL_RE = /^[^\s@<>"',;]+@[^\s@<>"',;]+\.[^\s@<>"',;]+$/;
 function field(formData: FormData, name: string, max: number): string {
   const v = formData.get(name);
   return typeof v === "string" ? v.trim().slice(0, max) : "";
-}
-
-/** Chiede a Google il giudizio sul token reCAPTCHA v3 generato dalla pagina. */
-/** Nome del sito senza porta e senza "www.", per confrontare il dominio di reCAPTCHA con quello della richiesta. */
-function bareHost(host: string | null | undefined): string {
-  return (host ?? "").toLowerCase().replace(/:\d+$/, "").replace(/^www\./, "");
-}
-
-async function verifyRecaptcha(secret: string | null, token: string, ip: string, host: string | null): Promise<boolean> {
-  if (!secret || !token) return false;
-  const body = new URLSearchParams({ secret, response: token });
-  if (ip !== "unknown") body.set("remoteip", ip);
-  try {
-    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      body,
-      signal: AbortSignal.timeout(8000),
-    });
-    const data = (await res.json()) as { success?: boolean; score?: number; action?: string; hostname?: string };
-    // il token deve essere stato generato su questo sito (non su un'altra pagina con la stessa chiave)
-    const ok =
-      data.success === true &&
-      data.action === RECAPTCHA_ACTION &&
-      (data.score ?? 0) >= MIN_SCORE &&
-      !!host &&
-      bareHost(data.hostname) === bareHost(host);
-    if (!ok) console.warn("Form contatti: verifica reCAPTCHA non superata", { score: data.score, action: data.action, hostname: data.hostname });
-    return ok;
-  } catch {
-    return false;
-  }
 }
 
 /**
@@ -88,7 +56,15 @@ export async function sendContactAction(_prev: ContactState, formData: FormData)
   }
 
   const config = await getContactConfig();
-  if (!(await verifyRecaptcha(config.recaptchaSecretKey, field(formData, "recaptcha", 4000), ip, h.get("host")))) {
+  const human = await verifyRecaptcha({
+    secret: config.recaptchaSecretKey,
+    token: field(formData, "recaptcha", 4000),
+    action: RECAPTCHA_ACTION,
+    ip,
+    host: h.get("host"),
+    label: "Form contatti",
+  });
+  if (!human) {
     return { error: "Non siamo riusciti a verificare l'invio: ricarica la pagina e riprova.", values };
   }
 

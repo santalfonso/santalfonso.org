@@ -63,6 +63,8 @@ export const CONTACT_TO = "info@santalfonso.org";
 const CONTACT_FROM = { name: "Sito santalfonso.org", address: "info@santalfonso.org" };
 
 export type ContactMail = {
+  /** destinatario: di norma info@santalfonso.org */
+  to?: string;
   subject: string;
   text: string;
   html?: string;
@@ -85,7 +87,7 @@ export async function sendContactMail(c: ContactConfig, mail: ContactMail): Prom
       headers: { Authorization: `Bearer ${c.resendApiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: `${CONTACT_FROM.name} <${CONTACT_FROM.address}>`,
-        to: [CONTACT_TO],
+        to: [mail.to ?? CONTACT_TO],
         subject: mail.subject,
         text: mail.text,
         ...(mail.html && { html: mail.html }),
@@ -109,7 +111,7 @@ export async function sendContactMail(c: ContactConfig, mail: ContactMail): Prom
   });
   await transporter.sendMail({
     from: { name: CONTACT_FROM.name, address: c.smtpUser },
-    to: CONTACT_TO,
+    to: mail.to ?? CONTACT_TO,
     replyTo: mail.replyTo,
     subject: mail.subject,
     text: mail.text,

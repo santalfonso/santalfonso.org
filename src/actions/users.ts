@@ -8,7 +8,7 @@ import { z } from "zod";
 import { forgetUserCheck, requireSuperAdmin, roleAtLeast } from "@/auth";
 import { canManageRole } from "@/lib/roles";
 import { db } from "@/db";
-import { favoriteSongs, setlistItems, setlists, songAnnotations, songUserSettings, users } from "@/db/schema";
+import { favoriteSongs, passwordTokens, setlistItems, setlists, songAnnotations, songUserSettings, users } from "@/db/schema";
 import type { ActionState } from "./articles";
 
 const userSchema = z.object({
@@ -74,6 +74,7 @@ export async function deleteUser(id: number) {
     await tx.delete(favoriteSongs).where(eq(favoriteSongs.userId, id));
     await tx.delete(songAnnotations).where(eq(songAnnotations.userId, id));
     await tx.delete(songUserSettings).where(eq(songUserSettings.userId, id));
+    await tx.delete(passwordTokens).where(eq(passwordTokens.userId, id));
     await tx.delete(users).where(eq(users.id, id));
   });
   forgetUserCheck(id);

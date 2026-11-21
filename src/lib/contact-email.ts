@@ -125,3 +125,90 @@ export function testEmailHtml(service: string, by: string | null | undefined): s
     footer: "Inviata da Admin → Configurazioni.",
   });
 }
+
+export type AccountRequest = { name: string; email: string; message: string; alreadyRegistered: boolean };
+
+/** Richiesta di un account dalla pagina Accedi, per l'amministratore del sito. */
+export function accountRequestEmailHtml(r: AccountRequest): string {
+  const replyHref = `mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent("Il tuo account sul sito della parrocchia")}`;
+  const notice = r.alreadyRegistered
+    ? `<div style="margin:0 0 20px;padding:12px 16px;background:#FFF6E5;border:1px solid #F2D9A6;border-radius:8px;font-size:14px;line-height:1.5;color:#7A5300;">
+  <strong>Attenzione:</strong> esiste già un account con questa email. Forse la persona ha dimenticato la password.
+</div>`
+    : "";
+  const message = r.message
+    ? `<div style="margin:24px 0 0;font-size:13px;font-weight:600;color:${C.inkMute};">Messaggio</div>
+<div style="margin:8px 0 0;padding:20px 22px;background:${C.bg};border-left:3px solid ${C.gold};border-radius:6px;font-size:15px;line-height:1.7;color:${C.ink};">
+  ${paragraphs(r.message)}
+</div>`
+    : `<p style="margin:24px 0 0;font-size:14px;color:${C.inkMute};">Nessun messaggio aggiunto alla richiesta.</p>`;
+  const body = `
+${notice}<p style="margin:0 0 16px;">Una persona chiede un account per accedere alle funzioni riservate del sito (scalette dei canti, preferiti, annotazioni). Puoi confermarla assegnando un ruolo in <strong>Amministrazione → Utenti</strong>.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+  ${row("Nome", esc(r.name))}
+  ${row("Email", `<a href="mailto:${esc(r.email)}" style="color:${C.azure};text-decoration:none;">${esc(r.email)}</a>`)}
+  ${row("Ricevuta", esc(romeDate()))}
+</table>
+${message}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;">
+  <tr>
+    <td style="border-radius:999px;background:${C.azure};">
+      <a href="${SITE}/admin/utenti" style="display:inline-block;padding:12px 26px;font-family:${FONT};font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:999px;">Apri le richieste</a>
+    </td>
+    <td style="width:12px;">&nbsp;</td>
+    <td style="border-radius:999px;border:1px solid ${C.rule};">
+      <a href="${replyHref}" style="display:inline-block;padding:11px 22px;font-family:${FONT};font-size:15px;font-weight:600;color:${C.ink};text-decoration:none;border-radius:999px;">Rispondi</a>
+    </td>
+  </tr>
+</table>`;
+  return layout({
+    preheader: `${r.name} (${r.email}) chiede un account sul sito.`,
+    kicker: "Richiesta di account",
+    title: `${r.name} chiede un account`,
+    body,
+    footer: "Ricevuta tramite il form della pagina Accedi. Puoi rispondere direttamente a questa email.",
+  });
+}
+
+export type WelcomeEmail = {
+  name: string;
+  roleLabel: string;
+  link: string;
+  days: number;
+  minLength: number;
+  /** true: nuovo link per un account già esistente (password dimenticata o link scaduto) */
+  reset?: boolean;
+};
+
+/** Email al titolare di un account appena confermato, con il link per scegliere la password. */
+export function welcomeEmailHtml(w: WelcomeEmail): string {
+  const body = `
+<p style="margin:0 0 16px;">Ciao ${esc(w.name)},</p>
+<p style="margin:0 0 16px;">${
+    w.reset
+      ? "l'amministratore del sito ti ha inviato un nuovo link per scegliere la password del tuo account sul sito della Parrocchia Sant'Alfonso Maria de' Liguori."
+      : "la tua richiesta è stata accolta: il tuo account sul sito della Parrocchia Sant'Alfonso Maria de' Liguori è pronto. Per iniziare a usarlo scegli la tua password."
+  }</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+  ${row("Ruolo", esc(w.roleLabel))}
+</table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;">
+  <tr><td style="border-radius:999px;background:${C.azure};">
+    <a href="${esc(w.link)}" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:16px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:999px;">Scegli la password</a>
+  </td></tr>
+</table>
+<div style="margin:28px 0 0;padding:16px 18px;background:${C.bg};border-radius:8px;font-size:14px;line-height:1.6;color:${C.inkSoft};">
+  La password deve avere almeno <strong>${w.minLength} caratteri</strong>.<br>
+  Il link vale <strong>${w.days} giorni</strong> e si può usare una volta sola. Se scade, chiedi un nuovo link all'amministratore del sito.
+</div>
+<p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:${C.inkMute};">Se il pulsante non funziona, copia questo indirizzo nel browser:<br><a href="${esc(w.link)}" style="color:${C.azure};word-break:break-all;">${esc(w.link)}</a></p>`;
+  return layout({
+    preheader: w.reset ? "Il link per scegliere la password del tuo account." : "Il tuo account è pronto: scegli la password per iniziare.",
+    kicker: w.reset ? "Password" : "Account confermato",
+    title: w.reset ? "Scegli la tua password" : "Benvenuto sul sito della parrocchia",
+    body,
+    footer: w.reset
+      ? "Hai ricevuto questa email perché l'amministratore del sito ti ha inviato un nuovo link. Se non te lo aspettavi, ignorala: la password attuale resta valida."
+      : "Hai ricevuto questa email perché hai chiesto un account sul sito santalfonso.org.",
+  });
+}

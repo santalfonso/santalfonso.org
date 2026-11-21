@@ -290,3 +290,45 @@ export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type Song = typeof songs.$inferSelect;
 export type Setlist = typeof setlists.$inferSelect;
 export type SetlistItem = typeof setlistItems.$inferSelect;
+
+/** Richieste di account dalla pagina Accedi: l'amministratore le conferma (assegnando un ruolo) o le rifiuta. */
+export const accountRequests = sqliteTable(
+  "account_requests",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message"),
+    status: text("status", { enum: ["pending", "approved", "rejected"] })
+      .notNull()
+      .default("pending"),
+    /** chi l'ha confermata o rifiutata */
+    handledBy: integer("handled_by"),
+    handledAt: text("handled_at"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => [index("account_requests_status_idx").on(t.status)],
+);
+
+/**
+ * Link monouso per scegliere la password (nuovo account confermato dall'amministratore).
+ * Si salva solo l'impronta SHA-256 del token: il token vero esiste solo nel link dell'email.
+ */
+export const passwordTokens = sqliteTable(
+  "password_tokens",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: text("expires_at").notNull(),
+    usedAt: text("used_at"),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(datetime('now'))`),
+  },
+  (t) => [index("password_tokens_user_idx").on(t.userId)],
+);
