@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { updateArticle } from "@/actions/articles";
 import ArticleForm from "@/components/admin/ArticleForm";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
-import { requireStaffPage } from "@/auth";
+import { canEditContent, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function ModificaArticoloPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireStaffPage();
+  const me = await requireStaffPage();
   const { id } = await params;
   const articleId = Number(id);
   if (isNaN(articleId)) notFound();
@@ -24,6 +24,8 @@ export default async function ModificaArticoloPage({
     db.query.articleImages.findMany({ where: eq(articleImages.articleId, articleId) }),
   ]);
   if (!article) notFound();
+  // l'editor modifica solo gli articoli creati da lui
+  if (!canEditContent(me, article.createdBy)) redirect("/admin/articoli");
 
   return (
     <>

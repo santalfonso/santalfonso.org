@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireStaff } from "@/auth";
+import { canEditContent, requireAdmin, requireStaff } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schema";
 import { newEventPush } from "@/lib/event-push";
@@ -70,13 +70,13 @@ export async function createEvent(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireStaff();
+  const user = await requireStaff();
   const parsed = parseForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
   const [created] = await db
     .insert(events)
-    .values({ ...parsed.data, posterUrl: posterFromForm(formData) ?? null })
+    .values({ ...parsed.data, posterUrl: posterFromForm(formData) ?? null, createdBy: Number(user.id) || null })
     .returning();
 
   // notifica solo per gli eventi futuri; dopo la risposta, così il redirect non interrompe l'invio
@@ -94,7 +94,10 @@ export async function updateEvent(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireStaff();
+  const user = await requireStaff();
+  const current = await db.query.events.findFirst({ where: eq(events.id, id), columns: { createdBy: true } });
+  if (!current) return { error: "Evento non trovato" };
+  if (!canEditContent(user, current.createdBy)) return { error: "Puoi modificare solo gli eventi che hai creato tu." };
   const parsed = parseForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
@@ -110,8 +113,9 @@ export async function updateEvent(
   redirect("/admin/eventi");
 }
 
+/** Eliminare spetta ad admin e superiori, anche per gli eventi creati da un editor. */
 export async function deleteEvent(id: number) {
-  await requireStaff();
+  await requireAdmin();
   await db.delete(events).where(eq(events.id, id));
   revalidatePath("/");
   revalidatePath("/calendario");

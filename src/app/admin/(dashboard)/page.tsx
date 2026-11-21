@@ -6,12 +6,15 @@ import { deleteAnnouncement } from "@/actions/announcements";
 import AnnouncementAddForm from "@/components/admin/AnnouncementAddForm";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate } from "@/lib/utils";
-import { requireStaffPage } from "@/auth";
+import { isAdmin, isSuperAdmin, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  await requireStaffPage();
+  const me = await requireStaffPage();
+  // avvisi da admin in su, risorse da superadmin in su
+  const canAnnounce = isAdmin(me.role);
+  const canResources = isSuperAdmin(me.role);
   const [[articleCount], [eventCount], [resourceCount], avvisi] =
     await Promise.all([
       db.select({ value: count() }).from(articles),
@@ -39,7 +42,7 @@ export default async function AdminDashboard() {
       total: resourceCount.value,
       desc: "Carica libretti, documenti e file scaricabili",
     },
-  ];
+  ].filter((card) => canResources || card.href !== "/admin/risorse");
 
   return (
     <>
@@ -57,7 +60,8 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Avvisi importanti */}
+      {/* Avvisi importanti (admin e superiori) */}
+      {canAnnounce && (
       <div style={{ borderTop: "1px solid var(--rule)", paddingTop: 36, marginTop: 12 }}>
         <div className="admin-page-head" style={{ marginBottom: 20 }}>
           <div>
@@ -124,6 +128,7 @@ export default async function AdminDashboard() {
           </p>
         )}
       </div>
+      )}
     </>
   );
 }

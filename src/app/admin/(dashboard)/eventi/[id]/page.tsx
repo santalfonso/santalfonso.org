@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { eq } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { updateEvent } from "@/actions/events";
 import EventForm from "@/components/admin/EventForm";
 import { db } from "@/db";
 import { events } from "@/db/schema";
-import { requireStaffPage } from "@/auth";
+import { canEditContent, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ export default async function ModificaEventoPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireStaffPage();
+  const me = await requireStaffPage();
   const { id } = await params;
   const eventId = Number(id);
   if (isNaN(eventId)) notFound();
@@ -23,6 +23,8 @@ export default async function ModificaEventoPage({
     where: eq(events.id, eventId),
   });
   if (!event) notFound();
+  // l'editor modifica solo gli eventi creati da lui
+  if (!canEditContent(me, event.createdBy)) redirect("/admin/eventi");
 
   return (
     <>

@@ -5,12 +5,13 @@ import { events } from "@/db/schema";
 import { deleteEvent } from "@/actions/events";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDateTime } from "@/lib/utils";
-import { requireStaffPage } from "@/auth";
+import { canEditContent, isAdmin, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminEventiPage() {
-  await requireStaffPage();
+  const me = await requireStaffPage();
+  const admin = isAdmin(me.role);
   const list = await db.query.events.findMany({
     orderBy: [desc(events.startsAt)],
   });
@@ -49,13 +50,17 @@ export default async function AdminEventiPage() {
                 <td className="mute stack-meta">{event.location ?? "—"}</td>
                 <td className="right stack-action">
                   <div className="admin-table-actions">
-                    <Link href={`/admin/eventi/${event.id}`} className="admin-link">
-                      Modifica
-                    </Link>
-                    <DeleteButton
-                      action={deleteEvent.bind(null, event.id)}
-                      confirmMessage={`Eliminare l'evento "${event.title}"?`}
-                    />
+                    {canEditContent(me, event.createdBy) && (
+                      <Link href={`/admin/eventi/${event.id}`} className="admin-link">
+                        Modifica
+                      </Link>
+                    )}
+                    {admin && (
+                      <DeleteButton
+                        action={deleteEvent.bind(null, event.id)}
+                        confirmMessage={`Eliminare l'evento "${event.title}"?`}
+                      />
+                    )}
                   </div>
                 </td>
               </tr>

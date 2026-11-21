@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { requireStaffPage } from "@/auth";
+import { requireSuperAdminPage } from "@/auth";
 import { createCategory } from "@/actions/resources";
 import CategoryForm from "@/components/admin/CategoryForm";
 
 export default async function NuovaCategoriaPage() {
-  await requireStaffPage();
+  await requireSuperAdminPage();
   return (
     <>
       <Link href="/admin/risorse" className="admin-back">← Risorse</Link>

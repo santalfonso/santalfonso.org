@@ -5,7 +5,8 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireOwner } from "@/auth";
+import { requireSuperAdmin, roleAtLeast } from "@/auth";
+import { canManageRole } from "@/lib/roles";
 import { db } from "@/db";
 import { favoriteSongs, setlistItems, setlists, songAnnotations, songUserSettings, users } from "@/db/schema";
 import type { ActionState } from "./articles";
@@ -17,15 +18,15 @@ const userSchema = z.object({
     .string()
     .min(8, "La password deve avere almeno 8 caratteri")
     .max(200, "La password può avere al massimo 200 caratteri"),
-  // l'owner si assegna solo dal database: dal modulo si creano editor e user
-  role: z.enum(["editor", "utente"], { message: "Scegli il ruolo" }),
+  // l'owner si assegna solo dal database; chi crea può assegnare solo ruoli sotto il suo
+  role: z.enum(["superadmin", "admin", "editor", "utente"], { message: "Scegli il ruolo" }),
 });
 
 export async function createUser(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireOwner();
+  const me = await requireSuperAdmin();
   const parsed = userSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -35,9 +36,10 @@ export async function createUser(
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const { name, email, password, role } = parsed.data;
+  if (!canManageRole(me.role, role)) return { error: "Non puoi assegnare questo ruolo" };
   // chi entra nell'amministrazione ha bisogno di una password più lunga
-  if (role === "editor" && password.length < 12) {
-    return { error: "Per un editor la password deve avere almeno 12 caratteri" };
+  if (roleAtLeast(role, "editor") && password.length < 12) {
+    return { error: "Per chi accede all'amministrazione la password deve avere almeno 12 caratteri" };
   }
   const existing = await db.query.users.findFirst({
     where: eq(users.email, email.toLowerCase()),
@@ -55,13 +57,14 @@ export async function createUser(
 }
 
 export async function deleteUser(id: number) {
-  const owner = await requireOwner();
-  if (String(id) === owner.id) {
+  const me = await requireSuperAdmin();
+  if (String(id) === me.id) {
     throw new Error("Non puoi eliminare il tuo stesso account");
   }
   if (!Number.isSafeInteger(id) || id <= 0) throw new Error("Utente non valido");
   const target = await db.query.users.findFirst({ where: eq(users.id, id), columns: { role: true } });
-  if (target?.role === "owner") throw new Error("Non puoi eliminare un owner");
+  if (!target) throw new Error("Utente non trovato");
+  if (!canManageRole(me.role, target.role)) throw new Error("Non puoi eliminare un utente con questo ruolo");
   // Le FK hanno ON DELETE CASCADE, ma SQLite le applica solo se abilitate:
   // cancelliamo esplicitamente scalette (anche quelle condivise), preferiti, annotazioni e trasposizioni.
   await db.transaction(async (tx) => {

@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { announcements } from "@/db/schema";
 import { after } from "next/server";
 import { deliverPush } from "@/lib/push-send";
-import { requireStaff } from "@/auth";
+import { requireAdmin } from "@/auth";
 
 export type AnnouncementState = { error?: string } | undefined;
 
@@ -15,7 +15,7 @@ export async function createAnnouncement(
   text: string,
 ): Promise<AnnouncementState> {
   try {
-    await requireStaff();
+    await requireAdmin();
   } catch {
     return { error: "Non autorizzato." };
   }
@@ -42,7 +42,7 @@ export async function createAnnouncement(
 }
 
 export async function deleteAnnouncement(id: number): Promise<void> {
-  await requireStaff();
+  await requireAdmin();
   await db.delete(announcements).where(eq(announcements.id, id));
   revalidatePath("/admin");
   revalidatePath("/");

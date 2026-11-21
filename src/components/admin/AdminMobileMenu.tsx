@@ -3,19 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { navItems, ownerOnlyItems } from "@/components/admin/AdminNav";
+import { navItemsFor } from "@/components/admin/AdminNav";
 import { SETTINGS_ITEMS } from "@/lib/admin-settings-nav";
+import type { Role } from "@/lib/roles";
 
 /**
  * Menù a panino del backend su schermi stretti: pannello laterale da destra con tutte
  * le voci, Impostazioni comprese, e in fondo "Vai al sito" ed "Esci" (passato come children).
  */
 export default function AdminMobileMenu({
-  isOwner,
+  role,
   userLabel,
   children,
 }: {
-  isOwner: boolean;
+  role: Role | undefined;
   userLabel: string;
   children: React.ReactNode;
 }) {
@@ -43,7 +44,8 @@ export default function AdminMobileMenu({
     return pathname.startsWith(href);
   }
 
-  const items = isOwner ? [...navItems, ...ownerOnlyItems] : navItems;
+  const items = navItemsFor(role);
+  const isOwner = role === "owner";
 
   return (
     <>

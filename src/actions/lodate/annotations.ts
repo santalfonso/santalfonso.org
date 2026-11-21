@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { isOwner, requireMember } from "@/auth";
+import { isSuperAdmin, requireMember } from "@/auth";
 import { db } from "@/db";
 import { songAnnotations, songs } from "@/db/schema";
 import { annotationsSchema, normalizeAnnotations } from "@/lib/lodate/annotations";
@@ -15,7 +15,7 @@ export async function saveAnnotations(songId: number, data: unknown): Promise<Sa
   try {
     const user = await requireMember();
     userId = Number(user.id);
-    staff = isOwner(user.role);
+    staff = isSuperAdmin(user.role);
   } catch {
     return { error: "Accedi per salvare le annotazioni" };
   }

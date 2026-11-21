@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, isOwner, isStaff, ROLE_LABEL } from "@/auth";
+import { auth, isStaff, ROLE_LABEL } from "@/auth";
 import { logoutAction } from "@/actions/login";
 import AdminNav from "@/components/admin/AdminNav";
 import AdminMobileMenu from "@/components/admin/AdminMobileMenu";
@@ -22,7 +22,7 @@ export default async function AdminLayout({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-dark.avif" alt="Sant'Alfonso" style={{ height: 36, width: "auto" }} />
           </Link>
-          <AdminNav isOwner={isOwner(session.user.role)} />
+          <AdminNav role={session.user.role} />
           <div className="admin-header-right">
             <span className="admin-user-badge">
               {session.user.name} · {session.user.role ? ROLE_LABEL[session.user.role] : ""}
@@ -35,7 +35,7 @@ export default async function AdminLayout({
             </form>
           </div>
           <AdminMobileMenu
-            isOwner={isOwner(session.user.role)}
+            role={session.user.role}
             userLabel={`${session.user.name ?? ""}${session.user.role ? ` · ${ROLE_LABEL[session.user.role]}` : ""}`}
           >
             <Link href="/" className="admin-drawer__link">

@@ -7,11 +7,9 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { isLimited, recordFailure, resetFailures } from "@/lib/rate-limit";
+import { roleAtLeast, type Role } from "@/lib/roles";
 
-export type Role = "owner" | "editor" | "utente";
-
-/** Nomi dei ruoli mostrati nel sito e nell'amministrazione. */
-export const ROLE_LABEL: Record<Role, string> = { owner: "Owner", editor: "Editor", utente: "User" };
+export { ROLE_LABEL, roleAtLeast, type Role } from "@/lib/roles";
 
 declare module "next-auth" {
   interface User {
@@ -157,12 +155,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });
 
-/** Owner o editor: accesso all'area di amministrazione. */
+/** Accesso all'area di amministrazione: editor e ruoli superiori. */
 export function isStaff(role: Role | undefined) {
-  return role === "owner" || role === "editor";
+  return roleAtLeast(role, "editor");
 }
 
-/** Solo l'owner gestisce canti, utenti e impostazioni. */
+/** Avvisi e gestione completa di articoli ed eventi. */
+export function isAdmin(role: Role | undefined) {
+  return roleAtLeast(role, "admin");
+}
+
+/**
+ * Modifica di un articolo o di un evento: admin e superiori sempre, l'editor solo se l'ha creato lui
+ * (i contenuti di prima dei ruoli, senza autore, restano agli admin).
+ */
+export function canEditContent(user: { id?: string; role?: Role }, createdBy: number | null): boolean {
+  if (isAdmin(user.role)) return true;
+  return isStaff(user.role) && createdBy !== null && createdBy === Number(user.id);
+}
+
+/** Risorse, canti e utenti. */
+export function isSuperAdmin(role: Role | undefined) {
+  return roleAtLeast(role, "superadmin");
+}
+
+/** Solo l'owner gestisce le impostazioni. */
 export function isOwner(role: Role | undefined) {
   return role === "owner";
 }
@@ -179,11 +196,24 @@ export async function requireMember() {
   return session.user;
 }
 
-/** Owner o editor: accesso all'area di amministrazione. */
-export async function requireStaff() {
+/** Per le azioni: almeno il ruolo indicato, altrimenti errore. */
+async function requireRole(min: Role) {
   const user = await requireMember();
-  if (!isStaff(user.role)) throw new Error("Non autorizzato");
+  if (!roleAtLeast(user.role, min)) throw new Error("Non autorizzato");
   return user;
+}
+
+/** Accesso all'area di amministrazione (editor e superiori). */
+export async function requireStaff() {
+  return requireRole("editor");
+}
+
+export async function requireAdmin() {
+  return requireRole("admin");
+}
+
+export async function requireSuperAdmin() {
+  return requireRole("superadmin");
 }
 
 /**
@@ -203,9 +233,19 @@ export async function requireOwner() {
   return user;
 }
 
-/** Per le pagine riservate all'owner (Canti, Utenti, Configurazioni): gli editor tornano alla dashboard. */
-export async function requireOwnerPage() {
+/** Per le pagine riservate a un ruolo: chi non lo ha torna alla dashboard. */
+async function requireRolePage(min: Role) {
   const user = await requireStaffPage();
-  if (!isOwner(user.role)) redirect("/admin");
+  if (!roleAtLeast(user.role, min)) redirect("/admin");
   return user;
+}
+
+/** Pagine di Risorse, Canti e Utenti. */
+export async function requireSuperAdminPage() {
+  return requireRolePage("superadmin");
+}
+
+/** Pagine delle Impostazioni. */
+export async function requireOwnerPage() {
+  return requireRolePage("owner");
 }

@@ -5,12 +5,13 @@ import { articles } from "@/db/schema";
 import { deleteArticle } from "@/actions/articles";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { formatDate } from "@/lib/utils";
-import { requireStaffPage } from "@/auth";
+import { canEditContent, isAdmin, requireStaffPage } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminArticoliPage() {
-  await requireStaffPage();
+  const me = await requireStaffPage();
+  const admin = isAdmin(me.role);
   const list = await db.query.articles.findMany({
     orderBy: [desc(articles.createdAt)],
   });
@@ -55,13 +56,17 @@ export default async function AdminArticoliPage() {
                 <td className="mute stack-meta">{formatDate(article.publishedAt)}</td>
                 <td className="right stack-action">
                   <div className="admin-table-actions">
-                    <Link href={`/admin/articoli/${article.id}`} className="admin-link">
-                      Modifica
-                    </Link>
-                    <DeleteButton
-                      action={deleteArticle.bind(null, article.id)}
-                      confirmMessage={`Eliminare l'articolo "${article.title}"?`}
-                    />
+                    {canEditContent(me, article.createdBy) && (
+                      <Link href={`/admin/articoli/${article.id}`} className="admin-link">
+                        Modifica
+                      </Link>
+                    )}
+                    {admin && (
+                      <DeleteButton
+                        action={deleteArticle.bind(null, article.id)}
+                        confirmMessage={`Eliminare l'articolo "${article.title}"?`}
+                      />
+                    )}
                   </div>
                 </td>
               </tr>

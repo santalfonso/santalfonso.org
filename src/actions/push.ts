@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { z } from "zod";
-import { requireStaff } from "@/auth";
+import { requireAdmin } from "@/auth";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
 import { deliverPush, type PushPayload } from "@/lib/push-send";
@@ -82,7 +82,7 @@ export async function unsubscribeUser(endpoint: string) {
 }
 
 export async function sendPushToAll(payload: PushPayload) {
-  // Esportata da un file "use server" = chiamabile da chiunque: solo staff.
-  await requireStaff();
+  // Esportata da un file "use server" = chiamabile da chiunque: solo admin e superiori.
+  await requireAdmin();
   await deliverPush(payload);
 }

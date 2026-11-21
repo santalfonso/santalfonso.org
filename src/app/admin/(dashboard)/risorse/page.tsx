@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireStaffPage } from "@/auth";
+import { requireSuperAdminPage } from "@/auth";
 import { deleteResource, moveCategory, setCategoryActive } from "@/actions/resources";
 import CategoryActiveToggle from "@/components/admin/CategoryActiveToggle";
 import DeleteButton from "@/components/admin/DeleteButton";
@@ -10,7 +10,7 @@ import { formatDate } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function AdminRisorsePage() {
-  await requireStaffPage();
+  await requireSuperAdminPage();
   const { categories, uncategorized } = await getCategoriesWithFiles();
 
   return (

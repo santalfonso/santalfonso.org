@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { requireOwnerPage, ROLE_LABEL } from "@/auth";
+import { requireSuperAdminPage, ROLE_LABEL } from "@/auth";
 import { db } from "@/db";
 import { deleteUser } from "@/actions/users";
 import DeleteButton from "@/components/admin/DeleteButton";
+import { canManageRole } from "@/lib/roles";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminUtentiPage() {
-  const me = await requireOwnerPage();
+  const me = await requireSuperAdminPage();
 
   const list = await db.query.users.findMany();
 
@@ -59,7 +60,7 @@ export default async function AdminUtentiPage() {
                 </td>
                 <td className="mute">{formatDate(user.createdAt)}</td>
                 <td className="right">
-                  {String(user.id) !== me.id && user.role !== "owner" && (
+                  {String(user.id) !== me.id && canManageRole(me.role, user.role) && (
                     <DeleteButton
                       action={deleteUser.bind(null, user.id)}
                       confirmMessage={`Eliminare l'utente ${user.name}? Non potrà più accedere.`}

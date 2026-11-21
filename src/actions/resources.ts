@@ -4,7 +4,7 @@ import { asc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireStaff } from "@/auth";
+import { requireSuperAdmin } from "@/auth";
 import { db } from "@/db";
 import { resourceCategories, resources } from "@/db/schema";
 import { isOwnCloudinaryUrl } from "@/lib/resource-file";
@@ -38,7 +38,7 @@ function revalidateResources(categoryId?: number) {
 }
 
 export async function createCategory(_prev: ResourceFormState, formData: FormData): Promise<ResourceFormState> {
-  await requireStaff();
+  await requireSuperAdmin();
   const parsed = parseCategory(formData);
   if ("error" in parsed) return { error: parsed.error };
   if (!parsed.data.imageUrl) return { error: "Carica una foto per la categoria" };
@@ -55,7 +55,7 @@ export async function createCategory(_prev: ResourceFormState, formData: FormDat
 }
 
 export async function updateCategory(id: number, _prev: ResourceFormState, formData: FormData): Promise<ResourceFormState> {
-  await requireStaff();
+  await requireSuperAdmin();
   const parsed = parseCategory(formData);
   if ("error" in parsed) return { error: parsed.error };
 
@@ -79,7 +79,7 @@ export async function updateCategory(id: number, _prev: ResourceFormState, formD
 
 /** Elimina la categoria con tutti i suoi file. */
 export async function deleteCategory(id: number) {
-  await requireStaff();
+  await requireSuperAdmin();
   await db.delete(resources).where(eq(resources.categoryId, id));
   await db.delete(resourceCategories).where(eq(resourceCategories.id, id));
   revalidateResources();
@@ -87,14 +87,14 @@ export async function deleteCategory(id: number) {
 
 /** Mostra o nasconde una categoria nella pagina Risorse (nascosta: anche i suoi file non si scaricano). */
 export async function setCategoryActive(id: number, active: boolean) {
-  await requireStaff();
+  await requireSuperAdmin();
   await db.update(resourceCategories).set({ active: Boolean(active) }).where(eq(resourceCategories.id, id));
   revalidateResources(id);
 }
 
 /** Sposta una categoria di un posto in su (-1) o in giù (+1) nella pagina Risorse. */
 export async function moveCategory(id: number, direction: -1 | 1) {
-  await requireStaff();
+  await requireSuperAdmin();
   const list = await db
     .select({ id: resourceCategories.id })
     .from(resourceCategories)
@@ -123,7 +123,7 @@ export async function createResource(
   _prev: ResourceFormState,
   formData: FormData
 ): Promise<ResourceFormState> {
-  await requireStaff();
+  await requireSuperAdmin();
   const category = await db.query.resourceCategories.findFirst({
     where: eq(resourceCategories.id, categoryId),
     columns: { id: true, name: true },
@@ -164,7 +164,7 @@ export async function createResource(
 
 /** Cambia titolo e descrizione di un file già caricato. */
 export async function updateResource(id: number, _prev: ResourceFormState, formData: FormData): Promise<ResourceFormState> {
-  await requireStaff();
+  await requireSuperAdmin();
   const parsed = resourceSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description") ?? undefined,
@@ -180,7 +180,7 @@ export async function updateResource(id: number, _prev: ResourceFormState, formD
 }
 
 export async function deleteResource(id: number) {
-  await requireStaff();
+  await requireSuperAdmin();
   const [row] = await db.delete(resources).where(eq(resources.id, id)).returning({ categoryId: resources.categoryId });
   revalidateResources(row?.categoryId ?? undefined);
 }

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { requireOwnerPage } from "@/auth";
+import { requireSuperAdminPage } from "@/auth";
 import UserForm from "@/components/admin/UserForm";
+import { manageableRoles } from "@/lib/roles";
 
 export default async function NuovoUtentePage() {
-  await requireOwnerPage();
+  const me = await requireSuperAdminPage();
 
   return (
     <>
@@ -11,7 +12,7 @@ export default async function NuovoUtentePage() {
       <div className="admin-page-head">
         <h1>Nuovo utente</h1>
       </div>
-      <UserForm />
+      <UserForm roles={manageableRoles(me.role)} />
     </>
   );
 }

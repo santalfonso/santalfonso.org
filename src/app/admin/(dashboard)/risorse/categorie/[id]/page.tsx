@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireStaffPage } from "@/auth";
+import { requireSuperAdminPage } from "@/auth";
 import {
   createResource,
   deleteCategory,
@@ -20,7 +20,7 @@ import { formatDate, formatFileSize } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function CategoriaPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireStaffPage();
+  await requireSuperAdminPage();
   const { id } = await params;
   if (!/^\d{1,9}$/.test(id)) notFound();
   const { categories } = await getCategoriesWithFiles();

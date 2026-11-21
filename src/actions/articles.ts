@@ -1,10 +1,10 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireStaff } from "@/auth";
+import { canEditContent, requireAdmin, requireStaff } from "@/auth";
 import { db } from "@/db";
 import { articles, articleImages } from "@/db/schema";
 import { slugify } from "@/lib/utils";
@@ -56,7 +56,7 @@ export async function createArticle(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireStaff();
+  const user = await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -76,6 +76,7 @@ export async function createArticle(
   const publishedAt = chosenDate ?? (published ? new Date().toISOString() : null);
 
   const [created] = await db.insert(articles).values({
+    createdBy: Number(user.id) || null,
     title,
     slug,
     excerpt: excerpt || null,
@@ -111,7 +112,7 @@ export async function updateArticle(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  await requireStaff();
+  const user = await requireStaff();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -122,11 +123,14 @@ export async function updateArticle(
     where: eq(articles.id, id),
   });
   if (!current) return { error: "Articolo non trovato" };
+  if (!canEditContent(user, current.createdBy)) return { error: "Puoi modificare solo gli articoli che hai creato tu." };
 
-  // Cancella immagini segnate per rimozione
+  // Cancella immagini segnate per rimozione (solo di questo articolo)
   const deleteIds = formData.getAll("deleteImageId").map(Number).filter(Boolean);
   if (deleteIds.length > 0) {
-    await db.delete(articleImages).where(inArray(articleImages.id, deleteIds));
+    await db
+      .delete(articleImages)
+      .where(and(inArray(articleImages.id, deleteIds), eq(articleImages.articleId, id)));
   }
 
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
@@ -178,8 +182,9 @@ export async function updateArticle(
   redirect("/admin/articoli");
 }
 
+/** Eliminare spetta ad admin e superiori, anche per gli articoli creati da un editor. */
 export async function deleteArticle(id: number) {
-  await requireStaff();
+  await requireAdmin();
   await db.delete(articleImages).where(eq(articleImages.articleId, id));
   await db.delete(articles).where(eq(articles.id, id));
   revalidatePath("/");

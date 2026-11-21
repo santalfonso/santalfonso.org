@@ -12,7 +12,7 @@ export const users = sqliteTable("users", {
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  role: text("role", { enum: ["owner", "editor", "utente"] })
+  role: text("role", { enum: ["owner", "superadmin", "admin", "editor", "utente"] })
     .notNull()
     .default("editor"),
   createdAt: text("created_at")
@@ -30,6 +30,8 @@ export const articles = sqliteTable("articles", {
   coverImageFocus: text("cover_image_focus").default("50% 50%"),
   published: integer("published", { mode: "boolean" }).notNull().default(false),
   publishedAt: text("published_at"),
+  /** chi l'ha creato: l'editor può modificare solo i propri (null = creato prima dei ruoli) */
+  createdBy: integer("created_by"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),
@@ -46,6 +48,8 @@ export const events = sqliteTable("events", {
   posterUrl: text("poster_url"),
   startsAt: text("starts_at").notNull(),
   endsAt: text("ends_at"),
+  /** chi l'ha creato: l'editor può modificare solo i propri (null = creato prima dei ruoli) */
+  createdBy: integer("created_by"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(datetime('now'))`),

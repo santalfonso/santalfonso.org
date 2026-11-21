@@ -1,7 +1,7 @@
 "use server";
 
 import { v2 as cloudinary } from "cloudinary";
-import { requireStaff } from "@/auth";
+import { isSuperAdmin, requireStaff } from "@/auth";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -36,8 +36,10 @@ export async function getUploadSignature(
   folder: string,
   resourceType: "image" | "raw",
 ): Promise<UploadSignature> {
-  await requireStaff();
+  const user = await requireStaff();
   if (resourceType !== "image" && resourceType !== "raw") throw new Error("Tipo di file non valido");
+  // i documenti vanno solo nelle Risorse, gestite da superadmin e owner
+  if (resourceType === "raw" && !isSuperAdmin(user.role)) throw new Error("Non autorizzato");
   if (!ALLOWED_FOLDERS[resourceType].includes(folder)) throw new Error("Cartella non valida");
 
   const timestamp = Math.round(Date.now() / 1000);

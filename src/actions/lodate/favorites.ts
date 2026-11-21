@@ -2,7 +2,7 @@
 
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
-import { isOwner, requireMember } from "@/auth";
+import { isSuperAdmin, requireMember } from "@/auth";
 import { db } from "@/db";
 import { favoriteSongs, songs } from "@/db/schema";
 
@@ -20,7 +20,7 @@ export async function setFavorite(songId: number, favorite: boolean): Promise<Fa
   try {
     const user = await requireMember();
     userId = Number(user.id);
-    staff = isOwner(user.role);
+    staff = isSuperAdmin(user.role);
   } catch {
     return { error: "Accedi per salvare i preferiti" };
   }

@@ -2,8 +2,10 @@
 
 import { useActionState, startTransition } from "react";
 import { createUser } from "@/actions/users";
+import { ROLE_DESCRIPTION, ROLE_LABEL, type Role } from "@/lib/roles";
 
-export default function UserForm() {
+/** `roles`: i ruoli che chi crea può assegnare (sotto il proprio). */
+export default function UserForm({ roles }: { roles: Role[] }) {
   const [state, formAction, pending] = useActionState(createUser, undefined);
   // invio senza il reset automatico di React 19: dopo un errore i campi restano compilati
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -26,7 +28,7 @@ export default function UserForm() {
 
       <div className="admin-form-row">
         <label htmlFor="password" className="admin-label">
-          Password * (almeno 12 caratteri per un editor, 8 per un user)
+          Password * (almeno 12 caratteri per chi accede all&apos;amministrazione, 8 per un user)
         </label>
         <input
           id="password"
@@ -41,8 +43,11 @@ export default function UserForm() {
       <div className="admin-form-row">
         <label htmlFor="role" className="admin-label">Ruolo *</label>
         <select id="role" name="role" required defaultValue="editor" className="admin-input">
-          <option value="editor">Editor — aggiunge avvisi, articoli, eventi e risorse</option>
-          <option value="utente">User — usa le funzioni riservate del sito, senza accesso all&apos;amministrazione</option>
+          {roles.map((role) => (
+            <option key={role} value={role}>
+              {ROLE_LABEL[role]} — {ROLE_DESCRIPTION[role]}
+            </option>
+          ))}
         </select>
       </div>
 

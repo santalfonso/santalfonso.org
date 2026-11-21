@@ -4,7 +4,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireOwner } from "@/auth";
+import { requireSuperAdmin } from "@/auth";
 import { db } from "@/db";
 import {
   favoriteSongs,
@@ -93,7 +93,7 @@ function revalidateSong(slug?: string) {
 }
 
 export async function createSong(_prev: SongActionState, formData: FormData): Promise<SongActionState> {
-  await requireOwner();
+  await requireSuperAdmin();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const { moments, seasons, slug: rawSlug, ...data } = parsed.data;
@@ -119,7 +119,7 @@ export async function updateSong(
   _prev: SongActionState,
   formData: FormData
 ): Promise<SongActionState> {
-  await requireOwner();
+  await requireSuperAdmin();
   const parsed = parseForm(formData);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const { moments, seasons, slug: rawSlug, ...data } = parsed.data;
@@ -147,7 +147,7 @@ export async function updateSong(
 }
 
 export async function deleteSong(id: number) {
-  await requireOwner();
+  await requireSuperAdmin();
   const current = await db.query.songs.findFirst({ where: eq(songs.id, id), columns: { slug: true } });
   if (!current) return;
   // Le tabelle collegate hanno ON DELETE CASCADE, ma SQLite applica le FK solo

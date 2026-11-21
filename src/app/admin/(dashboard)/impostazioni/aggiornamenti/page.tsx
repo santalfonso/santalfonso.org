@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireOwnerPage } from "@/auth";
 import { getSetting } from "@/lib/settings";
 import { parseReport, UPDATES_SETTING_KEY, type Severity, type Vulnerability } from "@/lib/updates";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -141,6 +142,8 @@ function VulnTable({ groups }: { groups: VulnGroup[] }) {
 }
 
 export default async function AggiornamentiPage() {
+  // anche qui, non solo nel layout: i layout non si rieseguono a ogni navigazione
+  await requireOwnerPage();
   const report = parseReport(await getSetting(UPDATES_SETTING_KEY));
   const groups = report ? groupVulnerabilities(report.vulnerabilities) : [];
   const siteVulns = groups.filter((g) => !g.dev);

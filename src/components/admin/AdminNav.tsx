@@ -4,20 +4,24 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { SETTINGS_ITEMS } from "@/lib/admin-settings-nav";
+import { roleAtLeast, type Role } from "@/lib/roles";
 
-export const navItems = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/articoli", label: "Articoli" },
-  { href: "/admin/eventi", label: "Eventi" },
-  { href: "/admin/risorse", label: "Risorse" },
+/** Voci del menù del backend con il ruolo minimo che le vede. */
+const NAV_ITEMS: { href: string; label: string; min: Role }[] = [
+  { href: "/admin", label: "Dashboard", min: "editor" },
+  { href: "/admin/articoli", label: "Articoli", min: "editor" },
+  { href: "/admin/eventi", label: "Eventi", min: "editor" },
+  { href: "/admin/risorse", label: "Risorse", min: "superadmin" },
+  { href: "/admin/canti", label: "Canti", min: "superadmin" },
+  { href: "/admin/utenti", label: "Utenti", min: "superadmin" },
 ];
 
-export const ownerOnlyItems = [
-  { href: "/admin/canti", label: "Canti" },
-  { href: "/admin/utenti", label: "Utenti" },
-];
+export function navItemsFor(role: Role | undefined) {
+  return NAV_ITEMS.filter((item) => roleAtLeast(role, item.min));
+}
 
-export default function AdminNav({ isOwner }: { isOwner: boolean }) {
+export default function AdminNav({ role }: { role: Role | undefined }) {
+  const isOwner = role === "owner";
   const pathname = usePathname();
   // il menù resta aperto solo sulla pagina in cui è stato aperto: cambiando pagina si chiude
   const [openAt, setOpenAt] = useState<string | null>(null);
@@ -50,7 +54,7 @@ export default function AdminNav({ isOwner }: { isOwner: boolean }) {
     };
   }, [open]);
 
-  const items = isOwner ? [...navItems, ...ownerOnlyItems] : navItems;
+  const items = navItemsFor(role);
 
   return (
     <nav className="admin-nav">
