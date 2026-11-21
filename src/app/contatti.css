@@ -59,3 +59,20 @@
 .contact-form__legal a { color: inherit; text-decoration: underline; }
 /* trappola per robot fuori dallo schermo */
 .contact-form__trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+/* Orari (ufficio e Sante Messe): giorno a sinistra e orari a destra; sul telefono gli orari
+   vanno sempre sotto il giorno, così tutte le righe restano allineate allo stesso modo */
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .hours-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+.hours-row .tag { white-space: nowrap; }

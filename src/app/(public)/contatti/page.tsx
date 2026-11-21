@@ -63,7 +63,7 @@ export default async function ContattiPage() {
               <span className="kicker">Ufficio parrocchiale</span>
               <h3 style={{ marginTop: 14, fontSize: 20 }}>Orari di apertura</h3>
               <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                <div className="hours-row">
                   <span style={{ fontWeight: 600, color: "var(--ink)", fontSize: 14 }}>
                     Giorni feriali
                   </span>
@@ -71,7 +71,7 @@ export default async function ContattiPage() {
                     17:00 – 18:30
                   </span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+                <div className="hours-row">
                   <span style={{ fontWeight: 600, color: "var(--ink)", fontSize: 14 }}>
                     Sabato mattina
                   </span>
@@ -105,16 +105,7 @@ export default async function ContattiPage() {
                   times: ["8:30", "10:30", "12:00", "18:30"],
                 },
               ].map((row) => (
-                <div
-                  key={row.day}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
+                <div key={row.day} className="hours-row">
                   <span style={{ fontWeight: 600, color: "var(--ink)", fontSize: 15 }}>
                     {row.day}
                   </span>

@@ -758,26 +758,51 @@ button.ev-modal__poster { cursor: zoom-in; }
 }
 .ev-zoom img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
 
-/* desktop: locandina intera a sinistra, dati a destra (scorre solo la colonna dei dati) */
+/* desktop: locandina intera a sinistra, dati a destra (scorre solo la colonna dei dati).
+   Una sola riga: la scheda è alta quanto la locandina, senza spazi vuoti sotto. */
 @media (min-width: 769px) {
   .ev-modal--poster {
+    --ev-poster-h: min(86vh, 760px);
     display: grid;
-    grid-template-columns: auto minmax(300px, 1fr);
-    max-width: 1000px;
+    grid-template-columns: auto minmax(320px, 1fr);
+    grid-template-rows: auto;
+    max-width: 1040px;
+    width: auto;
     overflow: hidden;
   }
   .ev-modal--poster .ev-modal__poster {
-    grid-row: 1 / span 2;
-    height: min(86vh, 760px);
-    aspect-ratio: 210 / 297;
+    grid-column: 1;
+    grid-row: 1;
+    height: var(--ev-poster-h);
     width: auto;
+    aspect-ratio: auto;
+  }
+  /* la colonna prende le proporzioni vere della locandina (210/297 solo finché non è caricata):
+     niente bande ai lati quando il file non è esattamente A4 */
+  .ev-modal--poster .ev-modal__poster img {
+    width: auto !important;
+    height: 100% !important;
+    aspect-ratio: auto 210 / 297;
   }
   .ev-modal--poster .ev-modal__body {
+    grid-column: 2;
+    grid-row: 1;
     overflow-y: auto;
-    max-height: min(86vh, 760px);
-    padding: 40px 36px 48px;
+    max-height: var(--ev-poster-h);
+    padding: 44px 40px 48px;
   }
-  .ev-modal--poster .ev-modal__fade { position: absolute; left: auto; right: 0; bottom: 0; width: calc(100% - min(86vh, 760px) * 210 / 297); margin: 0; }
+  .ev-modal--poster .ev-modal__title { font-size: clamp(26px, 2.4vw, 34px); margin-top: 16px; }
+  .ev-modal--poster .ev-modal__details { margin-top: 24px; }
+  .ev-modal--poster .ev-modal__facts { margin-bottom: 24px; }
+  .ev-modal--poster .ev-modal__desc { font-size: 15px; }
+  /* sfumatura nella stessa cella della colonna dei dati, in basso */
+  .ev-modal--poster .ev-modal__fade {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    position: relative;
+    margin: 0;
+  }
   .ev-modal__zoom { display: none; }
 }
 
