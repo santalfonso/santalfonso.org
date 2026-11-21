@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import ContactForm from "@/components/ContactForm";
 import { getRecaptchaSiteKey } from "@/lib/contact-config";
-import { foto } from "@/lib/parrocchia-foto";
+import { foto, FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 import "@/app/contatti.css";
 
 export const metadata: Metadata = { title: "Contatti" };
@@ -32,6 +32,9 @@ export default async function ContattiPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={foto("contatti/contatti-ufficio", 2000)}
+              srcSet={fotoSrcSet(foto("contatti/contatti-ufficio", 2000))}
+              sizes={FOTO_SIZES}
+              fetchPriority="high"
               alt="Il corridoio con la porta dell'Ufficio parrocchiale e l'icona dell'Annunciazione"
               width={2200}
               height={1238}

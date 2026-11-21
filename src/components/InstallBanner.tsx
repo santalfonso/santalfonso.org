@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useBrowserCheck } from "@/lib/use-browser-check";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -24,32 +25,33 @@ function rememberDismissed() {
   }
 }
 
+function isStandalone(): boolean {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+}
+
+function isIOSDevice(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent);
+}
+
 export default function InstallBanner() {
-  const [show, setShow] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  // su iPhone non c'è beforeinstallprompt: il banner con le istruzioni compare subito
+  const isIOS = useBrowserCheck(() => isIOSDevice() && !isStandalone() && !wasDismissed());
+  const [promptReady, setPromptReady] = useState(false);
+  const [closed, setClosed] = useState(false);
+  const show = !closed && (isIOS || promptReady);
   // useRef evita problemi di stale closure: l'evento è sempre quello catturato
   const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    if (wasDismissed()) return;
-
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (standalone) return;
-
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-    if (ios) {
-      setIsIOS(true);
-      setShow(true);
-      return;
-    }
+    if (wasDismissed() || isStandalone() || isIOSDevice()) return;
 
     const handler = (e: Event) => {
       e.preventDefault();
       promptRef.current = e as BeforeInstallPromptEvent;
-      setShow(true);
+      setPromptReady(true);
     };
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
@@ -57,7 +59,7 @@ export default function InstallBanner() {
 
   function dismiss() {
     rememberDismissed();
-    setShow(false);
+    setClosed(true);
   }
 
   async function install() {
@@ -67,7 +69,7 @@ export default function InstallBanner() {
     await p.prompt();
     const { outcome } = await p.userChoice;
     if (outcome === "accepted") rememberDismissed();
-    setShow(false);
+    setClosed(true);
   }
 
   if (!show) return null;

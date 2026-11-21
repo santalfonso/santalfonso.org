@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import ParishSections, { type ParishSection } from "@/components/parrocchia/ParishSections";
 import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
-import { foto } from "@/lib/parrocchia-foto";
+import { foto, FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
 
 export const metadata: Metadata = { title: "Servizi parrocchiali" };
@@ -275,7 +275,7 @@ export default function ServiziPage() {
         <div className="container">
           <figure className="par-hero">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={foto("servizi/servizi-intestazione", 2000)} alt="La chiesa parrocchiale gremita durante una celebrazione" width={2000} height={1275} />
+            <img src={foto("servizi/servizi-intestazione", 2000)} srcSet={fotoSrcSet(foto("servizi/servizi-intestazione", 2000))} sizes={FOTO_SIZES} fetchPriority="high" alt="La chiesa parrocchiale gremita durante una celebrazione" width={2000} height={1275} />
           </figure>
         </div>
       </section>

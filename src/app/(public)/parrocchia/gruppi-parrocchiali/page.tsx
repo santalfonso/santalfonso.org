@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageTitle from "@/components/PageTitle";
 import ParishSections, { type ParishSection } from "@/components/parrocchia/ParishSections";
 import ParishEpigraph from "@/components/parrocchia/ParishEpigraph";
-import { foto } from "@/lib/parrocchia-foto";
+import { foto, FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
 
 export const metadata: Metadata = { title: "Gruppi parrocchiali" };
@@ -147,7 +147,7 @@ export default function GruppiPage() {
         <div className="container">
           <figure className="par-hero">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={foto("gruppi/gruppi-intestazione", 2000)} alt="Santa Messa all'aperto con i parrocchiani" width={2000} height={1254} />
+            <img src={foto("gruppi/gruppi-intestazione", 2000)} srcSet={fotoSrcSet(foto("gruppi/gruppi-intestazione", 2000))} sizes={FOTO_SIZES} fetchPriority="high" alt="Santa Messa all'aperto con i parrocchiani" width={2000} height={1254} />
           </figure>
         </div>
       </section>

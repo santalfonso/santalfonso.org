@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import AccountLink from "@/components/AccountLink";
 import NotificationCenter from "@/components/NotificationCenter";
 
@@ -38,23 +38,29 @@ function ThemeIcon({ dark }: { dark: boolean }) {
   );
 }
 
+/** Tema attuale: l'attributo data-theme di <html>, impostato dallo script del layout e dal pulsante. */
+function subscribeTheme(onChange: () => void) {
+  const obs = new MutationObserver(onChange);
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => obs.disconnect();
+}
+
+function readTheme(): "light" | "dark" {
+  return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+}
+
 export default function Header() {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "light" as const);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setTheme(
-      document.documentElement.getAttribute("data-theme") === "dark"
-        ? "dark"
-        : "light"
-    );
-  }, []);
-
-  useEffect(() => {
+  // cambio di pagina: il menù a tendina si chiude
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
     setDropdownOpen(false);
-  }, [pathname]);
+  }
 
   useEffect(() => {
     function onClickOutside(event: MouseEvent) {
@@ -68,7 +74,6 @@ export default function Header() {
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
     if (next === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
     } else {

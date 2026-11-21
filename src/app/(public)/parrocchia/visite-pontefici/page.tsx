@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageTitle from "@/components/PageTitle";
-import { foto } from "@/lib/parrocchia-foto";
+import { foto, FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 import "@/app/parrocchia.css";
 
 export const metadata: Metadata = { title: "Visite pontefici" };
@@ -39,7 +39,7 @@ export default function VisitePonteficiPage() {
         <div className="container">
           <figure className="par-hero">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={foto("pontefici/pontefici-intestazione", 2000)} alt="Papa Francesco con un agnellino sulle spalle tra i figuranti del presepe vivente" width={2000} height={1324} />
+            <img src={foto("pontefici/pontefici-intestazione", 2000)} srcSet={fotoSrcSet(foto("pontefici/pontefici-intestazione", 2000))} sizes={FOTO_SIZES} fetchPriority="high" alt="Papa Francesco con un agnellino sulle spalle tra i figuranti del presepe vivente" width={2000} height={1324} />
           </figure>
         </div>
       </section>

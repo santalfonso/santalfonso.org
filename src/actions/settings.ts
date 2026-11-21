@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { requireOwner } from "@/auth";
 import { GITHUB_TOKEN_KEY, GithubError, verifyToken } from "@/lib/github-updates";
+import { sealSecret } from "@/lib/secret-box";
 
 /** Chiavi modificabili da questo modulo (le altre impostazioni hanno le loro azioni). */
 const EDITABLE_KEYS = new Set(["groq_api_key", GITHUB_TOKEN_KEY]);
@@ -39,12 +40,14 @@ export async function saveSetting(
     }
   }
 
+  // entrambe le chiavi sono segreti: nel database vanno cifrate
+  const sealed = sealSecret(value);
   await db
     .insert(settings)
-    .values({ key, value, updatedAt: new Date().toISOString() })
+    .values({ key, value: sealed, updatedAt: new Date().toISOString() })
     .onConflictDoUpdate({
       target: settings.key,
-      set: { value, updatedAt: new Date().toISOString() },
+      set: { value: sealed, updatedAt: new Date().toISOString() },
     });
 
   revalidatePath("/admin/impostazioni/configurazioni");

@@ -3,7 +3,7 @@
  * Il token è un fine-grained token salvato in Configurazioni con il solo permesso
  * "Actions: lettura e scrittura" sul repository del sito.
  */
-import { getSetting } from "@/lib/settings";
+import { getSecretSetting } from "@/lib/settings";
 
 export const GITHUB_TOKEN_KEY = "github_token";
 export const WORKFLOW_FILE = "aggiorna-dipendenze.yml";
@@ -41,7 +41,7 @@ async function github(path: string, token: string, init?: RequestInit) {
 }
 
 export async function getGithubToken(): Promise<string | null> {
-  return getSetting(GITHUB_TOKEN_KEY);
+  return getSecretSetting(GITHUB_TOKEN_KEY);
 }
 
 /** Controlla che il token possa leggere le Actions del repository (usato al salvataggio). */

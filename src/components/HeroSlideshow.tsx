@@ -34,7 +34,7 @@ const slides = [
   {
     id: "quote",
     reverse: false,
-    photo: { src: "/chiesa.avif", position: "center" },
+    photo: { src: "/chiesa.avif", srcSet: "/chiesa-600.avif 600w, /chiesa.avif 911w", position: "center" },
     content: (
       <div>
         <span className="kicker">Comunità · Prima Porta, Roma</span>
@@ -105,29 +105,47 @@ const slides = [
 export default function HeroSlideshow() {
   const [current, setCurrent] = useState(0);
   const [dir, setDir] = useState<"right" | "left">("right");
+  // la prima slide compare subito, senza animazione: è il primo contenuto della pagina
+  const [animate, setAnimate] = useState(false);
+  // l'avanzamento automatico si ferma quando lo slideshow non è visibile
+  const [visible, setVisible] = useState(true);
   const slide = slides[current];
   const touchStartX = useRef<number>(0);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  // Auto-avanzamento: riavvia il countdown a ogni cambio slide
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Auto-avanzamento: riavvia il countdown a ogni cambio slide (non con "riduci movimento")
+  useEffect(() => {
+    if (!visible || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setTimeout(() => {
+      setAnimate(true);
       setDir("right");
       setCurrent((c) => (c + 1) % slides.length);
     }, 6000);
     return () => clearTimeout(id);
-  }, [current]);
+  }, [current, visible]);
 
   function goNext() {
+    setAnimate(true);
     setDir("right");
     setCurrent((c) => (c + 1) % slides.length);
   }
 
   function goPrev() {
+    setAnimate(true);
     setDir("left");
     setCurrent((c) => (c - 1 + slides.length) % slides.length);
   }
 
   function goTo(i: number) {
+    setAnimate(true);
     setDir(i > current ? "right" : "left");
     setCurrent(i);
   }
@@ -138,45 +156,67 @@ export default function HeroSlideshow() {
 
   function handleTouchEnd(e: React.TouchEvent) {
     const delta = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev();
+    if (Math.abs(delta) <= 50) return;
+    if (delta > 0) goNext();
+    else goPrev();
   }
 
   return (
-    <section className="hero">
+    <section className="hero" ref={sectionRef}>
       <div className="container">
+        {/* Tutte le slide stanno nella stessa cella della griglia: l'altezza è sempre quella
+            della più alta e la pagina sotto non si sposta a ogni cambio. Le slide non attive
+            sono invisibili e senza foto (al posto della foto c'è un riquadro della stessa forma). */}
         <div
-          style={{ overflow: "hidden" }}
+          style={{ overflow: "hidden", display: "grid" }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <div
-            key={current}
-            className="hero-grid"
-            style={{
-              ...(slide.reverse ? { direction: "rtl" as const } : {}),
-              animation: `hero-slide-${dir} 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
-            }}
-          >
-            <div style={slide.reverse ? { direction: "ltr" } : undefined}>
-              {slide.content}
-            </div>
-            <div style={{ position: "relative", direction: "ltr" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={slide.photo.src}
-                alt=""
-                fetchPriority={current === 0 ? "high" : "auto"}
+          {slides.map((s, i) => {
+            const active = i === current;
+            return (
+              <div
+                key={active ? `${s.id}-${current}` : s.id}
+                className="hero-grid"
+                aria-hidden={!active}
+                inert={!active}
                 style={{
-                  width: "100%",
-                  aspectRatio: "1",
-                  objectFit: "cover",
-                  objectPosition: slide.photo.position,
-                  borderRadius: "var(--r-md)",
-                  display: "block",
+                  gridArea: "1 / 1",
+                  visibility: active ? "visible" : "hidden",
+                  ...(s.reverse ? { direction: "rtl" as const } : {}),
+                  ...(active && animate
+                    ? { animation: `hero-slide-${dir} 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both` }
+                    : {}),
                 }}
-              />
-            </div>
-          </div>
+              >
+                <div style={s.reverse ? { direction: "ltr" } : undefined}>
+                  {s.content}
+                </div>
+                <div style={{ position: "relative", direction: "ltr" }}>
+                  {active ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={s.photo.src}
+                      srcSet={"srcSet" in s.photo ? s.photo.srcSet : undefined}
+                      sizes="(max-width: 900px) 100vw, 540px"
+                      alt=""
+                      fetchPriority={i === 0 ? "high" : "auto"}
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1",
+                        objectFit: "cover",
+                        objectPosition: s.photo.position,
+                        borderRadius: "var(--r-md)",
+                        display: "block",
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: "100%", aspectRatio: "1" }} />
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Navigazione slideshow */}

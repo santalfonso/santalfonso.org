@@ -6,8 +6,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { canEditContent, requireStaff, requireSuperAdmin } from "@/auth";
 import { db } from "@/db";
-import { articles, articleImages } from "@/db/schema";
-import { slugify } from "@/lib/utils";
+import { articles, articleImages, settings } from "@/db/schema";
+import { isoToRomeLocal, slugify } from "@/lib/utils";
+import { isOwnCloudinaryUrl } from "@/lib/resource-file";
 import { after } from "next/server";
 import { deliverPush } from "@/lib/push-send";
 
@@ -17,8 +18,36 @@ const articleSchema = z.object({
   body: z.string().min(1, "Il testo è obbligatorio"),
   published: z.boolean(),
   publishedAt: z.string().optional(),
-  coverImageFocus: z.string().optional(),
+  coverImageFocus: z.string().regex(/^\d{1,3}% \d{1,3}%$/, "Punto focale non valido").optional(),
 });
+
+const MAX_GALLERY_IMAGES = 40;
+
+/** Giorno (AAAA-MM-GG) di una data ISO, secondo l'ora di Roma. */
+function romeDay(iso: string): string {
+  return isoToRomeLocal(iso).slice(0, 10);
+}
+
+/**
+ * Data scelta nel form → valore da salvare: se è oggi si usa l'ora attuale (così gli articoli
+ * dello stesso giorno restano in ordine), altrimenti la mezzanotte di quel giorno.
+ */
+function dateOrNow(raw: string, chosen: string): string {
+  return raw === romeDay(new Date().toISOString()) ? new Date().toISOString() : chosen;
+}
+
+/**
+ * La notifica "nuova notizia" parte una sola volta per articolo: la prenotazione nella tabella
+ * settings impedisce di rimandarla nascondendo e ripubblicando lo stesso articolo.
+ */
+async function claimArticlePush(id: number): Promise<boolean> {
+  const inserted = await db
+    .insert(settings)
+    .values({ key: `article_push:${id}`, value: new Date().toISOString(), updatedAt: new Date().toISOString() })
+    .onConflictDoNothing()
+    .returning({ key: settings.key });
+  return inserted.length > 0;
+}
 
 export type ActionState = { error?: string } | undefined;
 
@@ -41,15 +70,16 @@ function parseForm(formData: FormData) {
   });
 }
 
+// solo immagini caricate sul Cloudinary della parrocchia, come per gli eventi
 function coverFromForm(formData: FormData): string | undefined {
   const url = formData.get("coverImage");
-  return typeof url === "string" && url ? url : undefined;
+  return typeof url === "string" && url && isOwnCloudinaryUrl(url) ? url : undefined;
 }
 
 function galleryFromForm(formData: FormData): string[] {
   return formData
     .getAll("galleryImageUrl")
-    .filter((v): v is string => typeof v === "string" && v.length > 0);
+    .filter((v): v is string => typeof v === "string" && v.length > 0 && isOwnCloudinaryUrl(v));
 }
 
 export async function createArticle(
@@ -62,6 +92,7 @@ export async function createArticle(
 
   const coverImageUrl = coverFromForm(formData);
   const galleryUrls = galleryFromForm(formData);
+  if (galleryUrls.length > MAX_GALLERY_IMAGES) return { error: `La galleria può avere al massimo ${MAX_GALLERY_IMAGES} immagini.` };
 
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   const chosenDate = parsePublishedAt(publishedAtRaw);
@@ -73,7 +104,9 @@ export async function createArticle(
   });
   if (existing) slug = `${slug}-${Date.now()}`;
 
-  const publishedAt = chosenDate ?? (published ? new Date().toISOString() : null);
+  const publishedAt = chosenDate
+    ? (published ? dateOrNow(publishedAtRaw!, chosenDate) : chosenDate)
+    : (published ? new Date().toISOString() : null);
 
   const [created] = await db.insert(articles).values({
     createdBy: Number(user.id) || null,
@@ -93,7 +126,7 @@ export async function createArticle(
     );
   }
 
-  if (published) {
+  if (published && (await claimArticlePush(created.id))) {
     // dopo la risposta: su Vercel l'invio non si interrompe con il redirect
     after(() => deliverPush({
       title: title,
@@ -125,22 +158,36 @@ export async function updateArticle(
   if (!current) return { error: "Articolo non trovato" };
   if (!canEditContent(user, current.createdBy)) return { error: "Puoi modificare solo gli articoli che hai creato tu." };
 
-  // Cancella immagini segnate per rimozione (solo di questo articolo)
-  const deleteIds = formData.getAll("deleteImageId").map(Number).filter(Boolean);
-  if (deleteIds.length > 0) {
-    await db
-      .delete(articleImages)
-      .where(and(inArray(articleImages.id, deleteIds), eq(articleImages.articleId, id)));
-  }
-
   const { title, excerpt, body, published, publishedAt: publishedAtRaw, coverImageFocus } = parsed.data;
   const justPublished = published && !current.published;
   const chosenDate = parsePublishedAt(publishedAtRaw);
   if (chosenDate === "invalid") return { error: "La data di pubblicazione non è valida" };
 
-  const publishedAt = published
-    ? (chosenDate ?? current.publishedAt ?? new Date().toISOString())
-    : current.publishedAt;
+  // Il form precompila sempre la data: se non è stata cambiata (stesso giorno di quella salvata)
+  // si tiene l'ora già salvata, e alla prima pubblicazione di una bozza vale la data di oggi.
+  const dateUnchanged = !chosenDate || (!!current.publishedAt && publishedAtRaw === romeDay(current.publishedAt));
+  let publishedAt = current.publishedAt;
+  if (justPublished && dateUnchanged) publishedAt = new Date().toISOString();
+  else if (published && !dateUnchanged) publishedAt = dateOrNow(publishedAtRaw!, chosenDate!);
+  else if (published && !publishedAt) publishedAt = new Date().toISOString();
+
+  const deleteIds = formData.getAll("deleteImageId").map(Number).filter(Boolean);
+  const existingImages = await db.query.articleImages.findMany({
+    where: eq(articleImages.articleId, id),
+    columns: { id: true },
+  });
+  const remaining = existingImages.filter((img) => !deleteIds.includes(img.id)).length;
+  if (remaining + galleryUrls.length > MAX_GALLERY_IMAGES) {
+    return { error: `La galleria può avere al massimo ${MAX_GALLERY_IMAGES} immagini.` };
+  }
+
+  // Cancella le immagini segnate per la rimozione (solo di questo articolo), dopo i controlli:
+  // con un errore di validazione la modifica non resta a metà
+  if (deleteIds.length > 0) {
+    await db
+      .delete(articleImages)
+      .where(and(inArray(articleImages.id, deleteIds), eq(articleImages.articleId, id)));
+  }
 
   await db
     .update(articles)
@@ -156,7 +203,7 @@ export async function updateArticle(
     })
     .where(eq(articles.id, id));
 
-  if (justPublished) {
+  if (justPublished && (await claimArticlePush(id))) {
     // dopo la risposta: su Vercel l'invio non si interrompe con il redirect
     after(() => deliverPush({
       title: title,
@@ -167,10 +214,7 @@ export async function updateArticle(
 
   // Aggiunge nuove immagini galleria
   if (galleryUrls.length > 0) {
-    const existing = await db.query.articleImages.findMany({
-      where: eq(articleImages.articleId, id),
-    });
-    const nextPosition = existing.length;
+    const nextPosition = remaining;
     await db.insert(articleImages).values(
       galleryUrls.map((url, i) => ({ articleId: id, url, position: nextPosition + i }))
     );
@@ -185,8 +229,11 @@ export async function updateArticle(
 /** Eliminare spetta solo a superadmin e owner, anche per i contenuti creati da editor e admin. */
 export async function deleteArticle(id: number) {
   await requireSuperAdmin();
+  const row = await db.query.articles.findFirst({ where: eq(articles.id, id), columns: { slug: true } });
   await db.delete(articleImages).where(eq(articleImages.articleId, id));
   await db.delete(articles).where(eq(articles.id, id));
+  await db.delete(settings).where(eq(settings.key, `article_push:${id}`));
+  if (row) revalidatePath(`/news/${row.slug}`);
   revalidatePath("/");
   revalidatePath("/news");
   revalidatePath("/admin/articoli");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useBrowserCheck } from "@/lib/use-browser-check";
 import { subscribeUser, unsubscribeUser } from "@/actions/push";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -15,13 +16,12 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export default function PushSubscribeButton() {
-  const [supported, setSupported] = useState(false);
+  const supported = useBrowserCheck(() => "serviceWorker" in navigator && "PushManager" in window);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator && "PushManager" in window) {
-      setSupported(true);
+    if (supported) {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/", updateViaCache: "none" })
         .then((reg) => reg.pushManager.getSubscription())
@@ -32,7 +32,7 @@ export default function PushSubscribeButton() {
         })
         .catch(() => {});
     }
-  }, []);
+  }, [supported]);
 
   if (!supported) return null;
 

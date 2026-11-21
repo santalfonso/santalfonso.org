@@ -5,6 +5,33 @@ import { groqChat } from "@/lib/groq";
 
 type AIResult = { data: string } | { error: string };
 
+// Ogni richiesta consuma la quota della chiave Groq: un limite per utente.
+const AI_WINDOW_MS = 10 * 60 * 1000;
+const AI_MAX_PER_WINDOW = 40;
+const aiRecent = new Map<string, number[]>();
+
+/**
+ * Da chiamare all'inizio di ogni azione, prima di leggere gli argomenti: solo staff, con un
+ * limite di richieste per utente. Restituisce il messaggio d'errore, o null se si può procedere.
+ */
+async function guard(): Promise<string | null> {
+  let userId: string;
+  try {
+    userId = String((await requireStaff()).id);
+  } catch {
+    return "Non autorizzato.";
+  }
+  const now = Date.now();
+  const times = (aiRecent.get(userId) ?? []).filter((t) => now - t < AI_WINDOW_MS);
+  if (times.length >= AI_MAX_PER_WINDOW) return "Troppe richieste all'AI: riprova tra qualche minuto.";
+  times.push(now);
+  if (aiRecent.size > 1000) aiRecent.clear();
+  aiRecent.set(userId, times);
+  return null;
+}
+
+const isText = (v: unknown): v is string => typeof v === "string";
+
 async function callGroq(system: string, user: string): Promise<AIResult> {
   try {
     await requireStaff();
@@ -16,7 +43,9 @@ async function callGroq(system: string, user: string): Promise<AIResult> {
 }
 
 export async function proofreadText(text: string): Promise<AIResult> {
-  if (!text.trim())
+  const denied = await guard();
+  if (denied) return { error: denied };
+  if (!isText(text) || !text.trim())
     return { error: "Inserisci del testo prima di eseguire la correzione." };
 
   const isHtml = /<[a-z][\s\S]*>/i.test(text);
@@ -34,7 +63,9 @@ export async function proofreadText(text: string): Promise<AIResult> {
 }
 
 export async function generateTitle(text: string): Promise<AIResult> {
-  if (!text.trim())
+  const denied = await guard();
+  if (denied) return { error: denied };
+  if (!isText(text) || !text.trim())
     return {
       error: "Inserisci il testo dell'articolo prima di generare il titolo.",
     };
@@ -54,6 +85,10 @@ export async function proofreadAnnouncement(
   | { correctedTitle: string; correctedText: string; hasChanges: boolean }
   | { error: string }
 > {
+  const denied = await guard();
+  if (denied) return { error: denied };
+  if (!isText(title) || !isText(text)) return { error: "Dati non validi." };
+
   const result = await callGroq(
     "Sei un correttore di bozze per avvisi parrocchiali italiani. " +
       "Correggi TUTTI gli errori ortografici, grammaticali, punteggiatura e uso delle maiuscole. " +
@@ -87,7 +122,9 @@ export async function proofreadAnnouncement(
 }
 
 export async function generateExcerpt(text: string): Promise<AIResult> {
-  if (!text.trim())
+  const denied = await guard();
+  if (denied) return { error: denied };
+  if (!isText(text) || !text.trim())
     return {
       error:
         "Inserisci il testo dell'articolo prima di generare il sommario.",
@@ -105,6 +142,11 @@ export type EventTexts = { title: string; location: string; description: string 
 
 /** Correzione dei testi di un evento: titolo, luogo e descrizione insieme. */
 export async function proofreadEvent(texts: EventTexts): Promise<{ data: EventTexts } | { error: string }> {
+  const denied = await guard();
+  if (denied) return { error: denied };
+  if (!texts || !isText(texts.title) || !isText(texts.location) || !isText(texts.description))
+    return { error: "Dati non validi." };
+  texts = { title: texts.title, location: texts.location, description: texts.description };
   if (!texts.title.trim() && !texts.description.trim())
     return { error: "Scrivi almeno il titolo o la descrizione prima della correzione." };
 

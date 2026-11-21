@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   title: "Risorse",
   description: "Libretti dei festeggiamenti della Madonna del Rosario, documenti della parrocchia e libri consigliati.",
 };
-export const dynamic = "force-dynamic";
+// statica, rigenerata dalle azioni dell'admin (revalidatePath("/risorse")) e comunque ogni ora
+export const revalidate = 3600;
 
 function fileType(fileName: string): string {
   const ext = fileName.split(".").pop()?.toUpperCase();

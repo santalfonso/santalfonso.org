@@ -5,7 +5,7 @@ import { eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireSuperAdmin, roleAtLeast } from "@/auth";
+import { forgetUserCheck, requireSuperAdmin, roleAtLeast } from "@/auth";
 import { canManageRole } from "@/lib/roles";
 import { db } from "@/db";
 import { favoriteSongs, setlistItems, setlists, songAnnotations, songUserSettings, users } from "@/db/schema";
@@ -76,5 +76,6 @@ export async function deleteUser(id: number) {
     await tx.delete(songUserSettings).where(eq(songUserSettings.userId, id));
     await tx.delete(users).where(eq(users.id, id));
   });
+  forgetUserCheck(id);
   revalidatePath("/admin/utenti");
 }

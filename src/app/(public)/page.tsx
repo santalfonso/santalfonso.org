@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { and, desc, eq, gte, isNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { articles, events, announcements } from "@/db/schema";
@@ -9,8 +10,49 @@ import AnnouncementModal from "@/components/AnnouncementModal";
 import LodateLogo from "@/components/lodate/LodateLogo";
 import { sizedImage } from "@/lib/image-url";
 
-export const dynamic = "force-dynamic";
+// La pagina resta dinamica (legge ?avviso e ?evento), ma i dati sono in cache per un minuto:
+// non si interroga il database a ogni visita. Le azioni dell'admin chiamano revalidatePath("/"),
+// che svuota anche questa cache, quindi le modifiche si vedono subito.
+const CACHE_SECONDS = 60;
 
+const getLatestArticles = unstable_cache(
+  () =>
+    db.query.articles.findMany({
+      columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, coverImageFocus: true, publishedAt: true },
+      where: eq(articles.published, true),
+      orderBy: [desc(articles.publishedAt)],
+      limit: 3,
+    }),
+  ["home-articles"],
+  { revalidate: CACHE_SECONDS },
+);
+
+const getUpcomingEvents = unstable_cache(
+  () => {
+    const now = new Date().toISOString();
+    return db.query.events.findMany({
+      // gli eventi di più giorni restano finché non finiscono
+      where: or(gte(events.endsAt, now), and(isNull(events.endsAt), gte(events.startsAt, now))),
+      orderBy: [events.startsAt],
+      limit: 4,
+    });
+  },
+  ["home-events"],
+  { revalidate: CACHE_SECONDS },
+);
+
+const getAnnouncements = unstable_cache(
+  () => db.query.announcements.findMany({ orderBy: [desc(announcements.createdAt)] }),
+  ["home-announcements"],
+  { revalidate: CACHE_SECONDS },
+);
+
+/** Una sezione che non si carica (es. timeout del database) non deve far cadere tutta la pagina. */
+function settled<T>(result: PromiseSettledResult<T[]>, label: string): T[] {
+  if (result.status === "fulfilled") return result.value;
+  console.error(`Homepage: impossibile caricare ${label}`, result.reason);
+  return [];
+}
 
 export default async function HomePage({
   searchParams,
@@ -18,26 +60,22 @@ export default async function HomePage({
   searchParams: Promise<{ avviso?: string; evento?: string }>;
 }) {
   const { avviso, evento } = await searchParams;
-  const [latestArticles, upcomingEvents, activeAnnouncements] = await Promise.all([
-    db.query.articles.findMany({
-      columns: { id: true, slug: true, title: true, excerpt: true, coverImageUrl: true, coverImageFocus: true, publishedAt: true },
-      where: eq(articles.published, true),
-      orderBy: [desc(articles.publishedAt)],
-      limit: 3,
-    }),
-    db.query.events.findMany({
-      // gli eventi di più giorni restano finché non finiscono
-      where: or(
-        gte(events.endsAt, new Date().toISOString()),
-        and(isNull(events.endsAt), gte(events.startsAt, new Date().toISOString()))
-      ),
-      orderBy: [events.startsAt],
-      limit: 4,
-    }),
-    db.query.announcements.findMany({
-      orderBy: [desc(announcements.createdAt)],
-    }),
+  const [articlesRes, eventsRes, announcementsRes] = await Promise.allSettled([
+    getLatestArticles(),
+    getUpcomingEvents(),
+    getAnnouncements(),
   ]);
+  const latestArticles = settled(articlesRes, "le ultime notizie");
+  const upcomingEvents = settled(eventsRes, "gli eventi");
+  const activeAnnouncements = settled(announcementsRes, "gli avvisi");
+
+  // Link delle notifiche (/?evento=ID): l'evento può non essere tra i primi 4 in programma
+  // o essere già iniziato. In quel caso si legge a parte e si apre comunque la scheda.
+  const openId = Number(evento) || undefined;
+  let extraEvent: (typeof upcomingEvents)[number] | null = null;
+  if (openId && Number.isSafeInteger(openId) && !upcomingEvents.some((e) => e.id === openId)) {
+    extraEvent = (await db.query.events.findFirst({ where: eq(events.id, openId) }).catch(() => undefined)) ?? null;
+  }
 
   const highlightedAnnouncement = avviso
     ? (activeAnnouncements.find((a) => a.id === Number(avviso)) ?? null)
@@ -61,10 +99,15 @@ export default async function HomePage({
             </Link>
           </div>
 
-          {upcomingEvents.length === 0 ? (
-            <p className="muted">Nessun evento in programma al momento.</p>
-          ) : (
-            <EventCardsWithModal events={upcomingEvents} openId={Number(evento) || undefined} />
+          {upcomingEvents.length === 0 && (
+            <p className="muted">
+              {eventsRes.status === "rejected"
+                ? "Gli eventi non sono disponibili in questo momento: riprova tra poco."
+                : "Nessun evento in programma al momento."}
+            </p>
+          )}
+          {(upcomingEvents.length > 0 || extraEvent) && (
+            <EventCardsWithModal events={upcomingEvents} openId={openId} extraEvent={extraEvent} />
           )}
         </div>
       </section>

@@ -1,3 +1,4 @@
+import { FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 /** Sezioni di Gruppi e Servizi parrocchiali: foto e testo alternati. */
 export type ParishSection = {
   id: string;
@@ -13,7 +14,7 @@ export default function ParishSections({ sections }: { sections: ParishSection[]
         <section key={s.id} id={s.id} className="par-section par-section--fill" aria-labelledby={`${s.id}-titolo`} style={{ padding: 0 }}>
           <figure className="par-section__media">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={s.image.src} alt={s.image.alt} width={s.image.width} height={s.image.height} loading="lazy" />
+            <img src={s.image.src} srcSet={fotoSrcSet(s.image.src)} sizes={FOTO_SIZES} alt={s.image.alt} width={s.image.width} height={s.image.height} loading="lazy" />
           </figure>
           <div className="prose-parish">
             <h2 id={`${s.id}-titolo`}>{s.title}</h2>

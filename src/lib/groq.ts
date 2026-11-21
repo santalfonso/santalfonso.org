@@ -1,4 +1,4 @@
-import { getSetting } from "@/lib/settings";
+import { getSecretSetting } from "@/lib/settings";
 
 /**
  * Chiamata a Groq (API compatibile OpenAI) con la chiave salvata in Configurazioni.
@@ -23,7 +23,7 @@ export async function groqChat({
   temperature?: number;
   maxTokens?: number;
 }): Promise<GroqResult> {
-  const apiKey = await getSetting("groq_api_key");
+  const apiKey = await getSecretSetting("groq_api_key");
   if (!apiKey) {
     return { error: "Chiave API Groq non configurata. Vai in Configurazioni per aggiungerla." };
   }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FOTO_SIZES, fotoSrcSet } from "@/lib/parrocchia-foto";
 import PageTitle from "@/components/PageTitle";
 
 type Photo = { src: string; alt: string; width: number; height: number };
@@ -30,7 +31,7 @@ export default function PopeVisit({
         <div className="container">
           <figure className="par-hero">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={hero.src} alt={hero.alt} width={hero.width} height={hero.height} />
+            <img src={hero.src} srcSet={fotoSrcSet(hero.src)} sizes={FOTO_SIZES} fetchPriority="high" alt={hero.alt} width={hero.width} height={hero.height} />
           </figure>
         </div>
       </section>
@@ -48,14 +49,14 @@ export default function PopeVisit({
             >
               <figure className="par-section__media">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.photo.src} alt={b.photo.alt} width={b.photo.width} height={b.photo.height} loading="lazy" />
+                <img src={b.photo.src} srcSet={fotoSrcSet(b.photo.src)} sizes={FOTO_SIZES} alt={b.photo.alt} width={b.photo.width} height={b.photo.height} loading="lazy" />
               </figure>
               <div className="prose-parish">{b.text}</div>
             </div>
             {b.band && (
               <figure className="par-band">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={b.band.src} alt={b.band.alt} width={b.band.width} height={b.band.height} loading="lazy" />
+                <img src={b.band.src} srcSet={fotoSrcSet(b.band.src)} sizes={FOTO_SIZES} alt={b.band.alt} width={b.band.width} height={b.band.height} loading="lazy" />
               </figure>
             )}
           </div>

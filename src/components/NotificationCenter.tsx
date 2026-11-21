@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useBrowserCheck } from "@/lib/use-browser-check";
 import { useRouter } from "next/navigation";
 
 interface StoredNotif {
@@ -77,7 +78,7 @@ function relativeTime(iso: string): string {
 export default function NotificationCenter() {
   const [open, setOpen] = useState(false);
   const [notifs, setNotifs] = useState<StoredNotif[]>([]);
-  const [supported, setSupported] = useState(false);
+  const supported = useBrowserCheck(() => "indexedDB" in window);
   const router = useRouter();
 
   const refresh = useCallback(async () => {
@@ -90,9 +91,11 @@ export default function NotificationCenter() {
   }, []);
 
   useEffect(() => {
-    if (!("indexedDB" in window)) return;
-    setSupported(true);
-    refresh();
+    if (!supported) return;
+    // primo caricamento: setState nel callback della promessa, non direttamente nell'effect
+    readAll().then(setNotifs).catch(() => {
+      // IndexedDB non disponibile
+    });
 
     // Aggiorna badge quando arriva una nuova notifica dal SW
     const onMessage = (e: MessageEvent) => {
@@ -104,7 +107,7 @@ export default function NotificationCenter() {
       navigator.serviceWorker?.removeEventListener("message", onMessage);
       window.removeEventListener("focus", refresh);
     };
-  }, [refresh]);
+  }, [refresh, supported]);
 
   async function handleOpen() {
     setOpen(true);

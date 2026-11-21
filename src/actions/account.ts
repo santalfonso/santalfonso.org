@@ -3,7 +3,8 @@
 import { compare, hash } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { AuthError, CredentialsSignin } from "next-auth";
-import { auth, forgetUserCheck, isStaff, signIn, signOut } from "@/auth";
+import { headers } from "next/headers";
+import { auth, clientIpFromHeaders, forgetUserCheck, isStaff, loginFailureKeys, signIn, signOut } from "@/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { isLimited, recordFailure, resetFailures } from "@/lib/rate-limit";
@@ -88,6 +89,11 @@ export async function changePasswordAction(_prev: PasswordState, formData: FormD
 
   await db.update(users).set({ passwordHash: await hash(next, 12) }).where(eq(users.id, id));
   forgetUserCheck(id);
+  // la password attuale è stata verificata: i login falliti di questo indirizzo non devono
+  // bloccare il nuovo accesso qui sotto (altrimenti la password cambia ma l'azione va in errore)
+  const loginKeys = loginFailureKeys(user.email, clientIpFromHeaders(await headers()));
+  resetFailures(loginKeys.emailIp);
+  resetFailures(loginKeys.ip);
   // nuovo accesso con la nuova password: il token di questa sessione resta valido
   await signIn("credentials", { email: user.email, password: next, redirectTo: "/area?esito=password-cambiata" });
 }

@@ -11,7 +11,13 @@ import { formatDate } from "@/lib/utils";
 import ArticleGallery from "@/components/ArticleGallery";
 import { sanitizeArticleHtml } from "@/lib/sanitize-article";
 
-export const dynamic = "force-dynamic";
+// ogni articolo viene generato alla prima visita e tenuto in cache; le modifiche e le eliminazioni
+// lo rigenerano subito (revalidatePath in src/actions/articles.ts)
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return [];
+}
 
 const ALIGN_KEYWORDS = new Set(["center", "left", "right", "small"]);
 

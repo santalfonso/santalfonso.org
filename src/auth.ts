@@ -28,11 +28,18 @@ declare module "next-auth" {
 }
 
 /** Hash fittizio: confronto anche se l'email non esiste, per non rivelarlo dai tempi di risposta. */
-const DUMMY_HASH = "$2b$10$scKt03rKLhzDJ7sJtZ/uFe255QuVDyjS1xEhOeW/5qs6BHMouqs8u";
+// stesso costo (12) degli hash reali: con un costo diverso il tempo di risposta rivelerebbe
+// se l'email esiste
+const DUMMY_HASH = "$2b$12$Am4WghHVln/cJk/mTWPbbOHmo0PbeLZjqJ2p.kdeP.Uc6evOlmacy";
 
-/** Tentativi di login falliti consentiti per finestra (per email e per IP). */
+/**
+ * Tentativi di login falliti consentiti per finestra: per coppia email+IP e per IP.
+ * Non c'è un blocco per sola email: chiunque potrebbe usarlo per tenere fuori un utente
+ * (anche l'owner) sbagliando apposta la password; contro la forza bruta distribuita
+ * resta il costo di bcrypt.
+ */
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const MAX_FAILS_PER_EMAIL = 8;
+const MAX_FAILS_PER_EMAIL_IP = 8;
 const MAX_FAILS_PER_IP = 30;
 
 /** Ogni quanto ricontrollare nel DB che l'utente del token esista ancora e il suo ruolo. */
@@ -42,9 +49,15 @@ export class TooManyAttempts extends CredentialsSignin {
   code = "too_many_attempts";
 }
 
-function clientIp(request: Request | undefined): string {
-  const fwd = request?.headers.get("x-forwarded-for");
-  return (fwd?.split(",")[0] ?? request?.headers.get("x-real-ip") ?? "unknown").trim().slice(0, 64);
+export function clientIpFromHeaders(headers: Headers | undefined): string {
+  const fwd = headers?.get("x-forwarded-for");
+  return (fwd?.split(",")[0] ?? headers?.get("x-real-ip") ?? "unknown").trim().slice(0, 64);
+}
+
+/** Chiavi dei contatori dei login falliti (usate anche dal cambio password). */
+export function loginFailureKeys(email: string, ip: string) {
+  const normEmail = email.toLowerCase().trim();
+  return { emailIp: `login:email-ip:${normEmail}|${ip}`, ip: `login:ip:${ip}` };
 }
 
 type CurrentUser = { name: string; email: string; role: Role; stamp: string };
@@ -94,9 +107,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (email.length > 254 || password.length > 200) return null;
 
         const normEmail = email.toLowerCase().trim();
-        const emailKey = `login:email:${normEmail}`;
-        const ipKey = `login:ip:${clientIp(request)}`;
-        if (isLimited(emailKey, MAX_FAILS_PER_EMAIL) || isLimited(ipKey, MAX_FAILS_PER_IP)) {
+        const keys = loginFailureKeys(normEmail, clientIpFromHeaders(request?.headers));
+        const emailKey = keys.emailIp;
+        const ipKey = keys.ip;
+        if (isLimited(emailKey, MAX_FAILS_PER_EMAIL_IP) || isLimited(ipKey, MAX_FAILS_PER_IP)) {
           throw new TooManyAttempts();
         }
 
@@ -199,8 +213,13 @@ export async function requireMember() {
 /** Per le azioni: almeno il ruolo indicato, altrimenti errore. */
 async function requireRole(min: Role) {
   const user = await requireMember();
-  if (!roleAtLeast(user.role, min)) throw new Error("Non autorizzato");
-  return user;
+  // Per le azioni dello staff il ruolo si rilegge dal database, senza cache: un utente eliminato
+  // perde l'accesso subito, anche sulle altre istanze (le azioni dell'admin sono poche).
+  const id = Number(user.id);
+  forgetUserCheck(id);
+  const row = await currentUser(id);
+  if (!row || !roleAtLeast(row.role, min)) throw new Error("Non autorizzato");
+  return { ...user, role: row.role };
 }
 
 /** Accesso all'area di amministrazione (editor e superiori). */
@@ -228,9 +247,11 @@ export async function requireStaffPage() {
 }
 
 export async function requireOwner() {
-  const user = await requireMember();
-  if (!isOwner(user.role)) throw new Error("Riservato all'owner");
-  return user;
+  try {
+    return await requireRole("owner");
+  } catch {
+    throw new Error("Riservato all'owner");
+  }
 }
 
 /** Per le pagine riservate a un ruolo: chi non lo ha torna alla dashboard. */

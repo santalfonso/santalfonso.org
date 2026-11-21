@@ -5,7 +5,9 @@ import { events } from "@/db/schema";
 import EventCardsWithModal from "@/components/EventCardsWithModal";
 
 export const metadata: Metadata = { title: "Calendario" };
-export const dynamic = "force-dynamic";
+// rigenerata dalle azioni sugli eventi (revalidatePath("/calendario")) e ogni 5 minuti,
+// così gli eventi passati escono dall'elenco
+export const revalidate = 300;
 
 export default async function CalendarioPage() {
   const list = await db.query.events.findMany({

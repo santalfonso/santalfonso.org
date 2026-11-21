@@ -7,6 +7,8 @@ import type { NextConfig } from "next";
  */
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
+  // solo HTTPS per un anno (senza includeSubDomains: eventuali sottodomini restano liberi)
+  { key: "Strict-Transport-Security", value: "max-age=31536000" },
   // non "no-referrer": i video YouTube incorporati non partono senza referrer
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
